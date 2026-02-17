@@ -1,212 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PaluwaCash - Pure HTML</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #000; color: white; font-family: -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-        .app-container { width: 100%; max-width: 450px; height: 800px; background-color: #0A0E17; position: relative; overflow: hidden; border-radius: 30px; border: 1px solid #1f2937; margin: auto; display: flex; flex-direction: column; }
-        .screen { display: none; height: 100%; overflow-y: auto; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        ::-webkit-scrollbar { width: 0px; }
-        .nav-btn.active { color: #00B14F; }
-        .nav-btn { color: #6b7280; transition: color 0.2s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaluwaCash — Community-Powered Savings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050A12;--surface:#0D1420;--surface2:#111827;
+  --green:#00D65B;--green2:#00B14F;--purple:#A855F7;
+  --amber:#F59E0B;--blue:#60A5FA;--red:#EF4444;
+  --text:#fff;--text2:rgba(255,255,255,.6);--text3:rgba(255,255,255,.35);
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* Noise overlay */
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+/* Glow orbs */
+.glow{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.glow-1{width:500px;height:500px;background:rgba(0,214,91,.08);top:-100px;left:-150px}
+.glow-2{width:400px;height:400px;background:rgba(168,85,247,.06);bottom:10%;right:-100px}
+.glow-3{width:300px;height:300px;background:rgba(59,130,246,.05);top:50%;left:30%}
+
+section{position:relative;z-index:1}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,10,18,.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.04)}
+nav .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.5px}
+nav .logo span{background:linear-gradient(135deg,var(--green),#00FF6A);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .logo-icon{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--green2),var(--green));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:900}
+nav a{color:var(--text3);text-decoration:none;font-size:14px;font-weight:500;transition:.2s}
+nav a:hover{color:var(--green)}
+nav .nav-links{display:flex;gap:28px;align-items:center}
+nav .cta-btn{padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,var(--green2),var(--green));color:var(--bg);font-weight:700;font-size:13px;text-decoration:none;transition:.2s;border:none;cursor:pointer}
+nav .cta-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,214,91,.3)}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 32px 80px;text-align:center}
+.hero-inner{max-width:800px}
+.hero .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;background:rgba(0,214,91,.08);border:1px solid rgba(0,214,91,.15);font-size:12px;font-weight:600;color:var(--green);margin-bottom:32px;letter-spacing:.5px}
+.hero .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(40px,7vw,72px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:24px}
+.hero h1 .highlight{background:linear-gradient(135deg,var(--green),#00FF6A,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:clamp(16px,2vw,20px);color:var(--text2);line-height:1.7;max-width:600px;margin:0 auto 40px}
+.hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-buttons .primary{padding:16px 36px;border-radius:14px;background:linear-gradient(135deg,var(--green2),var(--green));color:var(--bg);font-weight:800;font-size:16px;text-decoration:none;transition:.3s;border:none;cursor:pointer;box-shadow:0 4px 30px rgba(0,214,91,.3)}
+.hero-buttons .primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(0,214,91,.4)}
+.hero-buttons .secondary{padding:16px 36px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text);font-weight:700;font-size:16px;text-decoration:none;transition:.3s;cursor:pointer}
+.hero-buttons .secondary:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+
+/* ─── STATS BAR ─── */
+.stats-bar{display:flex;justify-content:center;gap:48px;padding:40px 32px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat .number{font-size:36px;font-weight:900;font-family:var(--mono);background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .label{font-size:12px;color:var(--text3);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ─── SECTION STYLES ─── */
+.section{padding:100px 32px;max-width:1100px;margin:0 auto}
+.section-tag{display:inline-flex;padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.section h2{font-size:clamp(28px,4vw,44px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:16px}
+.section .subtitle{font-size:17px;color:var(--text2);line-height:1.7;max-width:560px;margin-bottom:48px}
+
+/* ─── WHAT IS IT ─── */
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.what-card{padding:32px;border-radius:20px;background:var(--surface);border:1px solid rgba(255,255,255,.05);transition:.3s}
+.what-card:hover{border-color:rgba(0,214,91,.15);transform:translateY(-2px)}
+.what-card .icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.what-card h3{font-size:18px;font-weight:800;margin-bottom:8px}
+.what-card p{font-size:14px;color:var(--text3);line-height:1.6}
+
+/* ─── HOW IT WORKS ─── */
+.steps{display:flex;flex-direction:column;gap:0;position:relative}
+.steps::before{content:'';position:absolute;left:24px;top:24px;bottom:24px;width:2px;background:linear-gradient(to bottom,var(--green),var(--purple),var(--amber))}
+.step{display:flex;gap:24px;padding:24px 0}
+.step-num{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--bg);position:relative;z-index:1}
+.step-content h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.step-content p{font-size:14px;color:var(--text3);line-height:1.6}
+
+/* ─── FEATURES ─── */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feature{padding:28px;border-radius:18px;background:var(--surface);border:1px solid rgba(255,255,255,.04);transition:.3s;cursor:default}
+.feature:hover{border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
+.feature .f-icon{font-size:28px;margin-bottom:14px}
+.feature h4{font-size:15px;font-weight:800;margin-bottom:6px}
+.feature p{font-size:13px;color:var(--text3);line-height:1.55}
+
+/* ─── VISION ─── */
+.vision-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.v-card{padding:28px;border-radius:18px;position:relative;overflow:hidden}
+.v-card.now{background:linear-gradient(145deg,rgba(0,214,91,.08),rgba(0,177,79,.02));border:1px solid rgba(0,214,91,.15)}
+.v-card.soon{background:linear-gradient(145deg,rgba(168,85,247,.06),rgba(168,85,247,.02));border:1px solid rgba(168,85,247,.1)}
+.v-card.future{background:linear-gradient(145deg,rgba(59,130,246,.06),rgba(59,130,246,.02));border:1px solid rgba(59,130,246,.1)}
+.v-card .phase{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.v-card h4{font-size:17px;font-weight:800;margin-bottom:8px}
+.v-card ul{list-style:none;padding:0}
+.v-card li{font-size:13px;color:var(--text3);padding:4px 0;display:flex;align-items:center;gap:8px}
+
+/* ─── PHONE MOCKUP ─── */
+.phone-section{padding:80px 32px;text-align:center}
+.phone-wrap{display:inline-block;position:relative;margin-top:40px}
+.phone-frame{width:320px;height:640px;border-radius:40px;background:#000;border:3px solid rgba(255,255,255,.1);overflow:hidden;box-shadow:0 20px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05);position:relative}
+.phone-frame::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#000;border-radius:0 0 16px 16px;z-index:10}
+.phone-screen{width:100%;height:100%;overflow-y:auto;background:var(--bg);padding:0}
+.phone-screen::-webkit-scrollbar{display:none}
+
+/* ─── CTA ─── */
+.cta-section{padding:100px 32px;text-align:center}
+.cta-box{max-width:700px;margin:0 auto;padding:60px 40px;border-radius:28px;background:linear-gradient(145deg,rgba(0,214,91,.06),rgba(0,177,79,.02));border:1px solid rgba(0,214,91,.12);position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(0,214,91,.08),transparent 70%);top:-200px;right:-200px;pointer-events:none}
+.cta-box h2{font-size:32px;font-weight:900;margin-bottom:12px;letter-spacing:-1px}
+.cta-box p{color:var(--text2);font-size:16px;margin-bottom:32px;line-height:1.6}
+
+/* ─── FOOTER ─── */
+footer{padding:40px 32px;text-align:center;border-top:1px solid rgba(255,255,255,.04)}
+footer p{font-size:12px;color:var(--text3)}
+footer a{color:var(--green);text-decoration:none}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .what-grid,.features-grid,.vision-cards{grid-template-columns:1fr}
+  .stats-bar{gap:24px}
+  nav .nav-links a:not(.cta-btn){display:none}
+  .hero h1{letter-spacing:-1px}
+}
+
+/* ─── ANIMATIONS ─── */
+.fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* ─── INLINE APP STYLES ─── */
+.app-demo{font-family:var(--font);font-size:13px;color:#fff;background:#0A0E17;min-height:100%}
+.app-demo *{box-sizing:border-box}
+</style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body>
 
-    <div class="app-container shadow-2xl">
-        <div class="flex justify-between items-center px-6 py-3 text-white text-xs font-bold pt-10">
-            <span>9:41</span>
-            <div class="flex gap-2"><span>📶</span><span>🔋</span></div>
-        </div>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="glow glow-3"></div>
 
-        <div id="screen-home" class="screen active p-4 space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-gray-400 text-xs font-medium tracking-wider">TOTAL BALANCE</h1>
-                    <span class="text-3xl font-bold text-white">₱15,420.50</span>
-                </div>
-                <div class="bg-gray-800 p-2 rounded-full border border-gray-700">🔔</div>
-            </div>
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-icon">₱</div>
+    <span>PaluwaCash</span>
+  </div>
+  <div class="nav-links">
+    <a href="#what">What</a>
+    <a href="#how">How</a>
+    <a href="#features">Features</a>
+    <a href="#vision">Vision</a>
+    <a href="#demo" class="cta-btn">Try Demo ↓</a>
+  </div>
+</nav>
 
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="showScreen('deposit')" class="bg-[#00B14F] text-white p-3 rounded-xl font-bold">➕ Deposit</button>
-                <button onclick="showScreen('circles')" class="bg-gray-800 text-white p-3 rounded-xl font-bold border border-gray-700">🔍 Find Circle</button>
-            </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner fade-up">
+    <div class="badge"><span class="dot"></span> Decentralized Community Finance</div>
+    <h1>Save Together.<br><span class="highlight">Grow Together.</span></h1>
+    <p>PaluwaCash brings the age-old tradition of community savings circles (paluwagan) into the Web3 era — transparent, secure, and built on trust that's backed by real stakes.</p>
+    <div class="hero-buttons">
+      <a href="#demo" class="primary">See It In Action</a>
+      <a href="#what" class="secondary">Learn More</a>
+    </div>
+  </div>
+</section>
 
-            <div class="space-y-3">
-                <div class="flex justify-between items-end">
-                    <h2 class="text-white font-bold text-lg">Manager Dashboard</h2>
-                    <span class="text-[#00B14F] text-xs font-bold bg-green-900/20 px-2 py-1 rounded">ACTION NEEDED</span>
-                </div>
-                <div class="bg-gray-900 border-l-4 border-l-yellow-500 border border-gray-800 p-4 rounded-xl">
-                    <div class="flex justify-between items-start">
-                        <div class="flex gap-3">
-                            <div class="h-10 w-10 bg-gray-700 rounded-full flex items-center justify-center">👨🏽</div>
-                            <div>
-                                <h3 class="font-bold text-white">Pedro P.</h3>
-                                <span class="text-[10px] text-yellow-500 bg-yellow-900/30 px-1.5 py-0.5 rounded font-bold">⚠️ UNVERIFIED</span>
-                            </div>
-                        </div>
-                        <button class="bg-white text-black text-xs font-bold px-3 py-2 rounded-lg">Review</button>
-                    </div>
-                </div>
-            </div>
+<!-- STATS -->
+<div class="stats-bar fade-up">
+  <div class="stat"><div class="number">₱0</div><div class="label">Minimum to Start</div></div>
+  <div class="stat"><div class="number">3.5%</div><div class="label">Lowest Fee</div></div>
+  <div class="stat"><div class="number">24hr</div><div class="label">Bid Window</div></div>
+  <div class="stat"><div class="number">100%</div><div class="label">Community Owned</div></div>
+</div>
 
-            <div class="bg-gray-900 rounded-xl p-4 border border-gray-800 cursor-pointer" onclick="showScreen('auction')">
-                <div class="flex justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                            <span class="text-[10px] font-bold text-red-500">AUCTION LIVE</span>
-                        </div>
-                        <h3 class="text-white font-bold">Boracay Trip</h3>
-                        <p class="text-xs text-gray-400 mt-1">Pot: ₱20,000</p>
-                    </div>
-                    <div class="bg-green-900/30 px-3 py-2 rounded-lg border border-green-500/30 text-center">
-                        <p class="text-[10px] text-green-500">Top Bid</p>
-                        <p class="text-green-500 font-bold">₱1,200</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- WHAT IS IT -->
+<section class="section fade-up" id="what">
+  <div class="section-tag" style="background:rgba(0,214,91,.08);color:var(--green)">The Problem & Solution</div>
+  <h2>What is PaluwaCash?</h2>
+  <p class="subtitle">Traditional paluwagan relies on blind trust — and when trust breaks, everyone loses. We fix that with crypto-backed accountability while keeping the community spirit alive.</p>
+  
+  <div class="what-grid">
+    <div class="what-card">
+      <div class="icon" style="background:rgba(239,68,68,.1)">🚫</div>
+      <h3>The Old Way</h3>
+      <p>Paper-based tracking, no accountability, managers disappear with money, no recourse when someone defaults. Trust is assumed, not verified.</p>
+    </div>
+    <div class="what-card">
+      <div class="icon" style="background:rgba(0,214,91,.1)">✨</div>
+      <h3>The PaluwaCash Way</h3>
+      <p>Smart Vouch bonds, transparent pot tracking, USDC settlement on blockchain, manager career paths with skin-in-the-game deposits, and community-driven trust ratings.</p>
+    </div>
+    <div class="what-card">
+      <div class="icon" style="background:rgba(168,85,247,.1)">🔐</div>
+      <h3>Invisible Crypto</h3>
+      <p>Members interact with familiar peso amounts. Behind the scenes, USDC on Polygon secures every transaction. No seed phrases, no gas fees, no crypto knowledge needed.</p>
+    </div>
+    <div class="what-card">
+      <div class="icon" style="background:rgba(59,130,246,.1)">🤝</div>
+      <h3>Trust as Currency</h3>
+      <p>Your reputation follows you. High ratings unlock direct joins. Low ratings require a voucher who stakes real money — putting social accountability on-chain.</p>
+    </div>
+  </div>
+</section>
 
-        <div id="screen-circles" class="screen p-4 space-y-4">
-            <div class="flex items-center gap-3 mb-2">
-                <button onclick="showScreen('home')" class="p-2 bg-gray-800 rounded-lg">⬅️</button>
-                <h1 class="text-white font-bold text-lg">Active Circles</h1>
-            </div>
-            <div class="bg-gray-900 rounded-xl p-4 border border-gray-700 cursor-pointer" onclick="showScreen('circleDetail')">
-                <div class="flex justify-between mb-2">
-                    <h3 class="text-white font-bold">Boracay Trip</h3>
-                    <span class="text-[10px] font-bold px-2 py-1 rounded border border-yellow-500 text-yellow-500 bg-yellow-900/20">🏆 ELITE</span>
-                </div>
-                <p class="text-gray-400 text-xs mb-4">By Sarah L. • 10 Members • Rd 3/10</p>
-                <div class="flex justify-between items-center bg-gray-800 p-2 rounded-lg">
-                    <span class="text-xs text-gray-400">Next Payout: Oct 15</span>
-                    <span class="text-white font-bold text-sm">₱2,000/mo</span>
-                </div>
-            </div>
-            <div onclick="showScreen('invite')" class="mt-6 border border-dashed border-gray-700 rounded-xl p-4 flex items-center justify-center gap-2 cursor-pointer">
-                <span class="text-green-500 text-xl">+</span>
-                <span class="text-gray-400 text-sm font-medium">Invite Friend</span>
-            </div>
-        </div>
+<!-- HOW IT WORKS -->
+<section class="section fade-up" id="how">
+  <div class="section-tag" style="background:rgba(168,85,247,.08);color:var(--purple)">Simple Process</div>
+  <h2>How It Works</h2>
+  <p class="subtitle">From joining your first circle to receiving your payout — everything is designed for trust and transparency.</p>
+  
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background:linear-gradient(135deg,var(--green2),var(--green))">1</div>
+      <div class="step-content">
+        <h3>Join a Circle</h3>
+        <p>Browse nearby circles sorted by distance. If you have a 4.0★+ rating, join instantly. If you're new, ask an existing member to vouch for you — they'll stake 50% of one contribution as a trust bond.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:linear-gradient(135deg,#7C3AED,var(--purple))">2</div>
+      <div class="step-content">
+        <h3>Contribute Monthly</h3>
+        <p>Pay your share via GCash, Maya, or bank transfer. The system tracks every payment. When someone's bid discount creates a dividend, your contribution is automatically reduced — pay less, save more.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:linear-gradient(135deg,#D97706,var(--amber))">3</div>
+      <div class="step-content">
+        <h3>Bid for the Pot</h3>
+        <p>Need money early? Bid the highest discount. The winner sacrifices the most but gets the pot immediately. That discount is split as dividends to all other members. Everyone benefits.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:linear-gradient(135deg,#1D4ED8,var(--blue))">4</div>
+      <div class="step-content">
+        <h3>Get Your Payout</h3>
+        <p>When your turn comes, you receive the full pot minus any bid discount and a small transparent fee. All settled in USDC on-chain, converted back to pesos automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <div id="screen-auction" class="screen flex flex-col h-full bg-[#0A0E17]">
-            <div class="p-4 border-b border-gray-800 flex items-center gap-3">
-                <button onclick="showScreen('home')" class="p-2 bg-gray-800 rounded-lg">⬅️</button>
-                <h1 class="text-white font-bold text-lg">Auction Room</h1>
-            </div>
-            <div class="p-4 space-y-6">
-                <div class="bg-yellow-900/20 border-l-4 border-l-yellow-500 p-3 rounded-r-lg">
-                    <p class="text-xs text-yellow-500 font-bold uppercase">Manager Note</p>
-                    <p class="text-sm text-gray-200 italic">"Payment due Friday 5PM!"</p>
-                </div>
-                <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl text-center">
-                    <p class="text-gray-400 text-xs font-bold uppercase mb-1">Current Pot</p>
-                    <p class="text-4xl font-bold text-white mb-2">₱20,000</p>
-                    <div class="inline-flex items-center gap-2 bg-green-900/30 px-3 py-1 rounded-full border border-green-500/30">
-                        <span class="text-green-500 text-xs font-bold">Top Bid: ₱1,200</span>
-                    </div>
-                </div>
-                <div class="space-y-2">
-                    <h3 class="text-white text-sm font-bold">Eligible Bidders</h3>
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-green-500 bg-green-900/10">
-                        <div class="flex items-center gap-3"><span>👩🏻</span><span class="font-bold text-sm">Sarah L. (Top)</span></div>
-                        <span class="text-green-500 font-bold text-sm">₱1,200</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-gray-700 bg-gray-800">
-                        <div class="flex items-center gap-3"><span>😎</span><span class="font-bold text-sm text-yellow-400">You</span></div>
-                        <span class="text-gray-500 text-xs">Waiting...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="absolute bottom-0 w-full bg-[#111827] border-t border-gray-800 p-4 pb-12">
-                <div class="flex justify-between items-center mb-4 bg-gray-900 p-2 rounded-lg">
-                    <span class="text-gray-400 text-xs">Group Profit Share:</span>
-                    <span class="text-green-500 font-bold text-sm">+₱22.22 / person</span>
-                </div>
-                <div class="flex gap-3">
-                    <input type="number" value="1250" class="flex-1 bg-gray-800 rounded-xl px-4 py-3 text-white font-bold outline-none border border-gray-700">
-                    <button class="bg-[#00B14F] text-white font-bold px-8 py-3 rounded-xl shadow-lg">BID</button>
-                </div>
-            </div>
-        </div>
+<!-- FEATURES -->
+<section class="section fade-up" id="features">
+  <div class="section-tag" style="background:rgba(59,130,246,.08);color:var(--blue)">Core Features</div>
+  <h2>Built for Real Communities</h2>
+  <p class="subtitle">Every feature solves a real problem we heard from paluwagan members and managers across the Philippines.</p>
+  
+  <div class="features-grid">
+    <div class="feature">
+      <div class="f-icon">🤝</div>
+      <h4>Smart Vouch</h4>
+      <p>Auto risk-check on every invite. New or low-rated? Referrer stakes a bond. 5 on-time payments releases it as a free contribution.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">📈</div>
+      <h4>Discount Bidding</h4>
+      <p>Highest discount wins the pot early. The discount is split as dividends among all members, reducing everyone's next payment.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🌱</div>
+      <h4>Manager Career Path</h4>
+      <p>Rookie → Captain → Banker. Earn 1.5% to 3.0% fees. Prove yourself with clean sheets, high ratings, and growing volume.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">⭐</div>
+      <h4>Trust Ratings</h4>
+      <p>Members rate managers after every payout. Drop below 4.0★ and you're auto-demoted. Two defaults = permanent ban.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">💬</div>
+      <h4>Circle Chat & DMs</h4>
+      <p>Group chat per circle. Add friends, DM across circles. Build your "Circle of Trust" — your social credit network.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🎁</div>
+      <h4>Bid Dividends</h4>
+      <p>When someone bids big, everyone wins. The discount is split and automatically deducted from your next contribution.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🔒</div>
+      <h4>USDC Settlement</h4>
+      <p>All funds held as USDC on Polygon. Transparent, auditable, no bank middlemen. Members see pesos; the chain sees stablecoins.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">📍</div>
+      <h4>Geo Discovery</h4>
+      <p>Find circles near you, sorted by distance. Trust is local — join circles with people you can actually meet for coffee.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🛡️</div>
+      <h4>Security Deposits</h4>
+      <p>Managers lock ₱5K–₱20K depending on level. Forfeited on fraud. Your money is protected by their money.</p>
+    </div>
+  </div>
+</section>
 
-        <div id="screen-settings" class="screen p-4 space-y-6">
-            <h1 class="text-white font-bold text-2xl mb-6">Settings</h1>
-            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex items-center gap-4">
-                <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center text-3xl">😎</div>
-                <div class="flex-1">
-                    <h2 class="text-white font-bold text-lg">Juan Dela Cruz</h2>
-                    <p class="text-xs text-green-500 font-bold">Verified User</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-green-500 font-bold text-xl">92</p>
-                    <p class="text-[10px] text-gray-500 uppercase font-bold">Score</p>
-                </div>
-            </div>
-            <div class="space-y-2">
-                <p class="text-gray-500 text-xs font-bold uppercase ml-1">Currency</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="p-3 rounded-xl border border-green-500 bg-green-900/20 text-center">
-                        <span class="block text-xl">🇵🇭</span>
-                        <span class="text-xs font-bold text-green-500">PHP</span>
-                    </div>
-                    <div class="p-3 rounded-xl border border-gray-700 bg-gray-800 text-center opacity-60">
-                        <span class="block text-xl">🌎</span>
-                        <span class="text-xs font-bold text-gray-400">USDC</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- VISION / ROADMAP -->
+<section class="section fade-up" id="vision">
+  <div class="section-tag" style="background:rgba(245,158,11,.08);color:var(--amber)">The Bigger Picture</div>
+  <h2>Decentralizing Finance,<br>One Circle at a Time</h2>
+  <p class="subtitle">PaluwaCash is the foundation. Community savings circles are just the beginning — we're building the infrastructure for a full community-based financial ecosystem.</p>
+  
+  <div class="vision-cards">
+    <div class="v-card now">
+      <div class="phase" style="color:var(--green)">🟢 Now — Foundation</div>
+      <h4>Savings Circles (ROSCA)</h4>
+      <ul>
+        <li>✓ Smart Vouch trust bonds</li>
+        <li>✓ Discount bidding with dividends</li>
+        <li>✓ Manager career path</li>
+        <li>✓ USDC on-chain settlement</li>
+        <li>✓ Circle chat & social trust network</li>
+        <li>✓ Geo-based circle discovery</li>
+      </ul>
+    </div>
+    <div class="v-card soon">
+      <div class="phase" style="color:var(--purple)">🟣 Next — Growth</div>
+      <h4>Community Lending</h4>
+      <ul>
+        <li>○ Peer-to-peer micro-loans</li>
+        <li>○ Trust score-based credit limits</li>
+        <li>○ Circle-backed group lending</li>
+        <li>○ Flexible repayment schedules</li>
+        <li>○ Cross-circle credit history</li>
+      </ul>
+    </div>
+    <div class="v-card future">
+      <div class="phase" style="color:var(--blue)">🔵 Future — Ecosystem</div>
+      <h4>Full DeFi Platform</h4>
+      <ul>
+        <li>○ Community insurance pools</li>
+        <li>○ Yield farming for idle savings</li>
+        <li>○ Business capital circles</li>
+        <li>○ Cross-border remittance</li>
+        <li>○ Community governance (DAO)</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-        <div id="nav-bar" class="absolute bottom-0 w-full bg-[#111827] border-t border-gray-800 flex justify-around py-4 pb-8 z-30">
-            <button onclick="showScreen('home')" id="nav-home" class="nav-btn active flex flex-col items-center gap-1">
-                <span class="text-xl">💳</span>
-                <span class="text-[10px] font-bold">Wallet</span>
-            </button>
-            <button onclick="showScreen('circles')" id="nav-circles" class="nav-btn flex flex-col items-center gap-1">
-                <span class="text-xl">👥</span>
-                <span class="text-[10px] font-bold">Circles</span>
-            </button>
-            <button onclick="showScreen('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1">
-                <span class="text-xl">⚙️</span>
-                <span class="text-[10px] font-bold">Settings</span>
-            </button>
-        </div>
+<!-- INTERACTIVE DEMO -->
+<section class="phone-section fade-up" id="demo">
+  <div class="section-tag" style="background:rgba(0,214,91,.08);color:var(--green)">Interactive Preview</div>
+  <h2 style="font-size:clamp(28px,4vw,40px);font-weight:900;letter-spacing:-1px;margin-bottom:8px">Try the App</h2>
+  <p style="color:var(--text2);font-size:16px;max-width:500px;margin:0 auto">Scroll, tap, and explore. This is a working prototype of the PaluwaCash experience.</p>
+  
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen" id="phone-app">
+        <!-- App content injected here -->
+      </div>
+    </div>
+  </div>
+  <p style="color:var(--text3);font-size:12px;margin-top:20px">↑ Scroll inside the phone to explore all screens</p>
+</section>
+
+<!-- CTA -->
+<section class="cta-section fade-up">
+  <div class="cta-box">
+    <h2>Ready to Build With Us?</h2>
+    <p>PaluwaCash is open-source and community-driven. Whether you're a developer, a community organizer, or someone who believes in decentralized finance for everyone — we'd love to have you.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <a href="https://github.com" class="cta-btn" style="padding:14px 32px;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">⭐ Star on GitHub</a>
+      <a href="#what" class="secondary" style="padding:14px 32px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text);font-weight:700;font-size:15px;text-decoration:none">Read the Docs</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:8px">
+    <strong style="color:var(--green)">PaluwaCash</strong> — Decentralized community finance for everyone.
+  </p>
+  <p>Built with 🤝 in the Philippines · Powered by <a href="#">Polygon</a> & <a href="#">USDC</a></p>
+</footer>
+
+<!-- PHONE APP MINI DEMO -->
+<script>
+document.getElementById('phone-app').innerHTML = `
+<div class="app-demo" style="padding:0;font-family:'Plus Jakarta Sans',sans-serif">
+  <!-- Status Bar -->
+  <div style="padding:8px 20px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4)">
+    <span>9:41</span>
+    <span>●●● WiFi 🔋</span>
+  </div>
+  
+  <!-- App Header -->
+  <div style="padding:12px 20px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:12px;color:rgba(255,255,255,.35)">Good morning</div>
+        <div style="font-size:18px;font-weight:800;color:#fff">Maria Santos 👋</div>
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00B14F,#00D65B);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">MS</div>
     </div>
 
-    <script>
-        function showScreen(screenId) {
-            // Hide all screens
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(s => s.classList.remove('active'));
+    <!-- Balance Card -->
+    <div style="background:linear-gradient(145deg,#111827,#1A2332);border-radius:20px;padding:24px;border:1px solid rgba(255,255,255,.06);margin-bottom:20px">
+      <div style="font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.5px;margin-bottom:4px">WALLET BALANCE</div>
+      <div style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-1px">₱12,450<span style="font-size:18px;color:rgba(255,255,255,.3)">.00</span></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:2px">≈ 222.32 USDC</div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <div style="flex:1;padding:10px;border-radius:10px;background:linear-gradient(135deg,#00B14F,#00D65B);text-align:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer">↓ Cash In</div>
+        <div style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);text-align:center;font-size:12px;font-weight:600;color:rgba(255,255,255,.5)">↑ Cash Out</div>
+      </div>
+    </div>
 
-            // Show selected screen
-            const activeScreen = document.getElementById('screen-' + screenId);
-            if (activeScreen) activeScreen.classList.add('active');
+    <!-- My Circles -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:700;color:#fff">My Circles</div>
+      <div style="font-size:11px;color:#00D65B;font-weight:600">View All →</div>
+    </div>
 
-            // Handle Nav Bar Toggles
-            const navButtons = document.querySelectorAll('.nav-btn');
-            navButtons.forEach(b => b.classList.remove('active'));
-            
-            const activeNav = document.getElementById('nav-' + screenId);
-            if (activeNav) activeNav.classList.add('active');
+    <!-- Circle 1: Bahay Fund -->
+    <div style="background:linear-gradient(145deg,#111827,#1A2332);border-radius:16px;padding:16px 18px;margin-bottom:8px;border:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,177,79,.08);display:flex;align-items:center;justify-content:center;font-size:18px">🏠</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px;font-weight:700;color:#fff">Bahay Fund</span>
+            <span style="font-size:7px;padding:2px 5px;border-radius:3px;background:rgba(59,130,246,.1);color:#60A5FA;font-weight:700">MEMBER</span>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px">10 members · Round 3/10 · Mgr: Ate Rosa</div>
+        </div>
+        <span style="padding:3px 8px;border-radius:6px;background:rgba(0,177,79,.12);color:#00D65B;font-size:9px;font-weight:700">Active</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:4px;height:4px;margin-bottom:10px"><div style="width:30%;height:100%;border-radius:4px;background:linear-gradient(90deg,#00B14F,#00D65B)"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#00D65B"></span>
+            <span style="font-size:11px;font-weight:600;color:#00D65B">Paid this round</span>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.3)">Due: Mar 1 · Position #7</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:800;color:#00D65B">₱967</div>
+          <div style="font-size:9px;color:#00D65B"><s style="color:rgba(255,255,255,.25)">₱1,000</s> -₱33 dividend</div>
+        </div>
+      </div>
+      <div style="margin-top:6px;padding:5px 8px;background:rgba(0,177,79,.06);border-radius:5px;font-size:9px;color:#00D65B">🎁 Saved ₱33 from last round's bid dividend</div>
+    </div>
 
-            // Hide nav bar on auction/deposit
-            const navBar = document.getElementById('nav-bar');
-            if (screenId === 'auction' || screenId === 'invite' || screenId === 'circleDetail') {
-                navBar.style.display = 'none';
-            } else {
-                navBar.style.display = 'flex';
-            }
-        }
-    </script>
+    <!-- Circle 2: Educ Circle -->
+    <div style="background:linear-gradient(145deg,#111827,#1A2332);border-radius:16px;padding:16px 18px;margin-bottom:8px;border:1px solid rgba(245,158,11,.15)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(245,158,11,.08);display:flex;align-items:center;justify-content:center;font-size:18px">📚</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px;font-weight:700;color:#fff">Educ Circle</span>
+            <span style="font-size:7px;padding:2px 5px;border-radius:3px;background:rgba(59,130,246,.1);color:#60A5FA;font-weight:700">MEMBER</span>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px">4 members · Round 1/5 · Mgr: Kuya Ben</div>
+        </div>
+        <span style="padding:3px 8px;border-radius:6px;background:rgba(245,158,11,.12);color:#F59E0B;font-size:9px;font-weight:700">Forming</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(245,158,11,.06);border-radius:8px">
+        <div>
+          <div style="font-size:11px;color:#F59E0B;font-weight:600">⏰ Due Feb 20</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3)">3 days left</div>
+        </div>
+        <div style="padding:6px 14px;border-radius:6px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:11px;font-weight:700">Pay ₱2,000</div>
+      </div>
+    </div>
+
+    <!-- Smart Vouch Section -->
+    <div style="margin-top:20px;margin-bottom:12px;font-size:14px;font-weight:700;color:#fff">Smart Vouch</div>
+    <div style="background:linear-gradient(145deg,#111827,#1A2332);border-radius:14px;padding:14px 16px;margin-bottom:6px;border:1px solid rgba(245,158,11,.12)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">JC</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:#fff">You → Juan D.</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35)">Bahay Fund</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;font-weight:800;color:#FBBF24">₱500</div>
+          <span style="font-size:8px;padding:2px 5px;border-radius:4px;background:rgba(245,158,11,.12);color:#FBBF24;font-weight:700">LOCKED</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.3);margin-bottom:3px">
+        <span>2/5 months</span><span>3 left</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px"><div style="width:40%;height:100%;border-radius:3px;background:linear-gradient(90deg,#F59E0B,#FBBF24)"></div></div>
+    </div>
+
+    <!-- Bidding Preview -->
+    <div style="margin-top:20px;margin-bottom:12px;font-size:14px;font-weight:700;color:#fff">Active Bidding</div>
+    <div style="background:linear-gradient(145deg,#1A1125,#231530);border-radius:16px;padding:18px;border:1px solid rgba(168,85,247,.15);margin-bottom:20px;text-align:center">
+      <div style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;font-weight:600;margin-bottom:6px">BIDDING CLOSES IN</div>
+      <div style="font-size:36px;font-weight:800;color:#A855F7;font-family:'Space Mono',monospace;letter-spacing:2px">23:45:12</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:6px">Bahay Fund · Pot: ₱10,000</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:12px">
+        <div><div style="font-size:13px;font-weight:800;color:#FBBF24">₱900</div><div style="font-size:8px;color:rgba(255,255,255,.25)">Top Discount</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.06)"></div>
+        <div><div style="font-size:13px;font-weight:800;color:#fff">3</div><div style="font-size:8px;color:rgba(255,255,255,.25)">Bids</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.06)"></div>
+        <div><div style="font-size:13px;font-weight:800;color:#60A5FA">#7</div><div style="font-size:8px;color:rgba(255,255,255,.25)">Your Pos.</div></div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav Mock -->
+    <div style="display:flex;justify-content:space-around;padding:12px 0 20px;border-top:1px solid rgba(255,255,255,.06);background:#0A0E17;position:sticky;bottom:0">
+      <div style="text-align:center;color:#00B14F"><div style="font-size:18px">⌂</div><div style="font-size:9px;font-weight:700">Home</div></div>
+      <div style="text-align:center;color:rgba(255,255,255,.35)"><div style="font-size:18px">◎</div><div style="font-size:9px">Circles</div></div>
+      <div style="text-align:center;color:rgba(255,255,255,.35)"><div style="font-size:18px">⚡</div><div style="font-size:9px">Bid</div></div>
+      <div style="text-align:center;color:rgba(255,255,255,.35)"><div style="font-size:18px">⋯</div><div style="font-size:9px">More</div></div>
+    </div>
+  </div>
+</div>
+`;
+
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
 </body>
 </html>
