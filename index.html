@@ -3,408 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PaluwaCash - ROSCA Demo</title>
+    <title>PaluwaCash - Safe Mode</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* Dark Mode Base */
-        body { background-color: #000; color: white; font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
-        
-        /* Custom Utilities */
+        body { background-color: #000; color: white; font-family: -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .safe-bottom { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
         
-        /* Animations */
+        /* Loading Animation */
+        .loader { border: 3px solid #333; border-top: 3px solid #00B14F; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loader { border: 3px solid #333; border-top: 3px solid #00B14F; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
         
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .animate-slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Tabs */
-        .tab-active { border-bottom: 2px solid #00B14F; color: #00B14F; }
-        .tab-inactive { color: #6B7280; border-bottom: 2px solid transparent; }
+        /* Error Box Style */
+        #error-display { display: none; background: #450a0a; border: 1px solid #ef4444; color: #fecaca; padding: 20px; margin: 20px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-black text-white">
+<body class="flex items-center justify-center min-h-screen bg-black">
 
 <div id="root" class="w-full h-full flex justify-center">
     <div style="margin-top: 100px; text-align: center;">
         <div class="loader"></div>
-        <p class="text-gray-500 text-xs mt-4">Initializing PaluwaCash...</p>
+        <p class="text-gray-500 text-xs mt-4">Initializing App...</p>
+        <p class="text-gray-700 text-[10px] mt-2">(If this stays for >5s, there is an error)</p>
     </div>
 </div>
 
+<div id="error-display"></div>
+
 <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-
-    // ─── ICON SYSTEM ───
-    const Icon = ({ name, size = 20, className = "" }) => {
-        const icons = {
-            bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
-            plus: <path d="M12 5v14M5 12h14" />,
-            search: <circle cx="11" cy="11" r="8" />,
-            chevronLeft: <polyline points="15 18 9 12 15 6" />,
-            chevronRight: <polyline points="9 18 15 12 9 6" />,
-            shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
-            lock: <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />,
-            user: <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />,
-            users: <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />,
-            creditCard: <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />,
-            trendingUp: <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />,
-            alertTriangle: <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />,
-            clock: <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />,
-            trophy: <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 1 0-5H18" /><path d="M4 22h16" /><path d="M18 2l-6 6-6-6" />,
-            check: <polyline points="20 6 9 17 4 12" />,
-            message: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
-            send: <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-        };
-        return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{icons[name] || <circle cx="12" cy="12" r="10" />}</svg>;
+    // --- GLOBAL ERROR HANDLER ---
+    window.onerror = function(message, source, lineno, colno, error) {
+        document.getElementById('root').style.display = 'none';
+        const errorBox = document.getElementById('error-display');
+        errorBox.style.display = 'block';
+        errorBox.innerHTML = `⚠️ CRITICAL ERROR:\n${message}\n\nLine: ${lineno}`;
+        return false;
     };
 
-    // ─── CONFIG & DATA ───
-    const REGIONS = { PH: { code: 'PH', currency: '₱', flag: '🇵🇭' }, GLOBAL: { code: 'GLOBAL', currency: '$', flag: '🌎' } };
-    const USER = { id: 'u1', name: 'Juan Dela Cruz', balance: 15420.50, isManager: true, avatar: '😎' };
-    
-    // MOCK DATA: Circles
-    const CIRCLES = [
-        { id: 1, name: 'Boracay Trip', contrib: 2000, pot: 20000, members: 10, currentRound: 3, totalRounds: 10, lvl: 3, mgr: 'Sarah L.', nextPayout: 'Oct 15' },
-        { id: 2, name: 'iPhone 16 Pro', contrib: 5000, pot: 50000, members: 8, currentRound: 1, totalRounds: 10, lvl: 1, mgr: 'Mike T.', nextPayout: 'Nov 01' }
-    ];
+    try {
+        const { useState, useEffect } = React;
 
-    // MOCK DATA: Auction Room Detail
-    const AUCTION_DATA = {
-        id: 1,
-        name: 'Boracay Trip Fund',
-        pot: 20000,
-        fees: 1000, // Platform + Manager Fees
-        topBid: 1200,
-        timeLeft: '23h 15m',
-        managerMsg: 'Reminder: Payment due Friday 5PM!',
-        members: [
-            { id: 1, name: 'Sarah L.', status: 'LEADING', bid: 1200, avatar: '👩🏻' },
-            { id: 2, name: 'You', status: 'BIDDING', bid: 0, avatar: USER.avatar },
-            { id: 3, name: 'Mike T.', status: 'WATCHING', bid: 0, avatar: '👨🏻' },
-            { id: 4, name: 'Jenny K.', status: 'WON', round: 1, avatar: '👵🏻' },
-            { id: 5, name: 'Pedro P.', status: 'WON', round: 2, avatar: '👨🏽' },
-        ]
-    };
-
-    // MOCK DATA: Circle Detail Members
-    const CIRCLE_MEMBERS = [
-        { id: 'u1', name: 'You', status: 'PAID', isFriend: true, avatar: '😎' },
-        { id: 'u2', name: 'Sarah L.', status: 'PAID', isFriend: true, role: 'Manager', avatar: '👩🏻' },
-        { id: 'u3', name: 'Mike T.', status: 'PAID', isFriend: false, avatar: '👨🏻' },
-        { id: 'u4', name: 'Pedro P.', status: 'DELINQUENT', isFriend: true, avatar: '👨🏽' }, 
-        { id: 'u5', name: 'Jenny K.', status: 'PENDING', isFriend: false, avatar: '👵🏻' },
-    ];
-
-    const formatCurrency = (amt, r) => `${REGIONS[r].currency}${amt.toLocaleString()}`;
-
-    // ─── SCREENS ───
-
-    // 1. HOME SCREEN
-    const HomeScreen = ({ region, onNavigate }) => (
-        <div className="p-4 space-y-6 animate-fade-in pb-24">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-gray-400 text-xs font-medium tracking-wider">TOTAL BALANCE</h1>
-                    <span className="text-3xl font-bold text-white">{formatCurrency(USER.balance, region)}</span>
-                </div>
-                <div className="bg-gray-800 p-2 rounded-full border border-gray-700"><Icon name="bell" size={18} className="text-gray-300" /></div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => onNavigate('deposit')} className="bg-[#00B14F] hover:bg-green-600 text-white p-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-all"><Icon name="plus" size={18} /> Deposit</button>
-                <button onClick={() => onNavigate('circles')} className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-xl flex items-center justify-center gap-2 font-bold border border-gray-700 transition-all"><Icon name="search" size={18} /> Find Circle</button>
-            </div>
-
-            {/* Manager Dashboard */}
-            {USER.isManager && (
-                <div className="space-y-3">
-                    <div className="flex justify-between items-end"><h2 className="text-white font-bold text-lg">Manager Dashboard</h2><span className="text-[#00B14F] text-xs font-bold bg-green-900/20 px-2 py-1 rounded">ACTION NEEDED</span></div>
-                    <div className="bg-gray-900 border-l-4 border-l-yellow-500 border border-gray-800 p-4 rounded-xl">
-                        <div className="flex justify-between"><div className="flex gap-3"><div className="h-10 w-10 bg-gray-700 rounded-full flex items-center justify-center text-lg">👨🏽</div><div><h3 className="font-bold text-white">Pedro P.</h3><span className="text-[10px] text-yellow-500 bg-yellow-900/30 px-1.5 py-0.5 rounded font-bold">⚠️ UNVERIFIED</span></div></div><button className="bg-white text-black text-xs font-bold px-3 py-2 rounded-lg">Review</button></div>
-                        <div className="mt-3 bg-gray-800/50 p-2 rounded border border-gray-700 flex items-start gap-2"><Icon name="shield" size={14} className="text-[#00B14F] mt-0.5" /><div><p className="text-xs text-gray-300"><span className="text-white font-bold">Vouched by Maria</span></p><p className="text-[10px] text-[#00B14F] mt-0.5 font-bold">🔒 {formatCurrency(1000, region)} Bond Locked</p></div></div>
-                    </div>
-                </div>
-            )}
-
-            {/* Active Bid CTA */}
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800 relative overflow-hidden" onClick={() => onNavigate('auction')}>
-                 <div className="flex justify-between items-start">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                            <span className="text-[10px] font-bold text-red-500 tracking-wider">AUCTION LIVE</span>
-                        </div>
-                        <h3 className="text-white font-bold">Boracay Trip</h3>
-                        <p className="text-xs text-gray-400 mt-1">Pot: {formatCurrency(20000, region)}</p>
-                    </div>
-                    <div className="bg-[#00B14F]/10 px-3 py-2 rounded-lg border border-[#00B14F]/30 text-center">
-                        <p className="text-[10px] text-[#00B14F]">Top Bid</p>
-                        <p className="text-[#00B14F] font-bold">{formatCurrency(1200, region)}</p>
-                    </div>
-                 </div>
-                 <button className="w-full mt-3 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold py-2 rounded-lg border border-gray-700">Enter Auction Room</button>
-            </div>
-        </div>
-    );
-
-    // 2. CIRCLES LIST (With Manager Tiers)
-    const CirclesScreen = ({ region, onNavigate }) => (
-        <div className="p-4 space-y-4 pb-24">
-            <div className="flex items-center gap-3 mb-2"><button onClick={() => onNavigate('home')} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button><h1 className="text-white font-bold text-lg">Active Circles</h1></div>
-            {CIRCLES.map(c => (
-                <div key={c.id} onClick={() => onNavigate('circleDetail')} className="bg-gray-900 rounded-xl p-4 border border-gray-700 cursor-pointer active:scale-95 transition-transform">
-                    <div className="flex justify-between mb-2">
-                        <h3 className="text-white font-bold">{c.name}</h3>
-                        {/* Manager Badge Logic */}
-                        {c.lvl === 3 ? <span className="text-[10px] font-bold px-2 py-1 rounded border border-yellow-500 text-yellow-500 bg-yellow-900/20">🏆 ELITE</span> : <span className="text-[10px] font-bold px-2 py-1 rounded border border-orange-500 text-orange-500 bg-orange-900/20">🥉 ROOKIE</span>}
-                    </div>
-                    <div className="text-gray-400 text-xs mb-4">By {c.mgr} • {c.members} Members • Round {c.currentRound}/{c.totalRounds}</div>
-                    <div className="flex justify-between items-center bg-gray-800 p-2 rounded-lg">
-                        <span className="text-xs text-gray-400">Next Payout: {c.nextPayout}</span>
-                        <span className="text-white font-bold text-sm">{formatCurrency(c.contrib, region)}/mo</span>
-                    </div>
-                </div>
-            ))}
-            <div onClick={() => onNavigate('invite')} className="mt-6 border border-dashed border-gray-700 rounded-xl p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-800/50"><Icon name="plus" className="text-[#00B14F]" size={20} /><span className="text-gray-400 text-sm font-medium">Invite Friend</span></div>
-        </div>
-    );
-
-    // 3. CIRCLE DETAIL (Tabs: Status, Members, Chat)
-    const CircleDetailScreen = ({ onBack, region }) => {
-        const [tab, setTab] = useState('status');
-        return (
-            <div className="flex flex-col h-full bg-[#0A0E17] animate-slide-up">
-                {/* Header */}
-                <div className="pt-4 px-4 pb-2 bg-[#0A0E17] border-b border-gray-800">
-                    <div className="flex items-center gap-3 mb-4">
-                        <button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button>
-                        <div><h1 className="text-white font-bold text-lg">Boracay Trip</h1><p className="text-xs text-gray-500">Round 3 of 10</p></div>
-                    </div>
-                    <div className="flex justify-around text-sm font-bold">
-                        <button onClick={() => setTab('status')} className={`pb-2 px-4 ${tab === 'status' ? 'tab-active' : 'tab-inactive'}`}>STATUS</button>
-                        <button onClick={() => setTab('members')} className={`pb-2 px-4 ${tab === 'members' ? 'tab-active' : 'tab-inactive'}`}>MEMBERS</button>
-                        <button onClick={() => setTab('chat')} className={`pb-2 px-4 ${tab === 'chat' ? 'tab-active' : 'tab-inactive'}`}>CHAT</button>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 pb-24">
-                    {tab === 'status' && (
-                        <div className="space-y-4 animate-fade-in">
-                            <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl text-center">
-                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Total Pot Value</p>
-                                <p className="text-4xl font-bold text-white">{formatCurrency(20000, region)}</p>
-                                <div className="w-full bg-gray-800 h-2 mt-4 rounded-full"><div className="bg-[#00B14F] h-2 rounded-full" style={{width: '30%'}}></div></div>
-                                <p className="text-[10px] text-gray-500 mt-2">30% Complete</p>
-                            </div>
-                            {/* Delinquency Alert */}
-                            <div className="bg-red-900/20 border border-red-500/30 p-4 rounded-xl flex gap-3 items-center">
-                                <Icon name="alertTriangle" className="text-red-500" />
-                                <div><h3 className="text-red-500 font-bold text-sm">Action Required</h3><p className="text-gray-400 text-xs">1 Member is overdue. Payouts paused.</p></div>
-                            </div>
-                        </div>
-                    )}
-
-                    {tab === 'members' && (
-                        <div className="space-y-3 animate-fade-in">
-                            {CIRCLE_MEMBERS.map(m => (
-                                <div key={m.id} className="bg-gray-900 border border-gray-800 p-3 rounded-xl flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-lg">{m.avatar}</div>
-                                        <div>
-                                            <div className="flex items-center gap-2"><h3 className="font-bold text-white text-sm">{m.name}</h3>{m.role === 'Manager' && <span className="text-[9px] bg-yellow-500/20 text-yellow-500 px-1 rounded border border-yellow-500/50">MGR</span>}</div>
-                                            {m.status === 'PAID' && <span className="text-[10px] text-[#00B14F]">✅ Paid</span>}
-                                            {m.status === 'PENDING' && <span className="text-[10px] text-gray-500">⏳ Waiting</span>}
-                                            {m.status === 'DELINQUENT' && <span className="text-[10px] text-red-500 font-bold flex items-center gap-1">⚠️ OVERDUE</span>}
-                                        </div>
-                                    </div>
-                                    {m.id !== 'u1' && (
-                                        <button className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${m.isFriend ? 'bg-blue-600/10 text-blue-500 border border-blue-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'}`}>
-                                            {m.isFriend ? 'Chat' : 'Add'}
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {tab === 'chat' && (
-                        <div className="flex flex-col h-full animate-fade-in">
-                            <div className="flex-1 space-y-4 mb-4">
-                                <div className="flex items-end gap-2"><div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center text-[10px]">S</div><div className="bg-gray-800 p-3 rounded-2xl rounded-bl-none text-sm text-gray-200">Guys, please pay before Friday!</div></div>
-                                <div className="flex items-end gap-2 justify-end"><div className="bg-[#00B14F] p-3 rounded-2xl rounded-br-none text-sm text-white">Sent mine via GCash.</div></div>
-                            </div>
-                            <div className="flex gap-2"><input className="flex-1 bg-gray-900 border border-gray-700 rounded-full px-4 py-3 text-sm text-white outline-none focus:border-[#00B14F]" placeholder="Type..." /><button className="bg-[#00B14F] w-12 h-12 rounded-full flex items-center justify-center text-white"><Icon name="send" size={16} /></button></div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    // 4. AUCTION ROOM (With Dividend Math + Past Winners)
-    const AuctionRoom = ({ onBack, region }) => {
-        const [myBid, setMyBid] = useState(1250);
-        
-        // Dividend Logic
-        const fees = AUCTION_DATA.fees;
-        const dividendPool = myBid - fees;
-        const numRecipients = AUCTION_DATA.members.length - 1; 
-        const dividendPerPerson = dividendPool > 0 ? (dividendPool / numRecipients).toFixed(2) : "0.00";
-
-        // Separate Lists
-        const activeBidders = AUCTION_DATA.members.filter(m => m.status !== 'WON');
-        const pastWinners = AUCTION_DATA.members.filter(m => m.status === 'WON');
-
-        return (
-            <div className="flex flex-col h-full bg-[#0A0E17] animate-slide-up">
-                {/* Header */}
-                <div className="p-4 border-b border-gray-800 flex items-center gap-3 sticky top-0 bg-[#0A0E17] z-10">
-                    <button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button>
-                    <div><h1 className="text-white font-bold text-lg">{AUCTION_DATA.name}</h1><div className="flex items-center gap-1 text-xs text-red-400 font-mono"><Icon name="clock" size={12} /> {AUCTION_DATA.timeLeft} remaining</div></div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 pb-40">
-                    {/* Manager Note */}
-                    <div className="bg-yellow-900/20 border-l-4 border-l-yellow-500 border border-yellow-500/20 p-3 rounded-r-lg mb-4">
-                        <p className="text-xs text-yellow-500 font-bold uppercase mb-1">Manager Note</p>
-                        <p className="text-sm text-gray-200 italic">"{AUCTION_DATA.managerMsg}"</p>
-                    </div>
-
-                    {/* Pot Stats */}
-                    <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl text-center mb-6">
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Current Pot</p>
-                        <p className="text-4xl font-bold text-white mb-2">{formatCurrency(AUCTION_DATA.pot, region)}</p>
-                        <div className="inline-flex items-center gap-2 bg-[#00B14F]/20 px-3 py-1 rounded-full border border-[#00B14F]/30"><span className="w-2 h-2 bg-[#00B14F] rounded-full animate-pulse"></span><span className="text-[#00B14F] text-xs font-bold">Top Bid: {formatCurrency(AUCTION_DATA.topBid, region)}</span></div>
-                    </div>
-
-                    {/* Active Bidders (The Arena) */}
-                    <h3 className="text-white text-sm font-bold mb-3 flex items-center gap-2"><Icon name="users" className="text-[#00B14F]" /> Eligible Bidders</h3>
-                    <div className="space-y-2 mb-6">
-                        {activeBidders.map(m => (
-                            <div key={m.id} className={`flex items-center justify-between p-3 rounded-xl border ${m.status === 'LEADING' ? 'bg-[#00B14F]/10 border-[#00B14F]' : 'bg-gray-800 border-gray-700'}`}>
-                                <div className="flex items-center gap-3"><div className="text-xl">{m.avatar}</div><div><p className={`font-bold text-sm ${m.name === 'You' ? 'text-yellow-400' : 'text-white'}`}>{m.name}</p><p className="text-[10px] text-gray-400">{m.status === 'LEADING' ? 'Winning' : 'Thinking...'}</p></div></div>
-                                {m.status === 'LEADING' && <span className="text-[#00B14F] font-bold text-sm">₱{m.bid}</span>}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Past Winners (The Bench) */}
-                    <h3 className="text-gray-500 text-xs font-bold uppercase mb-3 flex items-center gap-2 mt-6"><Icon name="trophy" className="text-gray-600" /> Already Won</h3>
-                    <div className="space-y-2 opacity-60 grayscale hover:grayscale-0 transition-all">
-                        {pastWinners.map(m => (
-                            <div key={m.id} className="flex items-center justify-between p-3 bg-gray-900/50 rounded-xl border border-gray-800">
-                                <div className="flex items-center gap-3"><div className="text-lg opacity-50">{m.avatar}</div><div><p className="font-medium text-gray-400 text-sm">{m.name}</p><p className="text-[10px] text-gray-600">Won Round {m.round}</p></div></div>
-                                <div className="bg-gray-800 px-2 py-1 rounded text-[10px] text-gray-400 font-bold border border-gray-700">PAID</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Sticky Bid Controls with Dividend Calculator */}
-                <div className="absolute bottom-0 w-full bg-[#111827] border-t border-gray-800 p-4 pb-8 z-20 shadow-2xl">
-                    {/* Dividend Calculator */}
-                    <div className="flex justify-between items-center mb-4 bg-gray-900 p-2 rounded-lg border border-gray-700">
-                        <div className="flex items-center gap-2"><Icon name="trendingUp" size={14} className="text-[#00B14F]" /><span className="text-gray-400 text-xs">Group Earns</span></div>
-                        <span className="text-[#00B14F] font-bold text-sm">+{formatCurrency(dividendPerPerson, region)} / person</span>
-                    </div>
-
-                    <div className="flex gap-3">
-                        <div className="flex-1 bg-gray-800 rounded-xl flex items-center px-4 border border-gray-700">
-                            <span className="text-gray-500 mr-2 text-sm">{REGIONS[region].currency}</span>
-                            <input type="number" value={myBid} onChange={e => setMyBid(e.target.value)} className="bg-transparent text-white font-bold w-full outline-none text-lg" />
-                        </div>
-                        <button className="bg-[#00B14F] text-white font-bold px-6 py-4 rounded-xl shadow-lg active:scale-95 transition-transform">Bid</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // 5. INVITE SCREEN (With Trust Bond)
-    const InviteScreen = ({ onBack, region }) => {
-        const [email, setEmail] = useState(''); const [status, setStatus] = useState('idle');
-        const checkUser = () => { setStatus('checking'); setTimeout(() => { if (email.includes('new')) setStatus('warning'); else setStatus('idle'); }, 500); };
-
-        return (
-            <div className="p-4 h-full flex flex-col bg-[#0A0E17] animate-slide-up">
-                <div className="flex items-center gap-3 mb-6"><button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button><h1 className="text-white font-bold text-lg">Invite Friend</h1></div>
-                <div className="bg-gray-900 p-5 rounded-xl border border-gray-800 space-y-4">
-                    <label className="text-xs text-gray-500 font-bold block uppercase">Friend's Email</label>
-                    <div className="flex gap-2"><input className="bg-gray-800 text-white rounded-lg p-3 flex-1 outline-none border border-gray-700 focus:border-[#00B14F]" placeholder="Type 'new' to test bond..." value={email} onChange={e => setEmail(e.target.value)} /><button onClick={checkUser} className="bg-gray-700 text-white px-4 rounded-lg text-xs font-bold hover:bg-gray-600">Check</button></div>
-                    {status === 'warning' && (
-                        <div className="bg-yellow-900/20 border border-yellow-600/50 rounded-xl p-4 animate-fade-in">
-                            <div className="flex items-start gap-3"><Icon name="alertTriangle" className="text-yellow-500 shrink-0" size={20} /><div><h3 className="text-yellow-500 font-bold text-sm">Trust Bond Required</h3><p className="text-gray-300 text-xs mt-1">Unverified user. Stake <strong>{formatCurrency(500, region)} Bond</strong> (50%) to vouch.</p></div></div>
-                            <button className="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-lg mt-4 text-sm shadow-lg">Stake Bond & Invite</button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    // 6. DEPOSIT & SETTINGS (Simple)
-    const DepositScreen = ({ onBack, region }) => (
-        <div className="p-4 h-full flex flex-col animate-slide-up"><div className="flex items-center gap-3 mb-6"><button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button><h1 className="text-white font-bold text-lg">Add Funds</h1></div><div className="bg-gray-900 p-4 rounded-xl border border-gray-800 mb-6"><div className="flex items-center gap-2 border-b border-gray-700 pb-2"><span className="text-3xl text-white font-bold">{REGIONS[region].currency}</span><input type="number" placeholder="0" className="bg-transparent text-3xl text-white font-bold outline-none w-full" autoFocus /></div></div><div className="mt-auto text-center pt-8"><div className="inline-flex items-center gap-2 bg-gray-800/80 px-4 py-2 rounded-full border border-gray-700 mb-2"><Icon name="lock" size={12} className="text-[#00B14F]" /><span className="text-[10px] text-gray-300 font-bold">SECURE ESCROW</span></div></div></div>
-    );
-    const SettingsScreen = ({ region, setRegion, onBack }) => (
-        <div className="p-4 space-y-6 animate-slide-up"><div className="flex items-center gap-3 mb-6"><button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white"><Icon name="chevronLeft" /></button><h1 className="text-white font-bold text-lg">Settings</h1></div><div className="grid grid-cols-2 gap-3">{Object.values(REGIONS).map(r => <button key={r.code} onClick={() => setRegion(r.code)} className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${region === r.code ? 'bg-[#00B14F]/20 border-[#00B14F]' : 'bg-gray-800 border-gray-700 opacity-60'}`}><span className="text-3xl">{r.flag}</span><span className={`text-sm font-bold ${region === r.code ? 'text-[#00B14F]' : 'text-gray-400'}`}>{r.code}</span></button>)}</div></div>
-    );
-
-    // ─── MAIN APP ROUTER ───
-    const App = () => {
-        const [screen, setScreen] = useState('home');
-        const [region, setRegion] = useState('PH');
-
-        const renderScreen = () => {
-            switch(screen) {
-                case 'deposit': return <DepositScreen region={region} onBack={() => setScreen('home')} />;
-                case 'circles': return <CirclesScreen region={region} onNavigate={setScreen} />;
-                case 'circleDetail': return <CircleDetailScreen region={region} onBack={() => setScreen('circles')} />;
-                case 'auction': return <AuctionRoom region={region} onBack={() => setScreen('home')} />;
-                case 'invite': return <InviteScreen region={region} onBack={() => setScreen('circles')} />;
-                case 'settings': return <SettingsScreen region={region} setRegion={setRegion} onBack={() => setScreen('home')} />;
-                default: return <HomeScreen region={region} onNavigate={setScreen} />;
-            }
+        // ─── 1. ICONS ───
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const icons = {
+                bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
+                plus: <path d="M12 5v14M5 12h14" />,
+                search: <circle cx="11" cy="11" r="8" />,
+                chevronLeft: <polyline points="15 18 9 12 15 6" />,
+                chevronRight: <polyline points="9 18 15 12 9 6" />,
+                shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
+                lock: <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />,
+                user: <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />,
+                users: <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />,
+                creditCard: <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />,
+                trendingUp: <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />,
+                alertTriangle: <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />,
+                clock: <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />,
+                trophy: <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 1 0-5H18" /><path d="M4 22h16" /><path d="M18 2l-6 6-6-6" />,
+                check: <polyline points="20 6 9 17 4 12" />,
+                message: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+                send: <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+            };
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name] || <circle cx="12" cy="12" r="10" />}
+                </svg>
+            );
         };
 
-        return (
-            <div className="w-full max-w-md h-[800px] bg-[#0A0E17] relative flex flex-col shadow-2xl overflow-hidden rounded-[30px] border border-gray-800 ring-4 ring-gray-900 mx-auto">
-                {/* Status Bar */}
-                <div className="flex justify-between items-center px-6 py-3 text-white text-xs font-bold pt-10 select-none cursor-default bg-[#0A0E17]"><span>9:41</span><div className="flex gap-2"><span>📶</span><span>🔋</span></div></div>
-                
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto pb-0">{renderScreen()}</div>
-
-                {/* Nav Bar (Only show on main screens) */}
-                {['home', 'circles', 'settings'].includes(screen) && (
-                    <div className="absolute bottom-0 w-full bg-[#111827]/95 backdrop-blur-md border-t border-gray-800 flex justify-around py-4 pb-8 z-30">
-                        <button onClick={() => setScreen('home')} className={`p-2 transition-colors ${screen === 'home' ? 'text-[#00B14F]' : 'text-gray-500'}`}><div className="flex flex-col items-center gap-1"><Icon name="creditCard" size={20} /><span className="text-[10px] font-bold">Wallet</span></div></button>
-                        <button onClick={() => setScreen('circles')} className={`p-2 transition-colors ${screen === 'circles' ? 'text-[#00B14F]' : 'text-gray-500'}`}><div className="flex flex-col items-center gap-1"><Icon name="users" size={20} /><span className="text-[10px] font-bold">Circles</span></div></button>
-                        <button onClick={() => setScreen('settings')} className={`p-2 transition-colors ${screen === 'settings' ? 'text-[#00B14F]' : 'text-gray-500'}`}><div className="flex flex-col items-center gap-1"><Icon name="user" size={20} /><span className="text-[10px] font-bold">Settings</span></div></button>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-</script>
-</body>
-</html>
+        // ─── 2. DATA ───
+        const REGIONS = { PH: { code: 'PH', currency: '₱', flag: '🇵🇭' }, GLOBAL: { code: 'GLOBAL', currency: '$', flag: '🌎' } };
+        const USER = { id: 'u1', name: 'Juan Dela Cruz', balance: 15420.50,
