@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleFi — Relationship Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070D18;--bg2:#0D1525;--bg3:#131E30;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#E8EEF8;--muted:#6B7FA0;--subtle:#2A3A54;
+}
+html,body{height:100%;overflow:hidden;font-family:'Syne',sans-serif;background:var(--bg);color:var(--text)}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0}
+
+.shell{display:flex;flex-direction:column;height:100%;position:relative;z-index:1}
+
+/* topbar */
+.topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:11px 22px;background:rgba(7,13,24,0.97);border-bottom:1px solid var(--border2);gap:12px;flex-wrap:wrap}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-family:'Lora',serif;font-size:17px}.tb-logo em{color:#C9950A;font-style:italic}
+.tb-sep{width:1px;height:18px;background:var(--border2)}
+.tb-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.tb-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.vtoggle{display:flex;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:3px;gap:2px}
+.vbtn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  padding:5px 14px;border-radius:7px;border:none;cursor:pointer;transition:all .2s;color:var(--muted);background:transparent;font-weight:500}
+.vbtn.active{background:#C9950A;color:#000}
+.vbtn:not(.active):hover{color:var(--text);background:rgba(255,255,255,0.05)}
+
+.entity-pills{display:none;align-items:center;gap:5px}
+.epill{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 12px;border-radius:100px;border:1px solid var(--border2);cursor:pointer;transition:all .2s;
+  color:var(--muted);background:transparent;font-weight:500}
+.epill.active{border-color:#0D9488;color:#fff;background:rgba(13,148,136,0.18)}
+.epill:not(.active):hover{color:var(--text);background:rgba(255,255,255,0.04)}
+
+.reset-btn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 13px;border-radius:7px;border:1px solid var(--border2);cursor:pointer;transition:all .2s;
+  color:var(--muted);background:transparent}
+.reset-btn:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+
+/* main layout */
+.main{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* svg area */
+.svg-wrap{flex:1;position:relative;overflow:hidden;min-width:0}
+#gsvg{width:100%;height:100%;cursor:grab;display:block}
+#gsvg.panning{cursor:grabbing}
+
+/* node styles via SVG classes - applied from JS */
+.node-circle{transition:filter .18s,stroke .18s,stroke-width .18s}
+.node-group{cursor:pointer}
+.node-group.selected .node-circle{stroke:#fff!important;stroke-width:2.5!important;filter:brightness(1.3) drop-shadow(0 0 8px currentColor)}
+.node-group.dimmed .node-circle{filter:brightness(0.28) saturate(0.1)}
+.node-group.dimmed text{opacity:.15}
+.node-group.connected .node-circle{filter:brightness(1.1)}
+
+/* edge transitions */
+.edge-path{transition:opacity .18s,stroke-width .18s}
+.edge-label-g{transition:opacity .18s;pointer-events:none}
+
+/* side panel */
+.sp{width:0;flex-shrink:0;background:var(--bg2);border-left:1px solid transparent;
+  overflow:hidden;transition:width .28s ease,border-color .28s;display:flex;flex-direction:column}
+.sp.open{width:290px;border-color:var(--border2)}
+
+.sp-head{flex-shrink:0;padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.sp-eye{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.sp-title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sp-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.sp-name{font-size:15px;font-weight:700;line-height:1.25}
+.sp-sub{font-size:11px;color:var(--muted);line-height:1.5}
+
+.sp-body{flex:1;overflow-y:auto;padding:14px 16px}
+.sp-body::-webkit-scrollbar{width:3px}
+.sp-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.sp-sec{margin-bottom:18px}
+.sp-sec-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+
+.kv{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--muted);flex-shrink:0;max-width:45%}
+.kv-v{color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:right}
+
+.rel-row{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;border-radius:8px;
+  margin-bottom:3px;cursor:pointer;transition:background .12s;border:1px solid transparent}
+.rel-row:hover{background:rgba(255,255,255,0.04);border-color:var(--border)}
+.rel-row.out .rel-arr{color:#F0B429}
+.rel-row.inc .rel-arr{color:#22D3EE}
+.rel-arr{font-family:'JetBrains Mono',monospace;font-size:11px;flex-shrink:0;width:14px;margin-top:1px}
+.rel-lbl{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:2px;letter-spacing:.04em}
+.rel-tgt{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
+.rel-tgt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* legend */
+.legend{position:absolute;bottom:18px;left:18px;background:rgba(7,13,24,.93);
+  border:1px solid var(--border2);border-radius:11px;padding:13px 15px;min-width:160px}
+.leg-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.leg-row{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted);font-weight:500;margin-bottom:5px}
+.leg-row:last-child{margin-bottom:0}
+.ldot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.lline{width:22px;height:0;flex-shrink:0}
+
+/* hint */
+.hint{position:absolute;bottom:18px;right:18px;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#2A3A54;letter-spacing:.07em;line-height:1.9;text-align:right}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">Circle<em>Fi</em></div>
+      <div class="tb-sep"></div>
+      <div class="tb-title">Relationship Chart</div>
+    </div>
+    <div class="entity-pills" id="epills">
+      <button class="epill active" data-e="l5">L5 Executive</button>
+      <button class="epill" data-e="connect">Connect</button>
+      <button class="epill" data-e="enterprise">Enterprise</button>
+      <button class="epill" data-e="institutional">Institutional</button>
+    </div>
+    <div class="tb-right">
+      <button class="reset-btn" id="resetBtn">↺ Reset</button>
+      <div class="vtoggle">
+        <button class="vbtn active" data-v="macro">🌐 Macro</button>
+        <button class="vbtn" data-v="micro">🔬 Micro</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="svg-wrap" id="svgWrap">
+      <svg id="gsvg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="mh-def" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="rgba(255,255,255,0.25)"/>
+          </marker>
+          <marker id="mh-hi" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="rgba(255,255,255,0.85)"/>
+          </marker>
+          <marker id="mh-out" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="#F0B429"/>
+          </marker>
+          <marker id="mh-inc" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="#22D3EE"/>
+          </marker>
+        </defs>
+        <g id="gRoot">
+          <g id="gEdges"></g>
+          <g id="gNodes"></g>
+        </g>
+      </svg>
+      <div class="legend" id="legend"></div>
+      <div class="hint">Click any node to explore relationships<br>Drag to pan · Scroll to zoom · Click again to deselect</div>
+    </div>
+
+    <div class="sp" id="sp">
+      <div class="sp-head">
+        <div class="sp-eye" id="spEye"></div>
+        <div class="sp-title-row"><div class="sp-dot" id="spDot"></div><div class="sp-name" id="spName"></div></div>
+        <div class="sp-sub" id="spSub"></div>
+      </div>
+      <div class="sp-body" id="spBody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────
+// COLORS
+// ─────────────────────────────────────────────────
+const C = {
+  platform:'#C9950A', super_a:'#A78BFA', ops:'#38BDF8', fin_cf:'#86EFAC', sup_cf:'#FCD34D',
+  netbank:'#22D3EE', coinsph:'#F59E0B',
+  l5:'#0D9488', connect:'#8B5CF6', enterprise:'#EC4899', instit:'#F97316',
+  p1:'#818CF8', p2:'#C084FC', p3:'#FB923C', p4:'#4ADE80',
+  circles:'#F472B6', managers:'#FB923C', members:'#94A3B8',
+  bsp:'#6EE7B7', polygon:'#A78BFA',
+  owner:'#C9950A', admin_wl:'#60A5FA', supervisor:'#4ADE80',
+  fin_wl:'#34D399', sup_wl:'#FBBF24', tech:'#C084FC',
+  mgr_wl:'#FB923C', mem_wl:'#94A3B8', cf_ov:'#C9950A',
+};
+
+// ─────────────────────────────────────────────────
+// MACRO GRAPH  — fixed grid layout 1300 × 820
+// ─────────────────────────────────────────────────
+const MACRO_NODES = [
+  // Row 0: top bar
+  {id:'bsp',      label:'BSP',           sub:'Regulator',          c:C.bsp,       r:26, x:120,  y:90},
+  {id:'cf',       label:'CircleFi',      sub:'Platform Core',      c:C.platform,  r:46, x:550,  y:110},
+  {id:'polygon',  label:'Polygon',       sub:'Blockchain Audit',   c:C.polygon,   r:24, x:980,  y:90},
+
+  // Row 1: CF admin roles
+  {id:'super',    label:'Super\nAdmin',  sub:'L0 · God Mode',      c:C.super_a,   r:30, x:200,  y:260},
+  {id:'ops',      label:'Ops\nAdmin',    sub:'L1 · Operations',    c:C.ops,       r:27, x:390,  y:260},
+  {id:'fin_cf',   label:'Finance\nAdmin',sub:'L2 · Reconcile',     c:C.fin_cf,    r:25, x:580,  y:260},
+  {id:'sup_cf',   label:'Support\nAdmin',sub:'L3 · Member help',   c:C.sup_cf,    r:23, x:760,  y:260},
+
+  // Row 2: rails + portals
+  {id:'netbank',  label:'Netbank\nBaaS', sub:'≥₱1,500 · ₱20 flat', c:C.netbank,  r:30, x:120,  y:430},
+  {id:'coinsph',  label:'Coins.ph',      sub:'<₱1,500 + stablecoin',c:C.coinsph,  r:26, x:320,  y:430},
+  {id:'p1',       label:'Portal 1',      sub:'Internal Admin',      c:C.p1,        r:20, x:520,  y:420},
+  {id:'p2',       label:'Portal 2',      sub:'Entity Admin',        c:C.p2,        r:20, x:660,  y:420},
+  {id:'p3',       label:'Portal 3',      sub:'Mgr Portal',          c:C.p3,        r:20, x:800,  y:420},
+  {id:'p4',       label:'Portal 4',      sub:'Consumer App',        c:C.p4,        r:20, x:940,  y:420},
+
+  // Row 3: entities
+  {id:'l5ent',    label:'L5\nExecutive', sub:'Internal Lane',       c:C.l5,        r:32, x:160,  y:590},
+  {id:'connect',  label:'Connect',       sub:'External · SME',      c:C.connect,   r:24, x:370,  y:605},
+  {id:'enterprise',label:'Enterprise',   sub:'External · Banks',    c:C.enterprise,r:28, x:570,  y:590},
+  {id:'instit',   label:'Institutional', sub:'External · National', c:C.instit,    r:34, x:800,  y:590},
+
+  // Row 4: outputs
+  {id:'managers', label:'Circle\nManagers',sub:'L1–L5',             c:C.managers,  r:28, x:260,  y:740},
+  {id:'circles',  label:'Savings\nCircles',sub:'All products',      c:C.circles,   r:34, x:550,  y:750},
+  {id:'members',  label:'Members',         sub:'End users',         c:C.members,   r:28, x:830,  y:740},
+];
+
+const MACRO_EDGES = [
+  {f:'bsp',   t:'cf',         lbl:'Regulates',         dash:true,  c:'rgba(110,231,183,.5)'},
+  {f:'cf',    t:'polygon',    lbl:'Audit trail',        dash:true,  c:'rgba(167,139,250,.45)'},
+  {f:'cf',    t:'super',      lbl:'Governs',            dash:false, c:'rgba(167,139,250,.55)'},
+  {f:'cf',    t:'ops',        lbl:'Governs',            dash:false, c:'rgba(56,189,248,.55)'},
+  {f:'cf',    t:'fin_cf',     lbl:'Governs',            dash:false, c:'rgba(134,239,172,.5)'},
+  {f:'cf',    t:'sup_cf',     lbl:'Governs',            dash:false, c:'rgba(252,211,77,.45)'},
+  {f:'cf',    t:'netbank',    lbl:'≥₱1,500 route',     dash:false, c:'rgba(34,211,238,.6)'},
+  {f:'cf',    t:'coinsph',    lbl:'<₱1,500 + OFW',    dash:false, c:'rgba(245,158,11,.6)'},
+  {f:'cf',    t:'l5ent',      lbl:'Creates entity',     dash:false, c:'rgba(13,148,136,.55)'},
+  {f:'cf',    t:'connect',    lbl:'Creates entity',     dash:false, c:'rgba(139,92,246,.5)'},
+  {f:'cf',    t:'enterprise', lbl:'Creates entity',     dash:false, c:'rgba(236,72,153,.5)'},
+  {f:'cf',    t:'instit',     lbl:'Creates entity',     dash:false, c:'rgba(249,115,22,.55)'},
+  {f:'ops',   t:'l5ent',      lbl:'Oversight',          dash:true,  c:'rgba(56,189,248,.35)'},
+  {f:'ops',   t:'instit',     lbl:'Oversight',          dash:true,  c:'rgba(56,189,248,.35)'},
+  {f:'super', t:'netbank',    lbl:'Config threshold',   dash:true,  c:'rgba(167,139,250,.35)'},
+  {f:'super', t:'p1',         lbl:'Uses',               dash:false, c:'rgba(129,140,248,.4)'},
+  {f:'ops',   t:'p1',         lbl:'Uses',               dash:false, c:'rgba(129,140,248,.35)'},
+  {f:'l5ent', t:'p2',         lbl:'Manages via',        dash:false, c:'rgba(192,132,252,.45)'},
+  {f:'instit',t:'p2',         lbl:'Manages via',        dash:false, c:'rgba(192,132,252,.4)'},
+  {f:'managers',t:'p3',       lbl:'Desktop tool',       dash:false, c:'rgba(251,146,60,.45)'},
+  {f:'members',t:'p4',        lbl:'Consumer app',       dash:false, c:'rgba(74,222,128,.45)'},
+  {f:'l5ent', t:'netbank',    lbl:'PHP payments',       dash:false, c:'rgba(34,211,238,.35)'},
+  {f:'instit',t:'netbank',    lbl:'PHP payments',       dash:false, c:'rgba(34,211,238,.3)'},
+  {f:'l5ent', t:'coinsph',    lbl:'OFW stablecoin',    dash:true,  c:'rgba(245,158,11,.3)'},
+  {f:'l5ent', t:'circles',    lbl:'Manages',            dash:false, c:'rgba(244,114,182,.45)'},
+  {f:'connect',t:'circles',   lbl:'Manages',            dash:false, c:'rgba(244,114,182,.4)'},
+  {f:'enterprise',t:'circles',lbl:'Manages',            dash:false, c:'rgba(244,114,182,.42)'},
+  {f:'instit',t:'circles',    lbl:'Manages',            dash:false, c:'rgba(244,114,182,.5)'},
+  {f:'managers',t:'circles',  lbl:'Runs circles',       dash:false, c:'rgba(251,146,60,.55)'},
+  {f:'members',t:'circles',   lbl:'Joins & pays',       dash:false, c:'rgba(148,163,184,.5)'},
+  {f:'l5ent', t:'managers',   lbl:'Employs',            dash:false, c:'rgba(251,146,60,.4)'},
+  {f:'instit',t:'managers',   lbl:'Employs',            dash:false, c:'rgba(251,146,60,.38)'},
+];
+
+// ─────────────────────────────────────────────────
+// MICRO GRAPH — radial, 1100 × 760
+// ─────────────────────────────────────────────────
+function buildMicro(type) {
+  const cfg = {
+    l5:          {lbl:'L5 Executive Entity',  ec:C.l5,         prod:'ALL products',      cap:'Unlimited'},
+    connect:     {lbl:'Connect Partner',       ec:C.connect,    prod:'Cash + Goal',        cap:'5,000 members'},
+    enterprise:  {lbl:'Enterprise Partner',    ec:C.enterprise, prod:'Cash+Goal+Wealth',   cap:'50,000 members'},
+    institutional:{lbl:'Institutional Partner',ec:C.instit,    prod:'ALL + Custom',       cap:'Unlimited'},
+  }[type];
+  const cx=550,cy=370, ir=175, or=315;
+  const d=deg=>deg*Math.PI/180;
+  const nodes=[
+    {id:'owner',   label:'Entity\nOwner',    sub:'WL-0 · 1 only',         c:C.owner,    r:36, x:cx,                  y:cy},
+    {id:'adm',     label:'Entity\nAdmin',    sub:'WL-1 · max 5',          c:C.admin_wl, r:27, x:cx+ir*Math.cos(d(-90)),y:cy+ir*Math.sin(d(-90))},
+    {id:'sup2',    label:'Supervisor',       sub:'WL-2 · per branch',     c:C.supervisor,r:23,x:cx+ir*Math.cos(d(-25)),y:cy+ir*Math.sin(d(-25))},
+    {id:'fin2',    label:'Finance',          sub:'WL-3 · 1–3',            c:C.fin_wl,   r:21, x:cx+ir*Math.cos(d(45)), y:cy+ir*Math.sin(d(45))},
+    {id:'spt2',    label:'Support',          sub:'WL-4 · unlimited',      c:C.sup_wl,   r:21, x:cx+ir*Math.cos(d(110)),y:cy+ir*Math.sin(d(110))},
+    {id:'tec',     label:'Tech',             sub:'WL-5 · 1–5',            c:C.tech,     r:20, x:cx+ir*Math.cos(d(165)),y:cy+ir*Math.sin(d(165))},
+    {id:'mgr2',    label:'Circle\nManagers', sub:'WL-6 · unlimited',      c:C.mgr_wl,   r:26, x:cx+or*Math.cos(d(-55)),y:cy+or*Math.sin(d(-55))},
+    {id:'circ2',   label:'Savings\nCircles', sub:cfg.prod,                c:C.circles,  r:30, x:cx+or*Math.cos(d(20)), y:cy+or*Math.sin(d(20))},
+    {id:'mem2',    label:'Members',          sub:cfg.cap,                 c:C.mem_wl,   r:24, x:cx+or*Math.cos(d(80)), y:cy+or*Math.sin(d(80))},
+    {id:'net2',    label:'Netbank\nBaaS',    sub:'≥₱1,500',               c:C.netbank,  r:22, x:cx+or*Math.cos(d(140)),y:cy+or*Math.sin(d(140))},
+    {id:'cph2',    label:'Coins.ph',         sub:'<₱1,500 + OFW',        c:C.coinsph,  r:20, x:cx+or*Math.cos(d(200)),y:cy+or*Math.sin(d(200))},
+    {id:'cfov',    label:'CircleFi\nPlatform',sub:'Oversight',            c:C.cf_ov,    r:24, x:cx+or*Math.cos(d(260)),y:cy+or*Math.sin(d(260))},
+    {id:'pp2',     label:'Portal 2',         sub:'Entity Admin',          c:C.p2,       r:18, x:280, y:680},
+    {id:'pp3',     label:'Portal 3',         sub:'Mgr Portal',            c:C.p3,       r:18, x:450, y:680},
+    {id:'pp4',     label:'Portal 4',         sub:'Consumer App',          c:C.p4,       r:18, x:620, y:680},
+  ];
+  const edges=[
+    {f:'owner',c:'rgba(201,149,10,.65)', t:'adm',  lbl:'Creates (Owner only)', dash:false},
+    {f:'owner',c:'rgba(201,149,10,.45)', t:'sup2', lbl:'Oversees',             dash:false},
+    {f:'owner',c:'rgba(201,149,10,.45)', t:'fin2', lbl:'Oversees',             dash:false},
+    {f:'owner',c:'rgba(201,149,10,.42)', t:'spt2', lbl:'Oversees',             dash:false},
+    {f:'owner',c:'rgba(201,149,10,.42)', t:'tec',  lbl:'Oversees',             dash:false},
+    {f:'adm',  c:'rgba(96,165,250,.55)', t:'sup2', lbl:'Manages',              dash:false},
+    {f:'adm',  c:'rgba(96,165,250,.5)',  t:'fin2', lbl:'Manages',              dash:false},
+    {f:'adm',  c:'rgba(96,165,250,.48)', t:'spt2', lbl:'Manages',              dash:false},
+    {f:'adm',  c:'rgba(96,165,250,.48)', t:'tec',  lbl:'Manages',              dash:false},
+    {f:'sup2', c:'rgba(74,222,128,.55)', t:'mgr2', lbl:'Onboards & assigns',   dash:false},
+    {f:'mgr2', c:'rgba(251,146,60,.6)',  t:'circ2',lbl:'Creates & runs',       dash:false},
+    {f:'mem2', c:'rgba(148,163,184,.55)',t:'circ2',lbl:'Joins & pays',         dash:false},
+    {f:'circ2',c:'rgba(34,211,238,.55)', t:'net2', lbl:'≥₱1,500 auto-route',  dash:false},
+    {f:'circ2',c:'rgba(245,158,11,.5)',  t:'cph2', lbl:'<₱1,500 auto-route',  dash:false},
+    {f:'fin2', c:'rgba(52,211,153,.45)', t:'net2', lbl:'Reconciles',           dash:true},
+    {f:'fin2', c:'rgba(52,211,153,.42)', t:'cph2', lbl:'Reconciles',           dash:true},
+    {f:'cfov', c:'rgba(201,149,10,.5)',  t:'owner',lbl:'Read-only oversight',  dash:true},
+    {f:'cfov', c:'rgba(201,149,10,.35)', t:'circ2',lbl:'Compliance monitor',   dash:true},
+    {f:'owner',c:'rgba(192,132,252,.45)',t:'pp2',  lbl:'Manages via',          dash:false},
+    {f:'adm',  c:'rgba(192,132,252,.38)',t:'pp2',  lbl:'Uses',                 dash:false},
+    {f:'mgr2', c:'rgba(251,146,60,.45)', t:'pp3',  lbl:'Desktop tool',         dash:false},
+    {f:'mem2', c:'rgba(74,222,128,.45)', t:'pp4',  lbl:'Consumer app',         dash:false},
+  ];
+  return {nodes, edges};
+}
+
+// ─────────────────────────────────────────────────
+// NODE INFO (side panel)
+// ─────────────────────────────────────────────────
+const INFO = {
+  cf:{eye:'Platform Core',sub:'Central orchestrator of the entire CircleFi ecosystem',
+    facts:[['Payment rail threshold','₱1,500 (configurable — Super Admin only)'],['Revenue source','2% platform fee on all circle contributions'],['Annual rail saving','₱16.2M from Netbank vs Coins.ph routing'],['Audit method','Polygon blockchain + 7-year immutable logs'],['Partner onboarding','Creates 1 Entity Owner account per WL entity']],
+    out:[{lbl:'Governs via RBAC',t:'Super / Ops / Finance / Support Admins'},{lbl:'Routes ≥₱1,500 PHP to',t:'Netbank BaaS'},{lbl:'Routes <₱1,500 + stablecoin to',t:'Coins.ph'},{lbl:'Creates Entity Owner account for',t:'All white label entities'},{lbl:'Writes tamper-proof audit hash to',t:'Polygon Blockchain'}],
+    inc:[{lbl:'Regulated and audited by',t:'BSP (Bangko Sentral ng Pilipinas)'},{lbl:'BSP compliance required for',t:'All licensed payment rail integrations'}]},
+  bsp:{eye:'External Regulator · Philippines Central Bank',sub:'Non-negotiable regulatory authority over all PH fintech operations',
+    facts:[['Jurisdiction','All BSP-licensed entities and technology providers'],['Key requirement','7-year financial audit log retention'],['Notification requirement','Institutional partners must notify BSP of CF integration'],['Licensed rails','Coins.ph Enterprise + Netbank BaaS both BSP-licensed'],['Standard enforced','QR Ph, INSTAPAY, PESONet interoperability']],
+    out:[{lbl:'Regulates operations of',t:'CircleFi Platform'},{lbl:'Licenses payment infrastructure of',t:'Netbank BaaS and Coins.ph'}],
+    inc:[]},
+  polygon:{eye:'Infrastructure · Polygon Blockchain',sub:'Immutable, independently-verifiable audit trail',
+    facts:[['Network','Polygon (Ethereum L2) — low cost, high throughput'],['What is stored','Contribution hash, payout event, circle ID, timestamp'],['Who can verify','Any member — publicly accessible on-chain'],['Modifiable','Never — append-only by design'],['Purpose','Tamper-proof record that exists independently of CircleFi']],
+    out:[],
+    inc:[{lbl:'Audit records written here by',t:'CircleFi Platform per transaction'},{lbl:'Transaction hash stored per circle contribution from',t:'All savings circles'}]},
+  super:{eye:'Level 0 · CircleFi Internal Admin',sub:'2–3 people maximum — full platform authority',
+    facts:[['Portal','Portal 1 · admin.circlefi.ph'],['Auth','Email + password + mandatory TOTP/hardware key MFA'],['Session timeout','8 hours · re-auth required for sensitive actions'],['Unique power','ONLY role that can change payment routing threshold'],['Data scope','ALL — every entity, every partner, every transaction']],
+    out:[{lbl:'Only role that can change',t:'Payment routing threshold (₱1,500)'},{lbl:'Creates and revokes',t:'All admin accounts at any level'},{lbl:'Can freeze entire operations of',t:'Any white label entity'},{lbl:'Approves applications from',t:'Institutional partners'},{lbl:'Has read-only compliance view of',t:'All white label entities'}],
+    inc:[{lbl:'Governed by',t:'CircleFi board and governance policies'}]},
+  ops:{eye:'Level 1 · CircleFi Internal Admin',sub:'5–10 people — operations and promotions',
+    facts:[['Portal','Portal 1 · admin.circlefi.ph'],['Key responsibility','Manager tier promotions and suspensions'],['Oversight','Read-only access to all entities at all times'],['Escalation flow','Receives tickets escalated from Support Admin'],['Cannot do','Change routing config or create admin accounts']],
+    out:[{lbl:'Approves or rejects promotions for',t:'Director (L4) and Executive (L5) managers'},{lbl:'Can take over circles in',t:'Any entity (abandoned or defaulted)'},{lbl:'Reviews and approves',t:'Vendor partnership registrations'},{lbl:'Read-only oversight of',t:'All white label entity operations'}],
+    inc:[{lbl:'Governed by',t:'CircleFi Platform'},{lbl:'Receives escalations from',t:'Support Admin'}]},
+  fin_cf:{eye:'Level 2 · CircleFi Internal Admin',sub:'2–4 people — all platform financial reconciliation',
+    facts:[['Portal','Portal 1 · admin.circlefi.ph'],['Key responsibility','Reconcile Netbank VANs and Coins.ph vs circle ledger'],['Cannot do','Change routing config or manage manager tiers'],['Cannot access','Member personal data beyond payment records'],['Reports to','Super Admin for major discrepancies']],
+    out:[{lbl:'Reconciles Netbank VANs vs ledger for',t:'All circles platform-wide'},{lbl:'Reconciles Coins.ph transactions for',t:'All circles platform-wide'},{lbl:'Processes fee remittances to',t:'All circle managers'},{lbl:'Settles rev share with',t:'All white label partner entities'}],
+    inc:[{lbl:'Governed by',t:'CircleFi Platform'}]},
+  sup_cf:{eye:'Level 3 · CircleFi Internal Admin',sub:'10–20 people — member-facing customer support',
+    facts:[['Portal','Portal 1 · admin.circlefi.ph'],['Scope','Member-facing issues only — scoped to the ticket'],['Cannot view','Routing config, processing costs, financial reports'],['Cannot access','White label entity admin areas']],
+    out:[{lbl:'Handles disputes and tickets for',t:'Platform members'},{lbl:'Unlocks accounts flagged by',t:'Fraud detection (after manual review)'},{lbl:'Escalates circle issues to',t:'Ops Admin'}],
+    inc:[{lbl:'Governed by',t:'CircleFi Platform'},{lbl:'Receives tickets from',t:'Members via Portal 4'}]},
+  netbank:{eye:'Payment Rail · Primary Domestic PHP',sub:'≥₱1,500 contributions · ₱20 flat fee per transfer',
+    facts:[['Routing trigger','contribution_amount >= 1500'],['Fee model','₱20 flat per inbound INSTAPAY or PESONet transfer'],['Break-even vs Coins.ph','₱1,333 contribution (20 ÷ 0.015)'],['Annual platform saving','₱16.2M vs routing everything to Coins.ph'],['VAN format','12-digit Virtual Account Number per member per circle'],['Custom rate','Institutional partners may negotiate their own flat fee']],
+    out:[],
+    inc:[{lbl:'All ≥₱1,500 contributions auto-routed here by',t:'CircleFi Platform routing engine'},{lbl:'Threshold configurable only by',t:'Super Admin (mandatory reason + audit log)'},{lbl:'Reconciled daily by',t:'CF Finance Admin + Entity Finance (WL entities)'}]},
+  coinsph:{eye:'Payment Rail · Specialist (Small Amounts + Stablecoin)',sub:'<₱1,500 domestic PHP and all OFW stablecoin',
+    facts:[['Routing trigger A','contribution_amount < 1500'],['Routing trigger B','payment_type = STABLECOIN (any amount)'],['Fee domestic','1.5% — proportional, cheaper than ₱20 flat at small amounts'],['Fee stablecoin','~0.5–1% FX spread on USDC/USDT → PHP auto-conversion'],['OFW benefit','Saves OFW members 2–5% vs traditional remittance (Wise/WU)'],['Fallback','Used if Netbank API fails — configured by Super Admin']],
+    out:[],
+    inc:[{lbl:'<₱1,500 contributions routed here by',t:'CircleFi Platform'},{lbl:'All USDC/USDT OFW contributions routed here from',t:'Members on any tier'},{lbl:'Fallback destination if Netbank fails — set by',t:'Super Admin in routing config'}]},
+  l5ent:{eye:'White Label · Internal Lane (Earned via Promotion)',sub:'L5 Executive — top of the internal manager ladder',
+    facts:[['How earned','Completing 5 Director-level circles + CircleFi approval'],['Setup fee','Zero — earned, not purchased'],['Security deposit','₱2,000,000'],['Revenue share','1.0% own entity / 1.5% per additional branch'],['Products','ALL: Cash, Goal, Home, Drive, Life, Invest'],['Max circles','100 concurrent'],['Branches','Unlimited — each additional branch earns 1.5% rev share']],
+    out:[{lbl:'Manages all products via',t:'Savings Circles'},{lbl:'Employs and manages',t:'Circle Managers'},{lbl:'Routes ≥₱1,500 via',t:'Netbank BaaS'},{lbl:'Routes OFW stablecoin via',t:'Coins.ph'},{lbl:'Manages entity operations via',t:'Portal 2 (Entity Admin)'}],
+    inc:[{lbl:'Entity Owner account created by',t:'CircleFi Super Admin (one-time)'},{lbl:'Read-only oversight maintained by',t:'CircleFi Ops Admin (always)'},{lbl:'Emergency circle takeover authority held by',t:'CircleFi Ops Admin (breach only)'}]},
+  connect:{eye:'White Label · External Connect',sub:'Co-ops, HR departments, SMEs',
+    facts:[['Setup fee','₱250,000 one-time'],['Monthly license','₱25,000/month'],['Revenue share','1.5% on total circle volume'],['Products','Cash circles + Goal circles only'],['Member cap','5,000 members'],['Offices included','1 (additional offices purchasable)'],['Contract','12 months minimum']],
+    out:[{lbl:'Manages circles via',t:'Savings Circles (Cash + Goal)'},{lbl:'Employs circle staff as',t:'Circle Managers'}],
+    inc:[{lbl:'Entity Owner account created by',t:'CircleFi Super Admin'},{lbl:'Oversight by',t:'CircleFi Ops Admin'}]},
+  enterprise:{eye:'White Label · External Enterprise',sub:'Banks, credit unions, rural lenders',
+    facts:[['Setup fee','₱1,000,000 one-time'],['Monthly license','₱100,000/month'],['Revenue share','1.2% on total circle volume'],['Products','Cash + Goal + Wealth (Home, Drive, Life)'],['Member cap','50,000 members'],['Offices included','3 (additional purchasable)'],['Contract','24 months minimum']],
+    out:[{lbl:'Manages circles via',t:'Savings Circles (Cash + Goal + Wealth)'},{lbl:'Employs',t:'Circle Managers'}],
+    inc:[{lbl:'Entity Owner account created by',t:'CircleFi Super Admin'},{lbl:'Oversight by',t:'CircleFi Ops Admin'}]},
+  instit:{eye:'White Label · Institutional',sub:'National banks, OFW remittance companies, Government agencies',
+    facts:[['Setup fee','₱5,000,000 one-time'],['Monthly license','₱300,000/month'],['Revenue share','1.0% (same as L5 Executive)'],['Products','ALL products + custom development'],['Member cap','Unlimited'],['Offices included','20 (CNAME domain included)'],['Contract','36 months minimum'],['Revenue example','₱19.7M/month at national scale']],
+    out:[{lbl:'Manages ALL products + custom via',t:'Savings Circles'},{lbl:'Employs tellers and RMs as',t:'Circle Managers'},{lbl:'Routes PHP via',t:'Netbank BaaS (may negotiate custom flat fee)'},{lbl:'Manages via own branded portal',t:'Portal 2 (CNAME domain)'}],
+    inc:[{lbl:'Entity Owner created by',t:'CircleFi Super Admin'},{lbl:'BSP notification required for',t:'Integration at Institutional tier'},{lbl:'Read-only oversight by',t:'CircleFi Ops Admin'}]},
+  p1:{eye:'Portal 1 · CircleFi Internal Admin',sub:'admin.circlefi.ph — CircleFi staff only',
+    facts:[['Auth','Email + password + mandatory MFA (TOTP or YubiKey)'],['Session','8 hours · re-auth on sensitive actions'],['Brand','CircleFi branding only'],['Access','Zero white label entity users can access this portal']],
+    out:[],
+    inc:[{lbl:'Used exclusively by',t:'Super Admin, Ops Admin, Finance Admin, Support Admin'},{lbl:'White label entity users cannot access',t:'This portal at any level'}]},
+  p2:{eye:'Portal 2 · White Label Entity Admin Portal',sub:'admin.[slug].circlefi.ph or partner CNAME',
+    facts:[['Auth','Email + password + mandatory MFA'],['Session','8 hours'],['Brand','Full entity branding — zero CircleFi chrome for Institutional'],['CNAME','Institutional partners use their own domain'],['Role names','Display names customizable by Entity Owner (permissions fixed)']],
+    out:[],
+    inc:[{lbl:'All WL roles (Owner through Tech) access this portal — scoped to',t:'Their entity + branch'},{lbl:'Read-only compliance view accessible to',t:'CircleFi Super Admin and Ops Admin'}]},
+  p3:{eye:'Portal 3 · Circle Manager Web Portal',sub:'managers.circlefi.ph or entity-branded equivalent',
+    facts:[['Purpose','Desktop bulk management — not mobile-only'],['Auth','Same credentials as mobile app account'],['Key screens','Payment queue, default tracker, payout calendar, earnings dashboard'],['Why separate','Mobile app is for members — managers need desktop tools for 50–100 circles']],
+    out:[],
+    inc:[{lbl:'Used by all L1–L5 platform managers and',t:'WL entity Circle Managers (entity-branded)'},{lbl:'Entity Supervisors can view all manager activity in',t:'Their branch'}]},
+  p4:{eye:'Portal 4 · Consumer App',sub:'app.circlefi.ph · iOS · Android',
+    facts:[['Auth','Mobile OTP or email + password'],['Session','30-day persistent on mobile'],['Brand','CircleFi (platform) / Entity brand (WL) / Own domain (Institutional)'],['Features','Discover circles, join, pay, bid for early payout, track, rate manager']],
+    out:[],
+    inc:[{lbl:'Used by all end members on',t:'Platform and all white label entities'},{lbl:'Entity branding served based on',t:'Subdomain or CNAME at login'}]},
+  circles:{eye:'Product · Savings Circles',sub:'₱1.2B+ monthly volume across all circle types',
+    facts:[['Cash','1–12 months · ₱500+ · cash payout immediately'],['Goal','6–24 months · restricted voucher for asset purchase'],['Home','36–60 months · ₱1M+ housing downpayment'],['Drive','24–48 months · cash for vehicle purchase'],['Life','5–20 years · provident fund with dividend'],['Invest','12 months · lending pool · returns on capital'],['Fee structure','5% total: 2% platform + 1.5–3% manager tier']],
+    out:[{lbl:'Contributions ≥₱1,500 auto-routed to',t:'Netbank BaaS'},{lbl:'Contributions <₱1,500 auto-routed to',t:'Coins.ph'},{lbl:'Transaction hash written per contribution to',t:'Polygon Blockchain'}],
+    inc:[{lbl:'Created and operated by',t:'Circle Managers (L1–L5 or entity-employed)'},{lbl:'Funded by contributions from',t:'Members'},{lbl:'Governed under scope of',t:'White label entities OR direct CircleFi platform'}]},
+  managers:{eye:'Operators · Circle Managers',sub:'Platform L1–L5 and all white label entity managers',
+    facts:[['L1 Rookie','5 circles · 1.5% fee · ₱300 min · Coins.ph rail'],['L2 Captain','20 circles · 2.0% fee · ₱1,500 min · Netbank'],['L3 Banker','50 circles · 3.0% fee · ₱3,000 min · Netbank'],['L4 Director','50 circles · Goal only · kickbacks · Netbank'],['L5 Executive','100 circles · ALL products · WL entity unlocked'],['Portal','Manager Web Portal (desktop) + Consumer App']],
+    out:[{lbl:'Creates and runs',t:'Savings Circles'},{lbl:'Uses desktop management tool',t:'Portal 3 (Manager Portal)'},{lbl:'At L5 tier, unlocks',t:'White label entity with Portal 2 access'}],
+    inc:[{lbl:'Employed and assigned by',t:'White label entities (L5, Enterprise, Institutional)'},{lbl:'Promoted / suspended by',t:'CircleFi Ops Admin'},{lbl:'Rated by members using',t:'1.0–5.0★ rating system'}]},
+  members:{eye:'End Users · Members',sub:'Starter → Member → Trusted → VIP tier progression',
+    facts:[['Starter','1 circle · ₱20K max pot · bond if invited into circle'],['Member','3 circles · ₱100K max pot · 6 months clean history req.'],['Trusted','7 circles · ₱500K max pot · 12 months clean history'],['VIP','7–15 circles · unlimited · ₱5,000 trust bond posted'],['Payment methods','GCash · Maya · BPI/BDO INSTAPAY · USDC/USDT stablecoin'],['Rating','1.0–5.0★ affects circle access and manager invitations']],
+    out:[{lbl:'Joins and pays contributions to',t:'Savings Circles'},{lbl:'Accesses all circle activity via',t:'Portal 4 (Consumer App)'}],
+    inc:[{lbl:'Invited by or discovered via geo-discovery from',t:'Circle Managers'},{lbl:'Supported by',t:'CF Support Admin (platform) or Entity Support (WL)'}]},
+  // MICRO
+  owner:{eye:'Entity Owner · WL-0',sub:'1 per entity — the only account CircleFi creates for the partner',
+    facts:[['Created by','CircleFi Super Admin — only one account provisioned externally'],['Limit','Strictly 1 Owner per entity — cannot create a second'],['Portal','Portal 2 — full entity-wide access'],['Transfer','Can transfer ownership with CircleFi Ops Admin approval'],['Cannot do','Change routing threshold (must request from CF Super Admin)']],
+    out:[{lbl:'Creates (ONLY Owner can create)',t:'Entity Admin accounts (max 5)'},{lbl:'Oversees all roles inside entity',t:'Admin, Supervisor, Finance, Support, Tech'},{lbl:'Customizes display names for all',t:'7 system roles (permissions stay fixed)'},{lbl:'Requests routing config changes from',t:'CircleFi Super Admin'},{lbl:'Can transfer Entity Owner role to',t:'Another person (requires CF Ops approval)'}],
+    inc:[{lbl:'Account provisioned by',t:'CircleFi Super Admin (only)'},{lbl:'Read-only compliance oversight by',t:'CircleFi platform (always — cannot remove)'},{lbl:'Entity Owner role can be revoked by',t:'CircleFi Super Admin (franchise agreement breach only)'}]},
+  adm:{eye:'Entity Admin · WL-1',sub:'Maximum 5 per entity — created exclusively by Entity Owner',
+    facts:[['Created by','Entity Owner only — no other role can create an Admin'],['Portal','Portal 2 — entity-wide view and management'],['Cannot do','Create another Admin (Owner-only action)'],['Cannot do','Transfer Entity Owner role'],['Key power','Manages all roles below Admin level']],
+    out:[{lbl:'Manages all roles below Admin level',t:'Supervisor, Finance, Support, Tech'},{lbl:'Views all circles and members across',t:'All branches in the entity'},{lbl:'Approves or rejects',t:'Circle manager applications in entity'},{lbl:'Configures entity circle rules within',t:'CircleFi platform limits'}],
+    inc:[{lbl:'Created by',t:'Entity Owner (only)'},{lbl:'Reports and escalates to',t:'Entity Owner'}]},
+  sup2:{eye:'Entity Supervisor · WL-2',sub:'1 per branch or area — strict data partition',
+    facts:[['Created by','Entity Admin or Entity Owner'],['Scope','Their assigned branch only — cannot see other branches'],['Portal','Portal 2 — branch-scoped view'],['Key role','Bridge between Entity Admin and Circle Managers'],['Escalation','Day-to-day defaults → escalates to Entity Admin']],
+    out:[{lbl:'Onboards and manages',t:'Circle Managers in their branch'},{lbl:'Handles defaults and disputes in',t:'Their branch/area'},{lbl:'Approves or flags',t:'Member applications in their area'},{lbl:'Escalates issues to',t:'Entity Admin'}],
+    inc:[{lbl:'Created by',t:'Entity Admin or Entity Owner'},{lbl:'Receives escalations from',t:'Circle Managers in their branch'},{lbl:'Reports to',t:'Entity Admin'}]},
+  fin2:{eye:'Entity Finance · WL-3',sub:'1–3 per entity — view-only financial access',
+    facts:[['Created by','Entity Admin or Entity Owner'],['Portal','Portal 2 — finance screens only'],['Cannot process','Actual remittances (CF Finance Admin executes these)'],['Cannot access','Member personal data beyond payment records'],['Key view','Netbank VANs, Coins.ph, rev share statements, escrow balances']],
+    out:[{lbl:'Reconciles Netbank VAN credits vs ledger for',t:'All entity transactions'},{lbl:'Reconciles Coins.ph transactions for',t:'All entity transactions'},{lbl:'Reports discrepancies to',t:'Entity Admin'}],
+    inc:[{lbl:'Created by',t:'Entity Admin or Entity Owner'},{lbl:'Receives rev share settlement statements from',t:'CircleFi Finance Admin'}]},
+  spt2:{eye:'Entity Support · WL-4',sub:'Unlimited — member-facing customer service',
+    facts:[['Created by','Entity Admin or Entity Supervisor'],['Portal','Portal 2 — support screens only'],['Scope','Scoped by branch assignment (if branch-level)'],['Cannot do','View financial reports, approve applications, change any data']],
+    out:[{lbl:'Handles member queries and disputes for',t:'Members in their scope'},{lbl:'Escalates financial or operational issues to',t:'Entity Admin'},{lbl:'Sends in-app/SMS notifications to',t:'Members in their scope'}],
+    inc:[{lbl:'Created by',t:'Entity Admin or Entity Supervisor'},{lbl:'Receives member tickets from',t:'Members via Portal 4'}]},
+  tec:{eye:'Entity Tech · WL-5',sub:'1–5 per entity — API and integration access',
+    facts:[['Created by','Entity Admin or Entity Owner'],['Portal','Portal 2 — tech screens only'],['Cannot view','Financial data or member PII'],['Production API key rotation','Requires Entity Admin co-approval'],['Sandbox','Full API access with fake money — no real transactions']],
+    out:[{lbl:'Manages API credentials and webhooks for',t:'Entity integration'},{lbl:'Configures CNAME/domain settings for',t:'Entity-branded portals'},{lbl:'Tests API in sandbox (no real money)',t:'Sandbox environment'}],
+    inc:[{lbl:'Created by',t:'Entity Admin or Entity Owner'},{lbl:'Cannot access',t:'CircleFi internal systems at any point'}]},
+  mgr2:{eye:'Circle Manager · WL-6',sub:'Unlimited — runs circles within assigned branch',
+    facts:[['Created/assigned by','Entity Supervisor or Entity Admin'],['Portal','Portal 3 (Manager Web) + Portal 4 (Consumer App)'],['Scope','Own circles only — cannot see other managers\' circles'],['Cannot access','Entity financials or admin portal'],['Rating','Rated by members 1.0–5.0★ after each circle completion']],
+    out:[{lbl:'Creates and runs',t:'Savings Circles in their branch'},{lbl:'Invites and approves',t:'Members into their circles'},{lbl:'Uses desktop management tool',t:'Portal 3 (Manager Portal)'}],
+    inc:[{lbl:'Assigned and managed by',t:'Entity Supervisor'},{lbl:'Supervised by',t:'Entity Supervisor in their branch'},{lbl:'Rated 1.0–5.0★ by',t:'Members after each circle payout'}]},
+  mem2:{eye:'Members · End Users',sub:'Up to entity membership cap',
+    facts:[['Cap','Connect: 5,000 · Enterprise: 50,000 · L5 + Institutional: unlimited'],['Portal','Portal 4 — entity-branded consumer app'],['Payment','GCash, Maya, bank INSTAPAY, USDC/USDT stablecoin'],['Tiers','Starter → Member → Trusted → VIP'],['Rating','1.0–5.0★ affects circle access and invitation eligibility']],
+    out:[{lbl:'Joins and funds',t:'Savings Circles'},{lbl:'Accesses all circle activity via',t:'Portal 4 (entity-branded app)'}],
+    inc:[{lbl:'Invited by or discovers circles from',t:'Circle Managers'},{lbl:'Supported by',t:'Entity Support staff'}]},
+  net2:{eye:'Netbank BaaS · Primary Rail',sub:'≥₱1,500 contributions — ₱20 flat fee',
+    facts:[['Same as','Platform-wide Netbank BaaS'],['Routing','Auto-routed by CF engine when contribution ≥ ₱1,500'],['Custom rate','Institutional partners may negotiate own flat fee rate'],['VAN','Unique 12-digit Virtual Account Number per member per circle']],
+    out:[],
+    inc:[{lbl:'≥₱1,500 contributions routed here by',t:'CircleFi routing engine'},{lbl:'Reconciled by',t:'Entity Finance (WL) and CF Finance Admin'}]},
+  cph2:{eye:'Coins.ph · Specialist Rail',sub:'<₱1,500 domestic PHP and OFW stablecoin',
+    facts:[['Routing A','Domestic PHP < ₱1,500 — 1.5% fee proportional'],['Routing B','USDC/USDT stablecoin — auto-converts to PHP at 0.5–1% spread'],['Fallback','Used if Netbank API fails at any contribution size']],
+    out:[],
+    inc:[{lbl:'<₱1,500 and all stablecoin contributions routed here by',t:'CircleFi routing engine'}]},
+  cfov:{eye:'CircleFi Platform · Oversight Layer',sub:'Read-only access to all entities — cannot be removed',
+    facts:[['Authority basis','Stated in Franchise Agreement signed by Entity Owner'],['Normal operations','Read-only — cannot create users, change config, interfere'],['Emergency powers','Freeze entity, take over circles, revoke Owner (breach only)'],['Access method','Service-role RLS bypass (server-side only — never client-exposed)'],['Audit visibility','Full audit log access across all entity users and actions']],
+    out:[{lbl:'Receives rev share from',t:'All circle contributions in entity'},{lbl:'Can freeze entire entity in',t:'Breach scenario (Super Admin only)'},{lbl:'Can take over circles in',t:'Any entity (Ops Admin — breach condition)'}],
+    inc:[{lbl:'Oversight access mandated by',t:'Franchise Agreement (non-negotiable)'}]},
+  pp2:{eye:'Portal 2 · Entity Admin Portal',sub:'admin.[slug].circlefi.ph or partner CNAME domain',
+    facts:[['Accessed by','Owner (full) · Admin (entity-wide) · Supervisor (branch) · Finance (finance screens) · Support (tickets) · Tech (API screens)'],['Brand','Full entity branding — Institutional fully suppresses CircleFi'],['Data isolation','JWT contains entity_id + branch_id → enforced by Supabase RLS']],
+    out:[],
+    inc:[{lbl:'Used by all entity admin roles, scoped by their level from',t:'Entity Owner down to Tech'},{lbl:'Compliance read-only view accessible to',t:'CircleFi Super Admin and Ops Admin'}]},
+  pp3:{eye:'Portal 3 · Circle Manager Portal',sub:'managers.[slug].circlefi.ph',
+    facts:[['Purpose','Desktop bulk tools — bulk payment confirm, default queue, payout calendar'],['Auth','Same credentials as mobile app account'],['Supervisor view','Supervisor can see all managers in their branch (read-only)']],
+    out:[],
+    inc:[{lbl:'Used by all entity Circle Managers, scoped to',t:'Their own circles only'}]},
+  pp4:{eye:'Portal 4 · Consumer App',sub:'Entity-branded mobile and web application',
+    facts:[['Brand','Entity logo and colors — Institutional uses own domain'],['Auth','Mobile OTP or email + password'],['Session','30-day persistent on mobile']],
+    out:[],
+    inc:[{lbl:'Used by all members in this entity via',t:'Entity-branded URL or app store listing'}]},
+  circ2:{eye:'Savings Circles · Entity Portfolio',sub:'Active circles within this entity',
+    facts:[['L5 + Institutional','ALL: Cash, Goal, Home, Drive, Life, Invest'],['Connect','Cash + Goal only'],['Enterprise','Cash + Goal + Wealth (Home, Drive, Life)'],['Fee','5% total: 2% CircleFi + manager tier share'],['Payment routing','Auto: ≥₱1,500→Netbank · <₱1,500→Coins.ph'],['Audit','Each transaction hashed to Polygon blockchain']],
+    out:[{lbl:'Contributions auto-routed to',t:'Netbank BaaS (≥₱1,500) or Coins.ph (<₱1,500)'},{lbl:'Transaction hashes written to',t:'Polygon Blockchain per contribution'}],
+    inc:[{lbl:'Created and run by',t:'Circle Managers'},{lbl:'Funded by contributions from',t:'Members'},{lbl:'Compliance monitored by',t:'CircleFi Platform (read-only oversight)'}]},
+};
+
+// ─────────────────────────────────────────────────
+// RENDER ENGINE
+// ─────────────────────────────────────────────────
+const gsvg   = document.getElementById('gsvg');
+const gRoot  = document.getElementById('gRoot');
+const gEdges = document.getElementById('gEdges');
+const gNodes = document.getElementById('gNodes');
+
+let view='macro', entity='l5', selected=null;
+let allN=[], allE=[];
+let vx=0,vy=0,vs=1, panning=false, ps={x:0,y:0}, po={x:0,y:0};
+
+const NS='http://www.w3.org/2000/svg';
+const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e;};
+const txt=(str,attrs={})=>{const t=document.createElementNS(NS,'text');Object.entries(attrs).forEach(([k,v])=>t.setAttribute(k,v));t.textContent=str;return t;};
+
+function setT(){gRoot.setAttribute('transform',`translate(${vx},${vy}) scale(${vs})`);}
+
+function render(nodes, edges){
+  allN=nodes; allE=edges; selected=null;
+  gEdges.innerHTML=''; gNodes.innerHTML='';
+
+  const W=gsvg.clientWidth||1100, H=gsvg.clientHeight||700;
+  const xs=nodes.map(n=>n.x), ys=nodes.map(n=>n.y);
+  const mnX=Math.min(...xs)-60,mxX=Math.max(...xs)+60;
+  const mnY=Math.min(...ys)-60,mxY=Math.max(...ys)+60;
+  const gW=mxX-mnX, gH=mxY-mnY;
+  vs=Math.min(W/gW,H/gH,1)*0.88;
+  vx=(W-gW*vs)/2-mnX*vs; vy=(H-gH*vs)/2-mnY*vs;
+  setT();
+
+  // EDGES
+  edges.forEach(e=>{
+    const A=nodes.find(n=>n.id===e.f), B=nodes.find(n=>n.id===e.t);
+    if(!A||!B)return;
+    const{x1,y1,x2,y2,qx,qy}=edgePts(A,B,edges);
+    const g=el('g',{'class':'edge-g','data-f':e.f,'data-t':e.t});
+    const path=el('path',{d:`M${x1},${y1} Q${qx},${qy} ${x2},${y2}`,
+      stroke:e.c,'stroke-width':'1.5',fill:'none','marker-end':'url(#mh-def)',
+      'stroke-dasharray':e.dash?'6,5':'none','class':'edge-path'});
+    g.appendChild(path);
+
+    // label group (hidden by default)
+    const lg=el('g',{'class':'edge-lbl','data-f':e.f,'data-t':e.t,'opacity':'0'});
+    const lx=(x1+2*qx+x2)/4, ly=(y1+2*qy+y2)/4;
+    const tw=e.lbl.length*5+14;
+    const bg=el('rect',{x:lx-tw/2,y:ly-9,width:tw,height:17,rx:4,
+      fill:'rgba(7,13,24,0.96)',stroke:'rgba(255,255,255,0.1)','stroke-width':'0.5'});
+    const lt=txt(e.lbl,{x:lx,y:ly+1,'text-anchor':'middle','dominant-baseline':'middle',
+      fill:'#C8D8F0','font-size':'9','font-family':'JetBrains Mono,monospace','font-weight':'500'});
+    lg.appendChild(bg); lg.appendChild(lt);
+    gEdges.appendChild(g);
+    gEdges.appendChild(lg);
+  });
+
+  // NODES
+  nodes.forEach(n=>{
+    const g=el('g',{'class':'node-group','data-id':n.id,'tabindex':'0'});
+    // glow
+    const gl=el('circle',{cx:n.x,cy:n.y,r:n.r+10,fill:n.c+'1A','class':'node-glow'});
+    g.appendChild(gl);
+    // circle
+    const c=el('circle',{cx:n.x,cy:n.y,r:n.r,fill:n.c,
+      stroke:'rgba(255,255,255,0.15)','stroke-width':'1.2','class':'node-circle'});
+    g.appendChild(c);
+    // label
+    const lines=n.label.split('\n');
+    const fs=Math.max(8,Math.min(12,n.r*0.43));
+    const lh=fs*1.25;
+    lines.forEach((line,i)=>{
+      const ty=n.y-(lines.length-1)*lh/2+i*lh;
+      const t=txt(line,{x:n.x,y:ty,'text-anchor':'middle','dominant-baseline':'middle',
+        fill:'#FFFFFF','font-size':fs,'font-family':'Syne,sans-serif','font-weight':'700',
+        'pointer-events':'none','class':'node-label'});
+      g.appendChild(t);
+    });
+    g.addEventListener('click',()=>nodeClick(n.id));
+    gNodes.appendChild(g);
+  });
+
+  closeSP();
+  buildLegend();
+}
+
+function edgePts(A,B,edges){
+  const dx=B.x-A.x, dy=B.y-A.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
+  const x1=A.x+dx/dist*A.r, y1=A.y+dy/dist*A.r;
+  const x2=B.x-dx/dist*(B.r+7), y2=B.y-dy/dist*(B.r+7);
+  // count parallel edges for curve offset
+  const parallels=edges.filter(e=>(e.f===A.id&&e.t===B.id)||(e.f===B.id&&e.t===A.id));
+  const idx=parallels.findIndex(e=>(e.f===A.id&&e.t===B.id)||(e.f===B.id&&e.t===A.id));
+  const offset=(idx-parallels.length/2+0.5)*28;
+  const mx=(x1+x2)/2-dy/dist*offset, my=(y1+y2)/2+dx/dist*offset;
+  return {x1,y1,x2,y2,qx:mx,qy:my};
+}
+
+// ─────────────────────────────────────────────────
+// INTERACTION
+// ─────────────────────────────────────────────────
+function nodeClick(id){
+  if(selected===id){selected=null;resetHL();closeSP();return;}
+  selected=id; highlight(id); openSP(id);
+}
+
+function highlight(id){
+  const conn=new Set([id]);
+  allE.forEach(e=>{if(e.f===id)conn.add(e.t);if(e.t===id)conn.add(e.f);});
+
+  document.querySelectorAll('.node-group').forEach(g=>{
+    const nid=g.dataset.id;
+    g.classList.remove('selected','dimmed','connected');
+    if(nid===id) g.classList.add('selected');
+    else if(conn.has(nid)) g.classList.add('connected');
+    else g.classList.add('dimmed');
+  });
+
+  document.querySelectorAll('.edge-g').forEach(g=>{
+    const isConn=g.dataset.f===id||g.dataset.t===id;
+    const path=g.querySelector('.edge-path');
+    if(!path)return;
+    path.style.opacity=isConn?'1':'0.04';
+    path.style.strokeWidth=isConn?'2.5':'1.5';
+    if(isConn){
+      const dir=g.dataset.f===id?'out':'inc';
+      path.setAttribute('marker-end',dir==='out'?'url(#mh-out)':'url(#mh-inc)');
+      path.setAttribute('stroke',dir==='out'?'rgba(240,180,41,0.85)':'rgba(34,211,238,0.85)');
+    }else{
+      path.setAttribute('marker-end','url(#mh-def)');
+    }
+  });
+
+  document.querySelectorAll('.edge-lbl').forEach(g=>{
+    const show=g.dataset.f===id||g.dataset.t===id;
+    g.setAttribute('opacity',show?'1':'0');
+  });
+}
+
+function resetHL(){
+  document.querySelectorAll('.node-group').forEach(g=>g.classList.remove('selected','dimmed','connected'));
+  document.querySelectorAll('.edge-g').forEach(g=>{
+    const p=g.querySelector('.edge-path');
+    if(p){p.style.opacity='';p.style.strokeWidth='';
+      p.setAttribute('marker-end','url(#mh-def)');
+    }
+  });
+  document.querySelectorAll('.edge-lbl').forEach(g=>g.setAttribute('opacity','0'));
+}
+
+// ─────────────────────────────────────────────────
+// SIDE PANEL
+// ─────────────────────────────────────────────────
+function openSP(id){
+  const info=INFO[id], node=allN.find(n=>n.id===id);
+  if(!info||!node)return;
+
+  document.getElementById('sp').classList.add('open');
+  document.getElementById('spEye').textContent=info.eye;
+  document.getElementById('spName').textContent=node.label.replace('\n',' ');
+  document.getElementById('spSub').textContent=info.sub;
+  document.getElementById('spDot').style.background=node.c;
+
+  let h='';
+  if(info.facts?.length){
+    h+=`<div class="sp-sec"><div class="sp-sec-title">Key Details</div>`;
+    info.facts.forEach(([k,v])=>h+=`<div class="kv"><span class="kv-k">${k}</span><span class="kv-v">${v}</span></div>`);
+    h+=`</div>`;
+  }
+  if(info.out?.length){
+    h+=`<div class="sp-sec"><div class="sp-sec-title">↗ Outgoing Relationships</div>`;
+    info.out.forEach(r=>{
+      const tn=allN.find(n=>n.label.replace('\n',' ')===r.t||n.id===r.t);
+      const tc=tn?tn.c:'#94A3B8';
+      const clickable=tn?`onclick="window.nodeClick('${tn.id}')" style="cursor:pointer"`:'';
+      h+=`<div class="rel-row out" ${clickable}><span class="rel-arr">↗</span><div><div class="rel-lbl">${r.lbl}</div><div class="rel-tgt"><span class="rel-tgt-dot" style="background:${tc}"></span>${r.t}</div></div></div>`;
+    });
+    h+=`</div>`;
+  }
+  if(info.inc?.length){
+    h+=`<div class="sp-sec"><div class="sp-sec-title">↙ Incoming Relationships</div>`;
+    info.inc.forEach(r=>{
+      const tn=allN.find(n=>n.label.replace('\n',' ')===r.t||n.id===r.t);
+      const tc=tn?tn.c:'#94A3B8';
+      const clickable=tn?`onclick="window.nodeClick('${tn.id}')" style="cursor:pointer"`:'';
+      h+=`<div class="rel-row inc" ${clickable}><span class="rel-arr">↙</span><div><div class="rel-lbl">${r.lbl}</div><div class="rel-tgt"><span class="rel-tgt-dot" style="background:${tc}"></span>${r.t}</div></div></div>`;
+    });
+    h+=`</div>`;
+  }
+  document.getElementById('spBody').innerHTML=h;
+}
+function closeSP(){document.getElementById('sp').classList.remove('open');}
+window.nodeClick=nodeClick;
+
+// ─────────────────────────────────────────────────
+// LEGEND
+// ─────────────────────────────────────────────────
+function buildLegend(){
+  const items=view==='macro'?[
+    {c:C.platform, l:'Platform Core'},
+    {c:C.super_a,  l:'CF Internal Admin'},
+    {c:C.l5,       l:'WL Entity (Internal)'},
+    {c:C.connect,  l:'WL Entity (External)'},
+    {c:C.netbank,  l:'Netbank BaaS'},
+    {c:C.coinsph,  l:'Coins.ph'},
+    {c:C.circles,  l:'Savings Circles'},
+    {c:C.p1,       l:'Portals'},
+  ]:[
+    {c:C.owner,    l:'Entity Owner (WL-0)'},
+    {c:C.admin_wl, l:'Entity Admin (WL-1)'},
+    {c:C.supervisor,l:'Supervisor (WL-2)'},
+    {c:C.fin_wl,   l:'Finance (WL-3)'},
+    {c:C.sup_wl,   l:'Support (WL-4)'},
+    {c:C.tech,     l:'Tech (WL-5)'},
+    {c:C.mgr_wl,   l:'Circle Manager (WL-6)'},
+    {c:C.circles,  l:'Circles / Rails / Portals'},
+  ];
+  const leg=document.getElementById('legend');
+  leg.innerHTML=`<div class="leg-title">Legend</div>`
+    +items.map(i=>`<div class="leg-row"><div class="ldot" style="background:${i.c}"></div>${i.l}</div>`).join('')
+    +`<div class="leg-row" style="margin-top:7px"><div class="lline" style="border-top:2px solid rgba(240,180,41,0.8)"></div>Outgoing (selected)</div>`
+    +`<div class="leg-row"><div class="lline" style="border-top:2px solid rgba(34,211,238,0.8)"></div>Incoming (selected)</div>`
+    +`<div class="leg-row"><div class="lline" style="border-top:2px dashed rgba(148,163,184,0.5)"></div>Oversight/compliance</div>`;
+}
+
+// ─────────────────────────────────────────────────
+// PAN / ZOOM
+// ─────────────────────────────────────────────────
+gsvg.addEventListener('mousedown',e=>{
+  if(e.target.closest('.node-group'))return;
+  panning=true; ps={x:e.clientX,y:e.clientY}; po={x:vx,y:vy};
+  gsvg.classList.add('panning');
+});
+window.addEventListener('mousemove',e=>{
+  if(!panning)return;
+  vx=po.x+(e.clientX-ps.x); vy=po.y+(e.clientY-ps.y); setT();
+});
+window.addEventListener('mouseup',()=>{panning=false;gsvg.classList.remove('panning');});
+gsvg.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=gsvg.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const d=e.deltaY>0?0.88:1.14;
+  vx=mx-(mx-vx)*d; vy=my-(my-vy)*d;
+  vs=Math.min(Math.max(vs*d,0.2),4); setT();
+},{passive:false});
+
+// ─────────────────────────────────────────────────
+// VIEW / ENTITY SWITCHES
+// ─────────────────────────────────────────────────
+function load(){
+  if(view==='macro') render(MACRO_NODES, MACRO_EDGES);
+  else{const{nodes,edges}=buildMicro(entity); render(nodes,edges);}
+}
+
+document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click',()=>{
+  view=b.dataset.v;
+  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('epills').style.display=view==='micro'?'flex':'none';
+  load();
+}));
+
+document.querySelectorAll('.epill').forEach(b=>b.addEventListener('click',()=>{
+  entity=b.dataset.e;
+  document.querySelectorAll('.epill').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  load();
+}));
+
+document.getElementById('resetBtn').addEventListener('click',load);
+window.addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(load,120);});
+
+// ─────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────
+window.addEventListener('load',()=>setTimeout(load,40));
+</script>
+</body>
+</html>
