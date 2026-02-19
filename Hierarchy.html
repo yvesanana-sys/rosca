@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleFi — Platform Hierarchy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #1B3A6B;
+    --navy-l:  #D0DCF0;
+    --teal:    #0D6E72;
+    --teal-l:  #D0ECEE;
+    --gold:    #8B6914;
+    --gold-l:  #FDF3D0;
+    --gold-b:  #C9950A;
+    --green:   #1A6B3C;
+    --green-l: #D0EED9;
+    --orange:  #B85C00;
+    --orange-l:#FDEBD0;
+    --purple:  #5B2D8E;
+    --purple-l:#EDE0F8;
+    --red:     #B02020;
+    --red-l:   #FADADD;
+    --slate:   #1C2533;
+    --mid:     #4A5568;
+    --muted:   #718096;
+    --pale:    #F0F4F8;
+    --white:   #FFFFFF;
+    --bg:      #0E1520;
+    --bg2:     #141D2B;
+    --bg3:     #1A2537;
+    --border:  rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: #E2E8F0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise texture overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C9950A;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .header-eyebrow::before, .header-eyebrow::after {
+    content: '';
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #C9950A);
+  }
+  .header-eyebrow::after { background: linear-gradient(90deg, #C9950A, transparent); }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 400;
+    color: #F7FAFC;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .header h1 em {
+    font-style: italic;
+    color: #C9950A;
+  }
+  .header p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 52px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #A0AEC0;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Section labels ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+
+  /* ── LAYER 1: CircleFi Platform ── */
+  .platform-layer {
+    background: linear-gradient(135deg, #0D1F3C 0%, #112240 100%);
+    border: 1px solid rgba(27, 58, 107, 0.6);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .platform-layer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #1B3A6B, #0D6E72, #1B3A6B);
+  }
+  .platform-layer-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #63B3ED;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .platform-layer-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(99,179,237,0.2);
+  }
+
+  .cf-roles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .cf-roles { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .cf-roles { grid-template-columns: 1fr; }
+  }
+
+  .role-card {
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .role-card:hover {
+    transform: translateY(-2px);
+  }
+  .role-card .rc-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 10px;
+    display: block;
+    opacity: 0.7;
+  }
+  .role-card .rc-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .role-card .rc-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    opacity: 0.55;
+    margin-bottom: 10px;
+  }
+  .role-card .rc-perms {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .role-card .rc-perms li {
+    font-size: 11px;
+    opacity: 0.75;
+    line-height: 1.4;
+    display: flex;
+    gap: 6px;
+  }
+  .role-card .rc-perms li::before {
+    content: '›';
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  /* CF role colors */
+  .rc-super  { background: linear-gradient(135deg,#1a1a3a,#1e2450); border: 1px solid rgba(100,100,220,0.3); }
+  .rc-super .rc-badge, .rc-super .rc-title { color: #A78BFA; }
+
+  .rc-ops    { background: linear-gradient(135deg,#0f2030,#162840); border: 1px solid rgba(13,110,114,0.4); }
+  .rc-ops .rc-badge, .rc-ops .rc-title { color: #4DD0E1; }
+
+  .rc-fin    { background: linear-gradient(135deg,#1a2010,#202a10); border: 1px solid rgba(100,180,60,0.3); }
+  .rc-fin .rc-badge, .rc-fin .rc-title { color: #86EFAC; }
+
+  .rc-sup    { background: linear-gradient(135deg,#201810,#281e10); border: 1px solid rgba(200,150,50,0.3); }
+  .rc-sup .rc-badge, .rc-sup .rc-title { color: #FCD34D; }
+
+  /* ── Connector ── */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 0;
+    gap: 0;
+  }
+  .connector-line {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, rgba(201,149,10,0.4), rgba(201,149,10,0.1));
+  }
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid rgba(201,149,10,0.35);
+  }
+  .connector-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 4px 0;
+  }
+
+  /* ── Entity layer ── */
+  .entity-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 800px) {
+    .entity-row { grid-template-columns: 1fr; }
+  }
+
+  .entity-block {
+    border-radius: 18px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .entity-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .entity-internal {
+    background: linear-gradient(135deg, #0f1e35, #142540);
+    border: 1px solid rgba(27,58,107,0.5);
+  }
+  .entity-internal::before { background: linear-gradient(90deg, #1B3A6B, #0D6E72); }
+
+  .entity-external {
+    background: linear-gradient(135deg, #1a1030, #200f40);
+    border: 1px solid rgba(91,45,142,0.5);
+  }
+  .entity-external::before { background: linear-gradient(90deg, #5B2D8E, #8B6914); }
+
+  .entity-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .entity-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .entity-icon-internal { background: rgba(13,110,114,0.2); border: 1px solid rgba(13,110,114,0.3); }
+  .entity-icon-external { background: rgba(91,45,142,0.2); border: 1px solid rgba(91,45,142,0.3); }
+
+  .entity-meta {}
+  .entity-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .entity-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F7FAFC;
+    margin-bottom: 2px;
+  }
+  .entity-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── WL org chart ── */
+  .wl-org {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .wl-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .wl-tree-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 24px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .wl-tree-v {
+    width: 1px;
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    min-height: 8px;
+  }
+  .wl-tree-h {
+    width: 16px;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    align-self: center;
+  }
+  .wl-tree-corner {
+    width: 1px;
+    height: 50%;
+    background: rgba(255,255,255,0.1);
+    align-self: flex-start;
+  }
+
+  .wl-node {
+    flex: 1;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .wl-node:hover { filter: brightness(1.15); transform: translateX(2px); }
+
+  .wl-node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .wl-node-info { flex: 1; min-width: 0; }
+  .wl-node-role {
+    font-size: 12px;
+    font-weight: 600;
+    color: #F7FAFC;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wl-node-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wl-node-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  /* Node color variants */
+  .wl-owner    { background: rgba(201,149,10,0.12);  border: 1px solid rgba(201,149,10,0.25); }
+  .wl-owner .wl-node-dot { background: #C9950A; }
+  .wl-owner .wl-node-tag { background: rgba(201,149,10,0.2); color: #C9950A; }
+
+  .wl-admin    { background: rgba(99,179,237,0.1);   border: 1px solid rgba(99,179,237,0.2); }
+  .wl-admin .wl-node-dot { background: #63B3ED; }
+  .wl-admin .wl-node-tag { background: rgba(99,179,237,0.15); color: #63B3ED; }
+
+  .wl-super    { background: rgba(154,205,50,0.08);  border: 1px solid rgba(154,205,50,0.18); }
+  .wl-super .wl-node-dot { background: #9ACD32; }
+  .wl-super .wl-node-tag { background: rgba(154,205,50,0.12); color: #9ACD32; }
+
+  .wl-finance  { background: rgba(134,239,172,0.08); border: 1px solid rgba(134,239,172,0.18); }
+  .wl-finance .wl-node-dot { background: #86EFAC; }
+  .wl-finance .wl-node-tag { background: rgba(134,239,172,0.12); color: #86EFAC; }
+
+  .wl-support  { background: rgba(252,211,77,0.08);  border: 1px solid rgba(252,211,77,0.18); }
+  .wl-support .wl-node-dot { background: #FCD34D; }
+  .wl-support .wl-node-tag { background: rgba(252,211,77,0.12); color: #FCD34D; }
+
+  .wl-tech     { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.18); }
+  .wl-tech .wl-node-dot { background: #A78BFA; }
+  .wl-tech .wl-node-tag { background: rgba(167,139,250,0.12); color: #A78BFA; }
+
+  .wl-manager  { background: rgba(251,146,60,0.08);  border: 1px solid rgba(251,146,60,0.18); }
+  .wl-manager .wl-node-dot { background: #FB923C; }
+  .wl-manager .wl-node-tag { background: rgba(251,146,60,0.12); color: #FB923C; }
+
+  .wl-member   { background: rgba(148,163,184,0.06); border: 1px solid rgba(148,163,184,0.14); }
+  .wl-member .wl-node-dot { background: #94A3B8; }
+  .wl-member .wl-node-tag { background: rgba(148,163,184,0.1); color: #94A3B8; }
+
+  /* Tree lines */
+  .tree-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 0;
+  }
+  .tree-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .tree-line-v {
+    width: 1px;
+    background: rgba(255,255,255,0.1);
+    align-self: stretch;
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+  .tree-elbow {
+    width: 20px;
+    height: 20px;
+    border-left: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0 0 0 6px;
+    flex-shrink: 0;
+    margin-top: -10px;
+    align-self: flex-start;
+  }
+
+  /* ── Portal surface section ── */
+  .portal-section {
+    margin-top: 40px;
+  }
+  .portal-section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #F7FAFC;
+    margin-bottom: 6px;
+  }
+  .portal-section-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .portals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 1000px) { .portals-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 580px)  { .portals-grid { grid-template-columns: 1fr; } }
+
+  .portal-card {
+    border-radius: 16px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .portal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .pc-1 { background: linear-gradient(135deg,#0d1f38,#111e35); border:1px solid rgba(99,179,237,0.2); }
+  .pc-1::before { background: linear-gradient(90deg,#1B3A6B,#63B3ED); }
+  .pc-2 { background: linear-gradient(135deg,#1a1030,#180f2e); border:1px solid rgba(167,139,250,0.2); }
+  .pc-2::before { background: linear-gradient(90deg,#5B2D8E,#A78BFA); }
+  .pc-3 { background: linear-gradient(135deg,#0e2020,#102828); border:1px solid rgba(13,110,114,0.25); }
+  .pc-3::before { background: linear-gradient(90deg,#0D6E72,#4DD0E1); }
+  .pc-4 { background: linear-gradient(135deg,#1a1a10,#222010); border:1px solid rgba(201,149,10,0.2); }
+  .pc-4::before { background: linear-gradient(90deg,#8B6914,#C9950A); }
+
+  .pc-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    opacity: 0.12;
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    line-height: 1;
+  }
+  .pc-icon { font-size: 22px; margin-bottom: 12px; }
+  .pc-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F7FAFC;
+    margin-bottom: 4px;
+  }
+  .pc-url {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+  }
+  .pc-users {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .pc-user-pill {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #CBD5E0;
+  }
+
+  /* ── Key rules footer ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+  @media (max-width: 800px) { .rules-grid { grid-template-columns: 1fr; } }
+
+  .rule-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .rule-icon { font-size: 22px; margin-bottom: 10px; }
+  .rule-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #F7FAFC;
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  .rule-body {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .rule-body strong { color: #C9950A; font-weight: 600; }
+
+  /* ── Payment routing callout ── */
+  .routing-callout {
+    background: linear-gradient(135deg, #0f1e10, #102018);
+    border: 1px solid rgba(134,239,172,0.2);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-top: 32px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .routing-callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #86EFAC;
+    margin-bottom: 8px;
+  }
+  .routing-rule {
+    font-size: 13px;
+    color: #F7FAFC;
+    font-weight: 500;
+    line-height: 1.8;
+  }
+  .routing-rule code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: rgba(134,239,172,0.1);
+    color: #86EFAC;
+    padding: 1px 7px;
+    border-radius: 4px;
+  }
+  .routing-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.08);
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-1 { animation: fadeUp 0.5s ease both; }
+  .fade-2 { animation: fadeUp 0.5s 0.1s ease both; }
+  .fade-3 { animation: fadeUp 0.5s 0.2s ease both; }
+  .fade-4 { animation: fadeUp 0.5s 0.3s ease both; }
+  .fade-5 { animation: fadeUp 0.5s 0.4s ease both; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header fade-1">
+    <div class="header-eyebrow">Platform Architecture</div>
+    <h1>CircleFi <em>Hierarchy</em> & Access Control</h1>
+    <p>Complete role structure across CircleFi internal operations, white label entities, and all portal surfaces.</p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend fade-2">
+    <div class="legend-item"><div class="legend-dot" style="background:#A78BFA"></div> CircleFi Internal</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#C9950A"></div> Entity Owner</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#63B3ED"></div> Entity Admin</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9ACD32"></div> Supervisor</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#86EFAC"></div> Finance</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FCD34D"></div> Support</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#A78BFA"></div> Tech</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FB923C"></div> Circle Manager</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#94A3B8"></div> Member</div>
+  </div>
+
+  <!-- LAYER 1: CircleFi Internal -->
+  <div class="platform-layer fade-3">
+    <div class="platform-layer-title">⬡ CircleFi Platform — Internal Admin Layer</div>
+    <div class="cf-roles">
+
+      <div class="role-card rc-super">
+        <span class="rc-badge">Level 0</span>
+        <div class="rc-title">Super Admin</div>
+        <div class="rc-count">2–3 people · God Mode</div>
+        <ul class="rc-perms">
+          <li>Change payment routing config</li>
+          <li>Create/revoke any account</li>
+          <li>Freeze any entity or circle</li>
+          <li>Full platform-wide data access</li>
+          <li>Approve Institutional partners</li>
+        </ul>
+      </div>
+
+      <div class="role-card rc-ops">
+        <span class="rc-badge">Level 1</span>
+        <div class="rc-title">Ops Admin</div>
+        <div class="rc-count">5–10 people · Operations</div>
+        <ul class="rc-perms">
+          <li>Approve Director & Executive promotions</li>
+          <li>Manage suspensions & reinstatements</li>
+          <li>Take over abandoned circles</li>
+          <li>Approve vendor partnerships</li>
+          <li>Review branch/office applications</li>
+        </ul>
+      </div>
+
+      <div class="role-card rc-fin">
+        <span class="rc-badge">Level 2</span>
+        <div class="rc-title">Finance Admin</div>
+        <div class="rc-count">2–4 people · Finance</div>
+        <ul class="rc-perms">
+          <li>View all platform revenue & costs</li>
+          <li>Reconcile Netbank & Coins.ph</li>
+          <li>Process manager fee remittances</li>
+          <li>Approve kickback payouts</li>
+          <li>WL partner rev share settlements</li>
+        </ul>
+      </div>
+
+      <div class="role-card rc-sup">
+        <span class="rc-badge">Level 3</span>
+        <div class="rc-title">Support Admin</div>
+        <div class="rc-count">10–20 people · Support</div>
+        <ul class="rc-perms">
+          <li>View member profiles & circles</li>
+          <li>Process dispute tickets</li>
+          <li>Unlock flagged accounts</li>
+          <li>Escalate to Ops Admin</li>
+          <li>Send system notifications</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="connector fade-3">
+    <div class="connector-line"></div>
+    <div class="connector-label">Creates Entity Owner accounts · Retains read-only oversight</div>
+    <div class="connector-arrow"></div>
+  </div>
+
+  <!-- LAYER 2: White Label Entities -->
+  <div class="fade-4">
+    <div class="entity-row">
+
+      <!-- L5 Executive Entity -->
+      <div class="entity-block entity-internal">
+        <div class="entity-header">
+          <div class="entity-icon entity-icon-internal">🏢</div>
+          <div class="entity-meta">
+            <div class="entity-type">Lane 1 · Internal Ladder</div>
+            <div class="entity-name">L5 Executive White Label</div>
+            <div class="entity-sub">e.g. "Davao Savings Circle" · admin.davao.circlefi.ph</div>
+          </div>
+        </div>
+
+        <div class="tree-wrap">
+          <div class="tree-item">
+            <div class="wl-node wl-owner" style="margin-left:0">
+              <div class="wl-node-dot"></div>
+              <div class="wl-node-info">
+                <div class="wl-node-role">Entity Owner</div>
+                <div class="wl-node-desc">The L5 Executive · Created by CircleFi Super Admin</div>
+              </div>
+              <div class="wl-node-tag">1 only</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:0">
+            <div style="width:20px;border-left:1px solid rgba(255,255,255,0.1);margin-left:12px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;margin-left:0">
+
+              <div class="tree-item" style="margin-top:2px">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0;margin-top:0"></div>
+                <div class="wl-node wl-admin" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Entity Admin</div>
+                    <div class="wl-node-desc">COO / General Manager · Created by Owner</div>
+                  </div>
+                  <div class="wl-node-tag">max 5</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-super" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Supervisor</div>
+                    <div class="wl-node-desc">Area / Branch Head · 1 per branch</div>
+                  </div>
+                  <div class="wl-node-tag">per branch</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-finance" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Finance</div>
+                    <div class="wl-node-desc">Treasurer / Bookkeeper · reconciliation</div>
+                  </div>
+                  <div class="wl-node-tag">1–3</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-support" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Support</div>
+                    <div class="wl-node-desc">Customer service / member relations</div>
+                  </div>
+                  <div class="wl-node-tag">unlimited</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-tech" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Tech</div>
+                    <div class="wl-node-desc">API keys, webhooks, integrations</div>
+                  </div>
+                  <div class="wl-node-tag">1–5</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-manager" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Circle Manager</div>
+                    <div class="wl-node-desc">Runs circles · Manager Portal + App</div>
+                  </div>
+                  <div class="wl-node-tag">unlimited</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-member" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Members</div>
+                    <div class="wl-node-desc">End users · Consumer app only</div>
+                  </div>
+                  <div class="wl-node-tag">∞</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- External Partner Entity -->
+      <div class="entity-block entity-external">
+        <div class="entity-header">
+          <div class="entity-icon entity-icon-external">🏦</div>
+          <div class="entity-meta">
+            <div class="entity-type">Lane 2 · External Partner</div>
+            <div class="entity-name">Connect / Enterprise / Institutional</div>
+            <div class="entity-sub">e.g. "OFW Bank Circle Program" · admin.ofwbank.ph</div>
+          </div>
+        </div>
+
+        <div class="tree-wrap">
+          <div class="tree-item">
+            <div class="wl-node wl-owner" style="margin-left:0">
+              <div class="wl-node-dot"></div>
+              <div class="wl-node-info">
+                <div class="wl-node-role">Entity Owner</div>
+                <div class="wl-node-desc">Signing officer / bank president · CircleFi creates this</div>
+              </div>
+              <div class="wl-node-tag">1 only</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:0">
+            <div style="width:20px;border-left:1px solid rgba(255,255,255,0.1);margin-left:12px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;margin-left:0">
+
+              <div class="tree-item" style="margin-top:2px">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-admin" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Entity Admin</div>
+                    <div class="wl-node-desc">National Program Director · customisable name</div>
+                  </div>
+                  <div class="wl-node-tag">max 5</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-super" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Supervisor</div>
+                    <div class="wl-node-desc">Regional Director / Branch Coordinator</div>
+                  </div>
+                  <div class="wl-node-tag">per branch</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-finance" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Finance</div>
+                    <div class="wl-node-desc">Treasury Division · reconciliation view</div>
+                  </div>
+                  <div class="wl-node-tag">1–3</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-support" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Support</div>
+                    <div class="wl-node-desc">Call center / member relations officers</div>
+                  </div>
+                  <div class="wl-node-tag">unlimited</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-tech" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Tech</div>
+                    <div class="wl-node-desc">Core banking integration team · API & webhooks</div>
+                  </div>
+                  <div class="wl-node-tag">1–5</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-manager" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Circle Manager</div>
+                    <div class="wl-node-desc">Bank tellers / relationship managers</div>
+                  </div>
+                  <div class="wl-node-tag">unlimited</div>
+                </div>
+              </div>
+
+              <div class="tree-item">
+                <div style="width:16px;height:1px;background:rgba(255,255,255,0.1);flex-shrink:0"></div>
+                <div class="wl-node wl-member" style="flex:1">
+                  <div class="wl-node-dot"></div>
+                  <div class="wl-node-info">
+                    <div class="wl-node-role">Members</div>
+                    <div class="wl-node-desc">Bank customers nationwide · consumer app</div>
+                  </div>
+                  <div class="wl-node-tag">∞</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform-only managers note -->
+    <div style="background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:20px;flex-shrink:0">🟠</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#FB923C;margin-bottom:3px;">Platform-Only Circle Managers (no White Label entity)</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Rookie (L1) → Captain (L2) → Banker (L3) → Director (L4) managers operate directly on the CircleFi platform — no entity wrapper, no entity admin portal. They use the <strong style="color:#FB923C">Manager Web Portal</strong> + the consumer mobile app. Upon reaching L5 Executive, a white label entity is provisioned and the entity admin portal is unlocked.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Portal Surfaces -->
+  <div class="portal-section fade-5">
+    <div class="portal-section-title">Four Portals · One Codebase</div>
+    <div class="portal-section-sub">Every person touches exactly one portal. Brand, navigation, and data scope are injected at login based on subdomain and role.</div>
+
+    <div class="portals-grid">
+
+      <div class="portal-card pc-1">
+        <div class="pc-num">1</div>
+        <div class="pc-icon">🔐</div>
+        <div class="pc-title">CircleFi Internal Admin</div>
+        <div class="pc-url">admin.circlefi.ph</div>
+        <div class="pc-users">
+          <div class="pc-user-pill">Super Admin</div>
+          <div class="pc-user-pill">Ops Admin</div>
+          <div class="pc-user-pill">Finance Admin</div>
+          <div class="pc-user-pill">Support Admin</div>
+        </div>
+      </div>
+
+      <div class="portal-card pc-2">
+        <div class="pc-num">2</div>
+        <div class="pc-icon">🏢</div>
+        <div class="pc-title">White Label Entity Admin</div>
+        <div class="pc-url">admin.[slug].circlefi.ph · CNAME</div>
+        <div class="pc-users">
+          <div class="pc-user-pill">Entity Owner</div>
+          <div class="pc-user-pill">Entity Admin</div>
+          <div class="pc-user-pill">Supervisor · Finance</div>
+          <div class="pc-user-pill">Support · Tech</div>
+        </div>
+      </div>
+
+      <div class="portal-card pc-3">
+        <div class="pc-num">3</div>
+        <div class="pc-icon">💼</div>
+        <div class="pc-title">Circle Manager Portal</div>
+        <div class="pc-url">managers.circlefi.ph · managers.[slug].</div>
+        <div class="pc-users">
+          <div class="pc-user-pill">L1 Rookie → L5 Executive</div>
+          <div class="pc-user-pill">WL Entity Managers</div>
+          <div class="pc-user-pill">Desktop · bulk tools</div>
+        </div>
+      </div>
+
+      <div class="portal-card pc-4">
+        <div class="pc-num">4</div>
+        <div class="pc-icon">📱</div>
+        <div class="pc-title">Consumer App</div>
+        <div class="pc-url">app.circlefi.ph · iOS · Android</div>
+        <div class="pc-users">
+          <div class="pc-user-pill">All Members</div>
+          <div class="pc-user-pill">WL Entity Members</div>
+          <div class="pc-user-pill">Circle Managers (member view)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Payment routing callout -->
+  <div class="routing-callout fade-5">
+    <div>
+      <div class="routing-label">⚙ Configurable Payment Routing</div>
+      <div class="routing-rule">
+        <code>amount &lt; ₱1,500</code> → Coins.ph (PHP domestic)<br>
+        <code>amount ≥ ₱1,500</code> → Netbank BaaS (PHP domestic)<br>
+        <code>type = STABLECOIN</code> → Coins.ph (OFW crypto, any amount)
+      </div>
+    </div>
+    <div class="routing-divider"></div>
+    <div>
+      <div class="routing-label">🔑 Who Controls the Threshold</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+        <strong style="color:#A78BFA">Super Admin only</strong> · mandatory reason field<br>
+        Audit log on every change · Finance Admin notified<br>
+        In-flight transactions unaffected · new transactions only<br>
+        Institutional partners can have <strong style="color:#C9950A">custom per-entity threshold</strong>
+      </div>
+    </div>
+    <div class="routing-divider"></div>
+    <div>
+      <div class="routing-label">🛡 Break-Even Math</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+        Break-even: <strong style="color:#86EFAC">₱1,333</strong> (₱20 ÷ 1.5%)<br>
+        Threshold: <strong style="color:#86EFAC">₱1,500</strong> → 12.5% safety buffer<br>
+        Annual saving vs all-Coins.ph: <strong style="color:#86EFAC">₱16.2M</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Rules -->
+  <div class="rules-grid fade-5">
+
+    <div class="rule-card">
+      <div class="rule-icon">🏗️</div>
+      <div class="rule-title">Same Structure, Every Entity</div>
+      <div class="rule-body">Every white label entity — whether an L5 solo operator in Davao or OFW Bank with 500 branches — has the <strong>identical 7-role structure</strong>. Same schema, same portal, same rules. Only the scale and custom role names differ.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-icon">🔑</div>
+      <div class="rule-title">CircleFi Creates One Account</div>
+      <div class="rule-body">For every white label entity, CircleFi Super Admin creates <strong>only the Entity Owner account</strong>. Every other role — Admins, Supervisors, Finance, Support, Tech, Managers — is invited and managed by the partner <strong>independently</strong>.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-icon">👁️</div>
+      <div class="rule-title">CircleFi Always Has Oversight</div>
+      <div class="rule-body">Super Admin and Ops Admin have <strong>read-only access to all entities</strong> at all times. Non-negotiable. Stated in the Franchise Agreement. Partners cannot remove this access. CircleFi can freeze, take over circles, or revoke Entity Owner in a breach.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-icon">✏️</div>
+      <div class="rule-title">Custom Role Names</div>
+      <div class="rule-body">System role permissions are <strong>fixed and cannot be changed</strong>. But the display name is customisable — RCBC calls their Supervisor a "Branch Circle Coordinator," OFW Bank calls Finance their "Treasury Officer." The permissions underneath never change.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-icon">🔒</div>
+      <div class="rule-title">Data Isolation via RLS</div>
+      <div class="rule-body">Every entity user's JWT contains their <strong>entity_id and branch_id</strong>. Supabase Row Level Security enforces isolation at the database layer. A partner with a raw API key <strong>physically cannot query</strong> another entity's data.</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-icon">📋</div>
+      <div class="rule-title">7-Year Audit Trail</div>
+      <div class="rule-body">Every write action is logged: actor, role, entity, action, before/after values, IP, timestamp. Logs are <strong>append-only, never deleted</strong>. Exported monthly as tamper-evident signed PDFs. Retained 7 years per BSP compliance requirement.</div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>
