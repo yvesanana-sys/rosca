@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleFi — Flow & Process Charts</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070D18;--bg2:#0C1422;--bg3:#111D2E;--bg4:#16243A;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.12);--b3:rgba(255,255,255,0.18);
+  --tx:#E2EAF8;--mu:#607898;--su:#1E2E44;
+  --gold:#C9950A;--gold2:#F0B429;--gold3:rgba(201,149,10,0.15);
+  --teal:#0D9488;--blue:#3B82F6;--purple:#8B5CF6;
+  --green:#22C55E;--orange:#F97316;--pink:#EC4899;
+  --cyan:#22D3EE;--amber:#F59E0B;--red:#EF4444;
+  --netbank:#22D3EE;--coins:#F59E0B;--poly:#A78BFA;
+}
+html,body{height:100%;overflow:hidden;font-family:'Syne',sans-serif;background:var(--bg);color:var(--tx)}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.016) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.shell{display:flex;flex-direction:column;height:100%;position:relative;z-index:1}
+
+/* ── topbar ── */
+.topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:11px 24px;background:rgba(7,13,24,.97);border-bottom:1px solid var(--b2);gap:12px}
+.tb-l{display:flex;align-items:center;gap:12px}
+.logo{font-family:'Lora',serif;font-size:17px}.logo em{color:var(--gold);font-style:italic}
+.sep{width:1px;height:18px;background:var(--b2)}
+.ttl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu)}
+
+/* tab bar */
+.tabs{display:flex;background:var(--bg3);border:1px solid var(--b2);border-radius:10px;padding:3px;gap:2px}
+.tab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:6px 18px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;color:var(--mu);background:transparent;font-weight:500;white-space:nowrap}
+.tab.active{background:var(--gold);color:#000}
+.tab:not(.active):hover{color:var(--tx);background:rgba(255,255,255,0.05)}
+
+/* ── content area ── */
+.content{flex:1;overflow:hidden;display:flex;min-height:0}
+.chart-wrap{flex:1;overflow:auto;padding:28px 32px 40px;min-width:0}
+.chart-wrap::-webkit-scrollbar{width:6px;height:6px}
+.chart-wrap::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* ── detail panel ── */
+.dp{width:0;flex-shrink:0;background:var(--bg2);border-left:1px solid transparent;overflow:hidden;transition:width .25s ease,border-color .25s;display:flex;flex-direction:column}
+.dp.open{width:280px;border-color:var(--b2)}
+.dp-head{flex-shrink:0;padding:18px 16px 12px;border-bottom:1px solid var(--b1)}
+.dp-eye{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.dp-name{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.dp-sub{font-size:11px;color:var(--mu);line-height:1.5}
+.dp-body{flex:1;overflow-y:auto;padding:14px 16px}
+.dp-body::-webkit-scrollbar{width:3px}
+.dp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.dp-sec{margin-bottom:16px}
+.dp-sec-t{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--b1)}
+.dp-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:11px}
+.dp-row:last-child{border-bottom:none}
+.dp-k{color:var(--mu);flex-shrink:0;max-width:46%}
+.dp-v{color:var(--tx);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:10px;text-align:right}
+.dp-note{font-size:11px;color:var(--mu);line-height:1.7;background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--b1)}
+.dp-note strong{color:var(--tx)}
+
+/* ════════════════════════════════
+   CHART 1 — DATA FLOW SWIMLANE
+   ════════════════════════════════ */
+.swimlane-wrap{min-width:900px}
+.swimlane-title{font-family:'Lora',serif;font-size:22px;margin-bottom:4px}
+.swimlane-title em{color:var(--gold);font-style:italic}
+.swimlane-sub{font-size:12px;color:var(--mu);margin-bottom:28px;line-height:1.6}
+
+.swim-grid{display:grid;grid-template-columns:110px 1fr;gap:0}
+.swim-labels{display:flex;flex-direction:column;gap:0;padding-top:0}
+.swim-label{display:flex;align-items:center;justify-content:flex-end;padding-right:14px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--mu);border-right:2px solid var(--b2)}
+.swim-rows{display:flex;flex-direction:column;gap:0}
+
+.swim-row{display:flex;align-items:center;gap:0;min-height:72px;border-bottom:1px solid var(--b1);padding:10px 0}
+.swim-row:last-child{border-bottom:none}
+.swim-label{min-height:72px}
+
+.node-box{flex-shrink:0;border-radius:10px;padding:9px 13px;cursor:pointer;transition:all .18s;border:1px solid transparent;min-width:120px;max-width:150px;position:relative}
+.node-box:hover{transform:translateY(-1px);filter:brightness(1.12)}
+.node-box.selected{border-color:rgba(255,255,255,0.4)!important;filter:brightness(1.18)}
+.node-box .nb-icon{font-size:16px;margin-bottom:4px}
+.node-box .nb-title{font-size:11px;font-weight:700;line-height:1.3;margin-bottom:2px}
+.node-box .nb-sub{font-size:9px;color:rgba(255,255,255,0.55);line-height:1.4;font-family:'JetBrains Mono',monospace}
+
+/* arrows between nodes */
+.arrow-h{display:flex;align-items:center;flex:1;padding:0 6px;min-width:30px;position:relative}
+.arrow-h::after{content:'▶';font-size:10px;color:rgba(255,255,255,0.3);position:absolute;right:2px;top:50%;transform:translateY(-50%)}
+.arrow-h .arr-line{height:1.5px;background:rgba(255,255,255,0.15);flex:1}
+.arrow-h .arr-label{position:absolute;left:50%;transform:translateX(-50%);top:-14px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mu);white-space:nowrap;background:var(--bg);padding:1px 5px;border-radius:3px}
+
+.arrow-v{display:flex;justify-content:center;align-items:center;height:20px;position:relative}
+.arrow-v::before{content:'';position:absolute;left:50%;top:0;width:1.5px;height:100%;background:rgba(255,255,255,0.15);transform:translateX(-50%)}
+.arrow-v::after{content:'▼';font-size:9px;color:rgba(255,255,255,0.3);position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)}
+
+/* decision diamond */
+.diamond{width:80px;height:80px;position:relative;flex-shrink:0;cursor:pointer;transition:all .18s}
+.diamond:hover{transform:scale(1.05)}
+.diamond.selected .diamond-inner{border-color:rgba(255,255,255,0.5)!important}
+.diamond-inner{width:60px;height:60px;transform:rotate(45deg);border-radius:6px;position:absolute;top:10px;left:10px;display:flex;align-items:center;justify-content:center;border:2px solid transparent;transition:all .18s}
+.diamond-text{transform:rotate(-45deg);font-size:9px;font-weight:700;text-align:center;line-height:1.3;color:#fff}
+
+/* data packet pill */
+.data-pill{display:inline-block;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:100px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#C084FC;margin:2px}
+
+/* ════════════════════════════════
+   CHART 2 — MONEY MOVEMENT
+   ════════════════════════════════ */
+.money-layout{display:flex;gap:32px;min-width:980px;align-items:flex-start}
+.money-col{flex:1;min-width:0}
+.money-col-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--b2)}
+
+/* flow step card */
+.flow-step{border-radius:12px;padding:14px 16px;margin-bottom:10px;position:relative;cursor:pointer;transition:all .18s;border:1px solid transparent}
+.flow-step:hover{transform:translateX(2px);filter:brightness(1.1)}
+.flow-step.selected{border-color:rgba(255,255,255,0.3)!important;filter:brightness(1.15)}
+.fs-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.fs-icon{font-size:18px;flex-shrink:0}
+.fs-actor{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.fs-name{font-size:12px;font-weight:700}
+.fs-amount{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:#fff;margin-bottom:2px}
+.fs-desc{font-size:10px;color:rgba(255,255,255,0.55);line-height:1.5}
+.fs-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.fs-tag{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border-radius:100px;font-weight:500}
+
+/* connector arrow between steps */
+.step-connector{display:flex;align-items:center;gap:8px;margin:4px 0 4px 22px;opacity:.6}
+.sc-line{flex:1;height:1px;background:rgba(255,255,255,0.15)}
+.sc-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mu)}
+
+/* fee breakdown box */
+.fee-box{background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:16px;margin-top:20px}
+.fee-box-t{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:12px}
+.fee-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.fee-bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.fee-bar{height:100%;border-radius:4px;transition:width .5s}
+.fee-label{font-size:11px;font-weight:600;min-width:120px}
+.fee-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mu);min-width:36px;text-align:right}
+.fee-php{font-family:'JetBrains Mono',monospace;font-size:10px;min-width:72px;text-align:right}
+
+.money-divider{width:1px;background:var(--b2);align-self:stretch;flex-shrink:0;margin:40px 0}
+
+/* ════════════════════════════════
+   CHART 3 — PROCESS FLOW
+   ════════════════════════════════ */
+.process-wrap{min-width:860px}
+
+.phase-block{border-radius:14px;border:1px solid transparent;padding:20px;margin-bottom:20px;position:relative;overflow:hidden}
+.phase-block::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+
+.ph-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.ph-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;border-radius:100px;font-weight:500}
+.ph-title{font-size:16px;font-weight:700}
+.ph-status{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 10px;border-radius:100px;font-weight:500;margin-left:auto}
+
+.steps-flow{display:flex;align-items:center;flex-wrap:wrap;gap:0}
+.step-node{border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .18s;border:1px solid transparent;flex-shrink:0;min-width:130px;max-width:160px}
+.step-node:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.step-node.selected{border-color:rgba(255,255,255,0.45)!important;filter:brightness(1.2)}
+.sn-num{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.45);margin-bottom:3px}
+.sn-name{font-size:11px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.sn-sub{font-size:9px;color:rgba(255,255,255,0.5);line-height:1.4;font-family:'JetBrains Mono',monospace}
+
+.flow-arr{display:flex;align-items:center;padding:0 6px;flex-shrink:0}
+.flow-arr span{font-size:14px;color:rgba(255,255,255,0.25)}
+
+/* branch node */
+.branch-wrap{display:flex;flex-direction:column;gap:8px;margin-top:14px;margin-left:20px}
+.branch-row{display:flex;align-items:center;gap:8px}
+.branch-label{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:100px;flex-shrink:0;min-width:24px;text-align:center}
+
+/* phase colors */
+.ph-forming{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2)}
+.ph-forming::before{background:linear-gradient(90deg,#F59E0B,rgba(245,158,11,.3))}
+.ph-active{background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2)}
+.ph-active::before{background:linear-gradient(90deg,#3B82F6,rgba(59,130,246,.3))}
+.ph-payout{background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.2)}
+.ph-payout::before{background:linear-gradient(90deg,#22C55E,rgba(34,197,94,.3))}
+.ph-default{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2)}
+.ph-default::before{background:linear-gradient(90deg,#EF4444,rgba(239,68,68,.3))}
+.ph-complete{background:rgba(13,148,136,0.06);border-color:rgba(13,148,136,0.2)}
+.ph-complete::before{background:linear-gradient(90deg,#0D9488,rgba(13,148,136,.3))}
+
+/* legend strip */
+.legend-strip{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.ls-item{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--mu);font-weight:500}
+.ls-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="tb-l">
+    <div class="logo">Circle<em>Fi</em></div>
+    <div class="sep"></div>
+    <div class="ttl">Flow & Process Charts</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="data">📡 Data Flow</button>
+    <button class="tab" data-tab="money">💸 Money Movement</button>
+    <button class="tab" data-tab="process">⚙ Circle Lifecycle</button>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="chart-wrap" id="chartWrap"></div>
+  <div class="dp" id="dp">
+    <div class="dp-head">
+      <div class="dp-eye" id="dpEye"></div>
+      <div class="dp-name" id="dpName"></div>
+      <div class="dp-sub" id="dpSub"></div>
+    </div>
+    <div class="dp-body" id="dpBody"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// DETAIL PANEL DATA
+// ─────────────────────────────────────────────────────────────────
+const DETAIL = {
+  // DATA FLOW
+  df_member_app:{eye:'Actor · Member',name:'Member App (Portal 4)',sub:'Consumer app where the member initiates payment',
+    facts:[['Platform','iOS, Android, Progressive Web App'],['Auth','Mobile OTP or email + password · 30-day session'],['Payment initiation','Tap "Pay" → generates Smart Reference ID → opens payment sheet'],['Channels','GCash, Maya, bank INSTAPAY, USDC/USDT stablecoin']],
+    note:'<strong>The member never sees the backend.</strong> They tap Pay, scan a QR or select their wallet, and their contribution is recorded. The Smart Reference ID links their payment to the correct circle slot automatically.'},
+  df_smart_ref:{eye:'Data Object · Identifier',name:'Smart Reference ID',sub:'PAY-YYMMDD-C{CircleID}-U{UserID}-{Hash}',
+    facts:[['Format','PAY-260219-C0042-U0187-A3F9'],['Generated by','CircleFi edge function at payment initiation'],['Purpose','Links rail payment back to correct member + circle + cycle'],['Uniqueness','Hash suffix prevents collision even on same day/circle'],['Human-readable','Operations team can decode any ID without a database lookup']],
+    note:'This is the key that makes the Treasury Rail model work. <strong>CircleFi never touches the money directly</strong> — the Smart Reference ID is how they reconcile what the rail received against what the ledger expects.'},
+  df_routing:{eye:'Decision · Payment Routing',name:'Rail Router',sub:'Threshold-based deterministic routing engine',
+    facts:[['Rule','IF amount ≥ ₱1,500 → Netbank BaaS'],['Rule','IF amount < ₱1,500 → Coins.ph'],['Rule','IF type = STABLECOIN → Coins.ph (any amount)'],['Config','Single DB row — changeable only by Super Admin'],['Fallback','If Netbank API fails → Coins.ph for that transaction'],['In-flight','Rule change does NOT affect transactions already in progress']],
+    note:'The threshold (currently ₱1,500) is stored in <code>payment_routing_config</code>. <strong>No code change needed</strong> to adjust it — Super Admin updates the DB value and the edge function reads it fresh on each transaction.'},
+  df_netbank:{eye:'Payment Rail · Primary',name:'Netbank BaaS',sub:'Handles all ≥₱1,500 domestic PHP contributions',
+    facts:[['Mechanism','12-digit VAN (Virtual Account Number) per member per circle'],['Payment method','INSTAPAY or PESONet bank transfer, GCash pay-to-bank'],['Fee','₱20 flat per inbound transfer'],['Settlement','Near-real-time (INSTAPAY) or same-day (PESONet)'],['Webhook','Fires HTTP POST to CircleFi on every confirmed receipt'],['Custody','Netbank holds the PHP — CircleFi has virtual ledger only']],
+    note:'The member pays to a unique VAN number. Netbank confirms receipt and fires a webhook. <strong>CircleFi never holds the PHP</strong> — Netbank is the custodian until payout is triggered.'},
+  df_coinsph:{eye:'Payment Rail · Specialist',name:'Coins.ph Enterprise',sub:'Handles <₱1,500 domestic PHP and all stablecoin',
+    facts:[['Mechanism','QR Ph code per circle (scanned in GCash/Maya/bank)'],['Stablecoin','USDC or USDT → auto-converted to PHP at market rate'],['Fee domestic','1.5% of contribution amount'],['Fee stablecoin','~0.5–1% FX conversion spread'],['OFW benefit','Saves 2–5% vs traditional remittance (Wise, Western Union)'],['Webhook','Fires HTTP POST to CircleFi on confirmed receipt']],
+    note:'Coins.ph handles two very different flows with one API: <strong>small domestic payments</strong> (below the Netbank break-even) and <strong>OFW stablecoin remittances</strong>. Both fire the same webhook format so CircleFi processes them identically.'},
+  df_webhook:{eye:'Event · Real-time',name:'Payment Webhook',sub:'Instant notification from rail to CircleFi on confirmed receipt',
+    facts:[['Trigger','Rail confirms funds received'],['Payload','{reference_id, amount, rail, timestamp, status}'],['Endpoint','CircleFi Supabase Edge Function (HTTPS POST)'],['Retry','Rail retries 3× with exponential backoff if CircleFi 5xx'],['Idempotency','CircleFi checks for duplicate reference_id before processing'],['Latency','< 2 seconds from payment confirmation to ledger update']],
+    note:'The webhook is the primary path. The nightly reconciliation is the safety net. <strong>Belt and Suspenders</strong>: even if a webhook is missed (network blip, server restart), the nightly sweep catches it and posts the ledger credit.'},
+  df_edge_fn:{eye:'Processing · Edge Function',name:'process_contribution()',sub:'Supabase Edge Function — the transaction brain',
+    facts:[['Trigger','Incoming webhook POST'],['Step 1','Verify webhook signature (HMAC-SHA256)'],['Step 2','Parse Smart Reference ID → extract circle_id, user_id, cycle'],['Step 3','Check idempotency (duplicate reference check)'],['Step 4','Route threshold check (confirm rail was correct)'],['Step 5','Credit virtual ledger'],['Step 6','Update circle contribution status'],['Step 7','Compute blockchain hash payload'],['Step 8','Fire notification to member + manager']],
+    note:'All 8 steps run in a <strong>database transaction</strong>. If any step fails, the entire operation rolls back. The webhook receives a 200 OK only after all steps succeed — this prevents partial states.'},
+  df_ledger:{eye:'Data Store · Virtual',name:'Virtual Ledger',sub:'CircleFi\'s internal accounting — no direct fund custody',
+    facts:[['What it tracks','Expected contributions vs received, per member per cycle'],['Structure','circle_id + member_id + cycle_num + expected_amount + received_amount + status'],['Status values','PENDING → CONFIRMED → VERIFIED (post-reconciliation)'],['Fee accounting','2% CF fee + manager fee logged as virtual credits'],['Payout trigger','Ledger shows all N members confirmed → triggers payout API call'],['Audit','Every ledger mutation is append-only with actor + timestamp']],
+    note:'<strong>CircleFi is not a bank and holds no funds.</strong> The ledger is purely accounting — it tracks what was received and what is owed. Actual PHP sits in Netbank or Coins.ph until a payout disbursement API call moves it to the winner.'},
+  df_polygon:{eye:'Infrastructure · Blockchain',name:'Polygon Audit Hash',sub:'Immutable, publicly-verifiable transaction record',
+    facts:[['Network','Polygon (Ethereum L2) — low gas, high throughput'],['Written','After ledger update confirmed — one hash per contribution'],['Hash includes','circle_id, user_id, cycle, amount, timestamp, ledger_tx_id'],['Verification','Any member can look up their hash on Polygonscan'],['Modifiable','Never — blockchain record is append-only'],['Purpose','Independent tamper-proof record outside CircleFi\'s control']],
+    note:'Even if CircleFi\'s database were hacked and records altered, <strong>the Polygon hashes remain</strong>. Members can verify their contribution history independently. This is critical for trust in a digital paluwagan where members can\'t see each other pay.'},
+  df_notify:{eye:'Event · Notification',name:'Notification Engine',sub:'Confirms payment to member, alerts manager',
+    facts:[['Member notification','In-app push + SMS: "Your ₱X contribution to [Circle] confirmed"'],['Manager notification','In-app + email: "Member [Name] paid for Cycle N"'],['Default notification','SMS + push: "Payment due in 24 hours" (reminder)'],['Channels','Firebase push, Semaphore SMS, in-app notification center'],['Failure handling','If push fails, SMS fallback. If SMS fails, in-app only.']],
+    note:'Notifications are fired <strong>after</strong> ledger update, not before. A member getting a confirmation notification means the ledger has been credited. The notification is evidence of successful processing, not just a receipt of payment initiation.'},
+  df_recon:{eye:'Process · Nightly',name:'Reconciliation Sweep',sub:'Belt-and-suspenders verification at 2:00 AM daily',
+    facts:[['Schedule','2:00 AM Philippine Time daily (via cron Edge Function)'],['What it checks','Rail transaction report vs CircleFi ledger for past 48hrs'],['Discrepancy types','Missing webhook · Duplicate credit · Amount mismatch'],['On mismatch','Creates reconciliation_issue record → alerts CF Finance Admin'],['Resolution','Finance Admin reviews → manual ledger adjustment with reason'],['Status upgrade','CONFIRMED → VERIFIED after reconciliation sweep passes']],
+    note:'The nightly sweep is the <strong>safety net that catches what webhooks miss</strong>. Network failures, server restarts, and edge cases can occasionally cause a webhook to be dropped. The sweep ensures no payment ever goes unrecorded.'},
+
+  // MONEY MOVEMENT
+  mm_member_wallet:{eye:'Source · Member Funds',name:'Member\'s Wallet / Bank',sub:'Where the contribution originates',
+    facts:[['GCash','Tap Pay → QR scan or send to VAN → INSTAPAY'],['Maya','Tap Send → QR or VAN number → INSTAPAY'],['Bank (BPI/BDO/etc.)','Online banking → INSTAPAY to VAN → next-business-day or real-time'],['Stablecoin (OFW)','USDC/USDT from Binance/Coinbase → Coins.ph wallet → auto-PHP'],['No app wallet','CircleFi has no wallet — members pay FROM their own accounts']],
+    note:'CircleFi has <strong>no e-wallet or in-app balance</strong>. Members always pay from their own GCash, Maya, or bank account directly to the payment rail. This is by design — it removes the need for a BSP e-money license.'},
+  mm_rail_custody:{eye:'Custodian · Payment Rail',name:'Netbank BaaS / Coins.ph',sub:'The actual custodian of member funds — NOT CircleFi',
+    facts:[['Netbank holds','All ≥₱1,500 contributions in per-circle VAN accounts'],['Coins.ph holds','All <₱1,500 and stablecoin contributions in enterprise account'],['CircleFi access','API access only — can call disbursement endpoint, not withdraw freely'],['BSP compliance','Both rails are BSP-licensed — deposit insurance applies'],['Fund isolation','Member contributions are tracked by Smart Reference ID'],['Payout','CircleFi calls disbursement API → rail moves money to winner']],
+    note:'This is the <strong>Treasury Rail model</strong>. CircleFi is an orchestration layer, not a fund custodian. If CircleFi went offline tomorrow, Netbank and Coins.ph would still hold all member contributions safely.'},
+  mm_virtual_ledger:{eye:'Accounting · No Custody',name:'CircleFi Virtual Ledger',sub:'Tracks what is owed — holds no actual PHP',
+    facts:[['Type','Pure accounting software — no BSP money service license needed'],['What it records','Expected vs received per member per cycle'],['Fee accounting','2% CF platform fee + 1.5–3% manager fee (virtual deductions)'],['Net pot calc','Gross contributions × (1 - total fee %) = net payout'],['Payout trigger','ALL members confirmed for cycle → ledger triggers payout call'],['Audit','Append-only log of every debit/credit with actor + timestamp']],
+    note:'The virtual ledger is why CircleFi doesn\'t need a banking license. It\'s an <strong>accounting record, not a money account</strong>. Real PHP never enters CircleFi\'s own accounts — it flows member → rail → winner.'},
+  mm_fee_deduction:{eye:'Process · Fee Extraction',name:'Fee Deduction (Virtual)',sub:'5% total fee deducted before net payout is calculated',
+    facts:[['CircleFi fee','2.0% of gross contribution — revenue to CF platform'],['Manager fee','1.5% (Rookie) / 2.0% (Captain) / 3.0% (Banker+) of gross'],['Total fee','3.5% (Rookie) to 5.0% (Banker+) of gross pot'],['Example','₱10,000 pot × 5% = ₱500 fees → ₱9,500 net payout'],['Processing cost','₱20 Netbank fee deducted from CF fee portion'],['Manager paid','Quarterly remittance from CF Finance Admin to manager account']],
+    note:'Fees are deducted <strong>virtually from the ledger</strong> at payout time — not at contribution time. The full contribution amount goes to the rail. Only at payout does the ledger calculate gross − fees = net, then calls the disbursement API for the net amount.'},
+  mm_disbursement:{eye:'Process · Payout',name:'Disbursement API Call',sub:'CircleFi instructs the rail to send net payout to the winner',
+    facts:[['Trigger','All N members confirmed for the cycle + payout date reached'],['API call','POST /disbursement {to_account, amount, reference}'],['Recipient','The slot winner\'s registered GCash / Maya / bank account'],['Amount','Net pot (gross − 5% fees − processing cost)'],['Smart Ref','Disbursement Smart Ref ID: PAY-OUT-YYMMDD-C{ID}-U{ID}'],['Confirmation','Rail fires webhook back on successful disbursement']],
+    note:'Payout is a <strong>single API call per cycle per circle</strong>. The rail (Netbank or Coins.ph) handles the actual fund movement. CircleFi records the disbursement reference, updates the ledger, and notifies the winner.'},
+  mm_winner:{eye:'Destination · Member Payout',name:'Winner\'s Account',sub:'Net pot arrives in the slot winner\'s GCash, Maya, or bank',
+    facts:[['Channels','GCash wallet · Maya wallet · Bank account (any PH bank)'],['Timing','Within 15 minutes for GCash/Maya, same-day for bank'],['Amount','Gross pot minus 5% total fee minus ₱20 processing cost'],['Example','10-member ₱5,000/month circle: ₱50,000 pot → ₱47,480 net'],['Receipt','In-app notification + SMS confirming payout received'],['First slot','Receives payout in Month 1 but pays for remaining 9 months']],
+    note:'The first-slot member gets the biggest "advance" — they pay once and receive ₱47,480. The last-slot member pays all 10 months and receives ₱47,480 — essentially <strong>disciplined savings with a guaranteed payoff date</strong>.'},
+
+  // PROCESS FLOW
+  pf_create:{eye:'Phase 1 · Setup',name:'Manager Creates Circle',sub:'Circle configured before any members join',
+    facts:[['Product selection','Cash / Goal / Home / Drive / Life / Invest'],['Circle size','Minimum 5 members, max per manager tier'],['Contribution amount','Min ₱300 (Rookie) to no max (Executive)'],['Duration','Weekly or monthly cycles, 5–60 months depending on product'],['Payment rail','Auto-assigned by contribution amount and payment type'],['Status after','FORMING — not yet active, accepting member applications']],
+    note:'The manager sets all parameters at creation — size, amount, duration, slot order (random or bid-based). <strong>No changes allowed once ACTIVE</strong>. Members see the full terms before joining.'},
+  pf_invite:{eye:'Phase 1 · Setup',name:'Member Invitation & Joining',sub:'Members apply to join and are vetted',
+    facts:[['Invitation types','Direct invite (manager contacts member) or geo-discovery (member finds circle)'],['Vetting checks','Star rating ≥ threshold · Tier eligibility · Bond for VIP circles'],['Voucher requirement','First-time members or low-star members need a voucher'],['Slot assignment','Random draw OR earliest-bid (early payout auction)'],['Joining deadline','Manager sets — circle doesn\'t form until min members reached'],['Status after','Member status: PENDING → CONFIRMED when all checks pass']],
+    note:'The vouching system creates <strong>social accountability</strong>. A voucher posts a trust bond that can be seized if the member defaults. This replicates the community trust mechanism of traditional paluwagan.'},
+  pf_activate:{eye:'Phase 1 → Phase 2',name:'Circle Activates',sub:'All minimum members confirmed — circle goes ACTIVE',
+    facts:[['Trigger','Min members reached + all KYC/bond checks passed'],['Action','Status: FORMING → ACTIVE'],['Slot order finalized','Locked and published to all members'],['First cycle opens','Payment reminder sent to all members immediately'],['Immutable from here','Circle size, amount, duration cannot change'],['Manager notified','Activation confirmation with full member list']],
+    note:'Activation is a <strong>one-way door</strong>. Once ACTIVE, the circle runs on autopilot through contribution cycles until all members have received their payout or a default event occurs.'},
+  pf_cycle_open:{eye:'Phase 2 · Contribution',name:'Cycle Opens',sub:'Payment window begins — all members notified',
+    facts:[['Reminder schedule','D-7: warning · D-3: reminder · D-1: urgent · D: final'],['Payment window','7 days (weekly circles) or 30 days (monthly circles)'],['Smart Ref ID','Generated fresh for each member for each cycle'],['Grace period','3–7 days after window close (manager-configurable)'],['Auto-confirm','If payment > 95% of expected amount, auto-confirmed (rounding)'],['Manager view','Payment queue shows all members: PAID / PENDING / LATE']],
+    note:'Every cycle is independent. A member who paid early in Cycle 1 still needs to pay in Cycle 2 — there are <strong>no carryovers</strong>. Each cycle generates a new Smart Reference ID.'},
+  pf_payment:{eye:'Phase 2 · Contribution',name:'Member Pays',sub:'Contribution flows through routing engine to rail',
+    facts:[['Flow','Member taps Pay → Smart Ref ID shown → member pays via chosen method'],['Rail selection','CF routing engine: ≥₱1,500 → Netbank · <₱1,500 → Coins.ph'],['Processing','Webhook → edge function → ledger credit → blockchain hash → notification'],['Confirmation','Member receives push + SMS confirmation within 2 seconds of rail confirmation'],['Manager alert','Manager\'s payment queue updates in real-time'],['Status','Member contribution: PENDING → CONFIRMED']],
+    note:'The full data flow (webhook → edge function → ledger → blockchain → notification) happens in <strong>under 5 seconds</strong> from the moment the payment rail confirms receipt.'},
+  pf_default_check:{eye:'Phase 2 · Decision',name:'Grace Period Check',sub:'Did all members pay within grace period?',
+    facts:[['Grace period','3–7 days after cycle close (manager sets at circle creation)'],['Who checks','Edge function runs nightly after grace period expires'],['If all paid','→ Proceed to payout'],['If someone missed','→ Default handling triggered'],['Manager action','Manager can manually flag default before grace period ends'],['Voucher notified','Voucher receives SMS alert when their member enters grace period']],
+    note:'The grace period is the <strong>buffer for life events</strong> — illness, travel, payday delays. Most non-payment issues resolve during grace period. Only after grace expires does the formal default process begin.'},
+  pf_payout_calc:{eye:'Phase 3 · Payout',name:'Payout Calculation',sub:'Net pot calculated — fees deducted virtually from ledger',
+    facts:[['Gross pot','N members × contribution amount'],['CF fee','Gross × 2.0% → CF virtual revenue'],['Manager fee','Gross × 1.5–3.0% depending on tier'],['Processing cost','₱20 (Netbank) or 1.5% (Coins.ph) deducted from CF portion'],['Net payout','Gross − CF fee − manager fee − processing cost'],['Example','₱50,000 gross → ₱1,000 CF + ₱1,500 mgr + ₱20 cost = ₱47,480 net']],
+    note:'Fee deduction is <strong>purely a ledger operation</strong>. The full gross amount has been sitting in Netbank/Coins.ph. The disbursement API is called for only the net amount — fees stay in the rail account until quarterly remittance.'},
+  pf_disburse:{eye:'Phase 3 · Payout',name:'Disbursement',sub:'Net payout sent to slot winner\'s account',
+    facts:[['API call','CircleFi → Netbank or Coins.ph disbursement endpoint'],['Recipient','Slot winner\'s registered GCash / Maya / bank'],['Timing','Within 15 min (GCash/Maya) · Same day (bank)'],['Confirmation','Rail fires webhook → ledger marks DISBURSED → winner notified'],['Smart Ref','Unique disbursement reference ID for audit trail'],['Blockchain','Payout event hash written to Polygon']],
+    note:'The payout is a <strong>single API call</strong>. If it fails (rare — network or rail issue), the CF Finance team is alerted and the payment is retried manually within 2 hours. All retries use the same disbursement reference ID (idempotent).'},
+  pf_next_cycle:{eye:'Phase 2 → Loop',name:'Next Cycle Opens',sub:'Process repeats until all N members have received payout',
+    facts:[['Trigger','Disbursement confirmed → next cycle automatically opens'],['Slot queue','Winner moves to "Completed" · Next slot becomes current winner'],['Repeat','Contribution cycle → payout → next cycle, N times total'],['Final cycle','Last member in slot queue receives payout → circle completes'],['Early exit','Members cannot exit mid-circle (no-refund policy)'],['Post-payout default','If a paid-out member stops paying → highest-risk scenario → Ops Admin']],
+    note:'The loop runs <strong>automatically</strong> once a circle is ACTIVE. Each cycle opens the morning after the previous payout is confirmed. Members get reminders, pay, payout fires. The only human in the loop is the manager for exception handling.'},
+  pf_def_lucky:{eye:'Default Resolution A',name:'Lucky Takeover',sub:'Another member assumes the defaulter\'s remaining obligations',
+    facts:[['How it works','Manager offers defaulter\'s remaining slot to existing or new member'],['Incentive for taker','Takeover member gets defaulter\'s original slot position + remaining cycles'],['Defaulter consequence','Loses trust bond (if vouched) · Star rating drops · Circle access suspended'],['Circle impact','No restructuring needed — same size, same amount'],['Best outcome','Circle continues uninterrupted, winner unaffected'],['Common when','Mid-circle default where remaining pot is attractive']],
+    note:'Lucky Takeover is the <strong>preferred resolution</strong> — the circle continues without disruption. The default opens an opportunity for someone who missed the original join window. Manager facilitates the handoff.'},
+  pf_def_restructure:{eye:'Default Resolution B',name:'Restructure',sub:'Circle downsizes — (N-1) members, smaller contributions',
+    facts:[['How it works','Defaulter removed · Circle restructured with remaining members'],['Contribution change','Remaining members\' share recalculated: pot stays same, N-1 people pay'],['Or alternatively','Pot reduces: same contribution, same N-1 members, smaller payout'],['Manager decision','Manager chooses which restructure model with member vote'],['Defaulter consequence','Same as Lucky Takeover — bond loss, rating drop, suspension'],['Common when','No one wants to take over the defaulter\'s slot']],
+    note:'Restructuring is messier but preserves the circle. <strong>All remaining members must agree</strong> to the new terms. If they don\'t, the manager can escalate to CF Ops Admin for assisted resolution.'},
+  pf_def_bond:{eye:'Default Resolution C',name:'Trust Bond Seizure',sub:'Voucher\'s posted bond applied to cover the defaulter\'s obligation',
+    facts:[['Trigger','Default confirmed after grace period · Lucky Takeover not possible · No restructure'],['Bond amount','Voucher posted ₱500–₱5,000 at circle join time'],['Bond covers','Defaulter\'s remaining contribution obligations up to bond amount'],['If bond insufficient','Shortfall covered by CF platform emergency reserve · Manager notified'],['Voucher consequence','Bond seized · Voucher rating drops · Cannot vouch for 6 months'],['Defaulter consequence','Star rating drops to minimum · Long suspension from all circles']],
+    note:'Trust Bond Seizure is the <strong>last resort</strong> when neither takeover nor restructure resolves the default. The voucher system exists precisely for this scenario — it\'s not punitive, it\'s a pre-agreed guarantee mechanism.'},
+  pf_post_default:{eye:'Critical Risk · Special Case',name:'Post-Payout Default',sub:'Member received payout but stops paying — highest risk scenario',
+    facts:[['Why highest risk','Member already received full payout · Remaining members subsidize the loss'],['CircleFi response','CF Ops Admin directly involved · Not just manager-level handling'],['Legal','CircleFi\'s terms include data sharing with collections partners for post-payout defaults'],['Financial impact','Late-slot members bear the most risk — their pot is smaller from the shortfall'],['Prevention','VIP bond requirement for Wealth/Goal circles reduces this risk'],['Platform ban','Post-payout default → permanent ban from all CircleFi circles']],
+    note:'This is the scenario the entire trust system is designed to prevent. <strong>VIP bonds, star ratings, vouchers, and tier requirements</strong> all exist to identify and exclude members likely to default after receiving their payout.'},
+  pf_complete:{eye:'Phase 5 · Completion',name:'Circle Completed',sub:'All N members have received their payout — circle closes',
+    facts:[['Trigger','Final slot winner\'s disbursement confirmed'],['Circle status','ACTIVE → COMPLETED'],['Rating updates','All members\' star ratings adjusted based on payment history'],['Manager rating','Manager star rating adjusted based on default rate, cycle speed'],['Revenue settlement','CF Finance processes quarterly fee remittance to manager account'],['Blockchain','Final audit record hash written — permanent, publicly verifiable'],['Eligible to re-run','Manager can immediately open a new circle of the same type']],
+    note:'Completion is a <strong>celebration moment</strong> in the app — all members get a completion notification with their contribution history and a prompt to join or start another circle. High-performing members see their star rating improve, unlocking better circle access.'},
+};
+
+// ─────────────────────────────────────────────────────────────────
+// TAB 1: DATA FLOW
+// ─────────────────────────────────────────────────────────────────
+function renderDataFlow(){
+  return `
+<div class="swimlane-wrap">
+  <div class="swimlane-title">Data <em>Flow</em></div>
+  <div class="swimlane-sub">How data moves from a member's payment tap to the blockchain audit record — and the nightly reconciliation that verifies everything. Click any step for detail.</div>
+
+  <div class="legend-strip">
+    <div class="ls-item"><div class="ls-dot" style="background:#3B82F6"></div>Member / App</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#22D3EE"></div>Netbank BaaS</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#F59E0B"></div>Coins.ph</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#C9950A"></div>CircleFi Engine</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#A78BFA"></div>Polygon Blockchain</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#22C55E"></div>Notifications</div>
+  </div>
+
+  <!-- Step-by-step horizontal swimlane -->
+  <div style="overflow-x:auto;padding-bottom:12px">
+  <div style="min-width:1100px">
+
+  <!-- Row: MEMBER -->
+  <div style="display:flex;align-items:center;margin-bottom:0">
+    <div style="width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#3B82F6;padding-right:14px;text-align:right;border-right:2px solid rgba(255,255,255,0.08);padding-top:10px;padding-bottom:10px;min-height:92px;display:flex;align-items:center;justify-content:flex-end">Member<br>/ App</div>
+    <div style="flex:1;padding:8px 0 8px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:0;min-height:92px">
+      ${stepBox('df_member_app','#3B82F6','rgba(59,130,246,0.12)','📱','Member App','Portal 4 · pays via GCash/Maya/bank')}
+      ${arrow('Initiates payment','rgba(59,130,246,0.4)')}
+      ${stepBox('df_smart_ref','#8B5CF6','rgba(139,92,246,0.12)','🔑','Smart Ref ID','PAY-YYMMDD-C{ID}-U{ID}-{Hash}')}
+      ${arrow('Routes by amount','rgba(201,149,10,0.4)')}
+      ${stepBox('df_routing','#C9950A','rgba(201,149,10,0.12)','⚖','Rail Router','< ₱1,500 → Coins.ph  ≥ ₱1,500 → Netbank')}
+    </div>
+  </div>
+
+  <!-- Row: RAILS -->
+  <div style="display:flex;align-items:center;margin-bottom:0">
+    <div style="width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#22D3EE;padding-right:14px;text-align:right;border-right:2px solid rgba(255,255,255,0.08);min-height:100px;display:flex;align-items:center;justify-content:flex-end">Payment<br>Rails</div>
+    <div style="flex:1;padding:8px 0 8px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:0;min-height:100px">
+      ${stepBox('df_netbank','#22D3EE','rgba(34,211,238,0.12)','🏦','Netbank BaaS','VAN · INSTAPAY/PESONet · ₱20 flat')}
+      <div style="display:flex;flex-direction:column;gap:4px;padding:0 12px;flex-shrink:0">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3)">≥₱1,500 ↑</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3)">< ₱1,500 ↓</div>
+      </div>
+      ${stepBox('df_coinsph','#F59E0B','rgba(245,158,11,0.12)','🔶','Coins.ph','QR Ph · stablecoin · 1.5%')}
+      ${arrow('Webhook fires','rgba(201,149,10,0.4)')}
+      ${stepBox('df_webhook','#F97316','rgba(249,115,22,0.12)','📡','Payment Webhook','HTTP POST to CF edge function')}
+    </div>
+  </div>
+
+  <!-- Row: CIRCLEFI ENGINE -->
+  <div style="display:flex;align-items:center;margin-bottom:0">
+    <div style="width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#C9950A;padding-right:14px;text-align:right;border-right:2px solid rgba(255,255,255,0.08);min-height:100px;display:flex;align-items:center;justify-content:flex-end">CircleFi<br>Engine</div>
+    <div style="flex:1;padding:8px 0 8px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:0;min-height:100px">
+      ${stepBox('df_edge_fn','#C9950A','rgba(201,149,10,0.12)','⚡','process_contribution()','Verify → Parse → Idempotency → Credit')}
+      ${arrow('Updates','rgba(201,149,10,0.4)')}
+      ${stepBox('df_ledger','#EC4899','rgba(236,72,153,0.12)','📒','Virtual Ledger','Contribution record · Fee accounting · Payout trigger')}
+      ${arrow('Writes hash','rgba(167,139,250,0.4)')}
+      ${stepBox('df_polygon','#A78BFA','rgba(167,139,250,0.12)','⛓','Polygon Hash','Immutable audit record per contribution')}
+    </div>
+  </div>
+
+  <!-- Row: NOTIFICATIONS + RECONCILIATION -->
+  <div style="display:flex;align-items:center">
+    <div style="width:110px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#22C55E;padding-right:14px;text-align:right;border-right:2px solid rgba(255,255,255,0.08);min-height:100px;display:flex;align-items:center;justify-content:flex-end">Notify &<br>Verify</div>
+    <div style="flex:1;padding:8px 0 8px 16px;display:flex;align-items:center;gap:0;min-height:100px">
+      ${stepBox('df_notify','#22C55E','rgba(34,197,94,0.12)','🔔','Notifications','Member receipt + Manager alert · push + SMS')}
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:0 20px;gap:4px">
+        <div style="width:100%;height:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.25)">Nightly 2AM</div>
+      </div>
+      ${stepBox('df_recon','#6EE7B7','rgba(110,231,183,0.1)','🔍','Reconciliation Sweep','Belt-and-suspenders · catches missed webhooks')}
+    </div>
+  </div>
+
+  <!-- Data objects row -->
+  <div style="margin-top:24px;padding:16px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:#A78BFA;margin-bottom:10px">Key Data Objects in Motion</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      <span class="data-pill">Smart Reference ID: PAY-260219-C0042-U0187-A3F9</span>
+      <span class="data-pill">contribution: {circle_id, user_id, cycle, amount, rail, status}</span>
+      <span class="data-pill">webhook payload: {ref_id, amount, timestamp, rail, status}</span>
+      <span class="data-pill">ledger credit: {circle_id, user_id, cycle, expected, received, status}</span>
+      <span class="data-pill">blockchain hash: {circle_id, user_id, cycle, amount, ts, ledger_tx}</span>
+      <span class="data-pill">recon record: {rail_tx_id, ledger_tx_id, match, discrepancy_type}</span>
+    </div>
+  </div>
+
+  </div>
+  </div>
+</div>`;
+}
+
+function stepBox(id, borderColor, bg, icon, title, sub){
+  return `<div class="node-box" onclick="selectNode('${id}',this)" data-id="${id}" style="background:${bg};border-color:${borderColor}33">
+    <div class="nb-icon">${icon}</div>
+    <div class="nb-title">${title}</div>
+    <div class="nb-sub">${sub}</div>
+  </div>`;
+}
+function arrow(label,color){
+  return `<div class="arrow-h" style="min-width:60px;flex:1">
+    <div class="arr-line" style="background:${color||'rgba(255,255,255,0.15)'}"></div>
+    <div class="arr-label" style="color:rgba(255,255,255,0.35)">${label}</div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TAB 2: MONEY MOVEMENT
+// ─────────────────────────────────────────────────────────────────
+function renderMoney(){
+  return `
+<div>
+  <div class="swimlane-title">Money <em>Movement</em></div>
+  <div class="swimlane-sub">How PHP flows from member wallets through payment rails to the winning member — and how fees are extracted virtually. Based on a 10-member ₱5,000/month Captain-tier circle. Click any step for detail.</div>
+
+  <div class="money-layout">
+
+    <!-- CONTRIBUTION SIDE -->
+    <div class="money-col">
+      <div class="money-col-title">↓ CONTRIBUTION FLOW · Cycle N Payment</div>
+
+      ${flowStep('mm_member_wallet','#3B82F6','rgba(59,130,246,0.1)','👤','Member','Member\'s Wallet / Bank','₱5,000','GCash / Maya / BPI / USDC','Via QR Ph scan or bank INSTAPAY to VAN',
+        [{t:'GCash',c:'#22C55E'},{t:'Maya',c:'#3B82F6'},{t:'INSTAPAY',c:'#F59E0B'},{t:'USDT/USDC',c:'#A78BFA'}])}
+
+      <div class="step-connector">
+        <div class="sc-line"></div>
+        <div class="sc-label">Smart Ref ID · INSTAPAY / QR Ph</div>
+        <div class="sc-line"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.3)">↓</span>
+      </div>
+
+      ${flowStep('mm_rail_custody','#22D3EE','rgba(34,211,238,0.08)','🏛','Rail (Custodian)','Netbank BaaS / Coins.ph','₱5,000','Held in VAN account','CircleFi has API access only — not direct custody',
+        [{t:'Netbank VAN',c:'#22D3EE'},{t:'Not CircleFi',c:'#EF4444'}])}
+
+      <div class="step-connector">
+        <div class="sc-line"></div>
+        <div class="sc-label">Webhook → edge function → ledger credit</div>
+        <div class="sc-line"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.3)">↓</span>
+      </div>
+
+      ${flowStep('mm_virtual_ledger','#C9950A','rgba(201,149,10,0.08)','📒','CircleFi','Virtual Ledger','₱50,000 gross','Accounting only — no fund custody','All 10 members × ₱5,000 tracked in ledger',
+        [{t:'No BSP license needed',c:'#22C55E'},{t:'Append-only',c:'#A78BFA'}])}
+    </div>
+
+    <div class="money-divider"></div>
+
+    <!-- FEE BREAKDOWN -->
+    <div class="money-col" style="max-width:300px">
+      <div class="money-col-title">⚖ FEE BREAKDOWN · 10-Member ₱5,000/month Circle</div>
+
+      <div class="fee-box" onclick="selectNode('mm_fee_deduction',this)" data-id="mm_fee_deduction" style="cursor:pointer">
+        <div class="fee-box-t">Gross Pot: ₱50,000</div>
+
+        <div class="fee-row">
+          <span class="fee-label" style="color:#C9950A">CircleFi Fee</span>
+          <div class="fee-bar-wrap"><div class="fee-bar" style="width:40%;background:#C9950A"></div></div>
+          <span class="fee-pct">2.0%</span>
+          <span class="fee-php" style="color:#C9950A">₱1,000</span>
+        </div>
+        <div class="fee-row">
+          <span class="fee-label" style="color:#38BDF8">Manager Fee</span>
+          <div class="fee-bar-wrap"><div class="fee-bar" style="width:40%;background:#38BDF8"></div></div>
+          <span class="fee-pct">2.0%</span>
+          <span class="fee-php" style="color:#38BDF8">₱1,000</span>
+        </div>
+        <div class="fee-row" style="opacity:.6">
+          <span class="fee-label" style="color:#22D3EE;font-size:10px">Processing (Netbank)</span>
+          <div class="fee-bar-wrap"><div class="fee-bar" style="width:4%;background:#22D3EE"></div></div>
+          <span class="fee-pct" style="font-size:9px">₱20</span>
+          <span class="fee-php" style="color:#22D3EE;font-size:9px">flat</span>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.08);margin:10px 0"></div>
+        <div class="fee-row">
+          <span class="fee-label" style="color:#22C55E;font-size:13px">Net Payout</span>
+          <div class="fee-bar-wrap"><div class="fee-bar" style="width:95%;background:#22C55E"></div></div>
+          <span class="fee-pct" style="color:#22C55E">95.6%</span>
+          <span class="fee-php" style="color:#22C55E;font-size:13px">₱47,980</span>
+        </div>
+
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mu);margin-bottom:8px;letter-spacing:.1em;text-transform:uppercase">Per-Member Perspective</div>
+          <div style="font-size:11px;color:var(--mu);line-height:1.8">
+            <strong style="color:var(--tx)">First-slot member</strong><br>Pays ₱5,000 once → receives ₱47,980<br><em style="color:#22C55E">Net gain: ₱42,980 advance</em><br><br>
+            <strong style="color:var(--tx)">Last-slot member</strong><br>Pays ₱5,000 × 10 = ₱50,000 → receives ₱47,980<br><em style="color:#F59E0B">Net cost: ₱2,020 (savings discipline)</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rail cost comparison -->
+      <div style="background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:16px;margin-top:16px">
+        <div class="fee-box-t">Rail Cost Comparison · ₱5,000 contribution</div>
+        <div class="fee-row">
+          <span class="fee-label" style="color:#22D3EE;font-size:11px">Netbank BaaS</span>
+          <span class="fee-php" style="color:#22C55E">₱20 flat ✓</span>
+        </div>
+        <div class="fee-row">
+          <span class="fee-label" style="color:#F59E0B;font-size:11px">Coins.ph (1.5%)</span>
+          <span class="fee-php" style="color:#EF4444">₱75 ✗</span>
+        </div>
+        <div style="font-size:10px;color:var(--mu);margin-top:8px">At ₱5,000: Netbank saves ₱55/tx<br>Break-even threshold: ₱1,333<br>Platform saves ₱16.2M/year at scale</div>
+      </div>
+    </div>
+
+    <div class="money-divider"></div>
+
+    <!-- PAYOUT SIDE -->
+    <div class="money-col">
+      <div class="money-col-title">↑ PAYOUT FLOW · Disbursement to Winner</div>
+
+      ${flowStep('mm_disbursement','#22C55E','rgba(34,197,94,0.08)','⚡','CircleFi','Disbursement API Call','₱47,980','POST /disbursement → rail','Calls Netbank or Coins.ph to move net pot to winner',
+        [{t:'Single API call',c:'#22C55E'},{t:'Idempotent',c:'#A78BFA'}])}
+
+      <div class="step-connector">
+        <div class="sc-line"></div>
+        <div class="sc-label">Rail processes disbursement · webhook confirms</div>
+        <div class="sc-line"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.3)">↓</span>
+      </div>
+
+      ${flowStep('mm_winner','#F472B6','rgba(244,114,182,0.08)','🏆','Slot Winner','Winner\'s GCash / Maya / Bank','₱47,980','Net pot arrives in 15 min','GCash or Maya wallet, same-day for bank accounts',
+        [{t:'GCash ≤15min',c:'#22C55E'},{t:'Bank same-day',c:'#3B82F6'}])}
+
+      <div style="margin-top:20px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:12px;padding:14px 16px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#22C55E;margin-bottom:10px">Treasury Rail Model</div>
+        <div style="font-size:11px;color:var(--mu);line-height:1.8">
+          CircleFi <strong style="color:var(--tx)">never holds member funds</strong>.<br><br>
+          PHP flows: <strong style="color:var(--tx)">Member wallet → Rail (custodian) → Winner wallet</strong><br><br>
+          CircleFi only moves the <strong style="color:var(--tx)">accounting</strong> in its virtual ledger and instructs the rail via API when to disburse.<br><br>
+          This is why no BSP <strong style="color:var(--tx)">e-money license</strong> is required — CircleFi is a software layer, not a financial custodian.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>`;
+}
+
+function flowStep(id,bc,bg,icon,actor,name,amount,method,desc,tags){
+  return `<div class="flow-step" onclick="selectNode('${id}',this)" data-id="${id}" style="background:${bg};border-color:${bc}33">
+    <div class="fs-head">
+      <div class="fs-icon">${icon}</div>
+      <div><div class="fs-actor">${actor}</div><div class="fs-name">${name}</div></div>
+      <div style="margin-left:auto;text-align:right">
+        <div class="fs-amount" style="color:${bc}">${amount}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35)">${method}</div>
+      </div>
+    </div>
+    <div class="fs-desc">${desc}</div>
+    <div class="fs-tags">${tags.map(t=>`<span class="fs-tag" style="background:${t.c}18;color:${t.c};border:1px solid ${t.c}33">${t.t}</span>`).join('')}</div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TAB 3: PROCESS FLOW
+// ─────────────────────────────────────────────────────────────────
+function renderProcess(){
+  return `
+<div class="process-wrap">
+  <div class="swimlane-title">Circle <em>Lifecycle</em></div>
+  <div class="swimlane-sub">Every savings circle passes through five phases from creation to completion. The default handling branch shows three resolution paths. Click any step for detail.</div>
+
+  <div class="legend-strip">
+    <div class="ls-item"><div class="ls-dot" style="background:#F59E0B"></div>Phase 1: Setup (FORMING)</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#3B82F6"></div>Phase 2: Contribution Cycle (ACTIVE)</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#22C55E"></div>Phase 3: Payout</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#EF4444"></div>Default Handling (branch)</div>
+    <div class="ls-item"><div class="ls-dot" style="background:#0D9488"></div>Phase 5: Completion</div>
+  </div>
+
+  <!-- PHASE 1: SETUP -->
+  <div class="phase-block ph-forming">
+    <div class="ph-header">
+      <div class="ph-badge" style="background:rgba(245,158,11,0.15);color:#F59E0B">Phase 1</div>
+      <div class="ph-title">Circle Setup</div>
+      <div class="ph-status" style="background:rgba(245,158,11,0.15);color:#F59E0B">STATUS: FORMING</div>
+    </div>
+    <div class="steps-flow">
+      ${snode('pf_create','#F59E0B','rgba(245,158,11,0.12)','1','Manager Creates Circle','Sets product, size, amount, duration, fee')}
+      ${farr()}
+      ${snode('pf_invite','#F97316','rgba(249,115,22,0.12)','2','Members Join','Vetting · voucher · slot assignment')}
+      ${farr()}
+      ${snode('pf_activate','#FCD34D','rgba(252,211,77,0.1)','3','Circle Activates','FORMING → ACTIVE · first cycle opens')}
+    </div>
+  </div>
+
+  <!-- PHASE 2: CONTRIBUTION (repeating) -->
+  <div class="phase-block ph-active" style="border-left:3px solid #3B82F6">
+    <div class="ph-header">
+      <div class="ph-badge" style="background:rgba(59,130,246,0.15);color:#3B82F6">Phase 2</div>
+      <div class="ph-title">Contribution Cycle</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#3B82F6;margin-left:8px">↺ Repeats N times (once per member)</div>
+      <div class="ph-status" style="background:rgba(59,130,246,0.15);color:#3B82F6">STATUS: ACTIVE</div>
+    </div>
+    <div class="steps-flow">
+      ${snode('pf_cycle_open','#38BDF8','rgba(56,189,248,0.12)','4','Cycle Opens','Reminders sent · Smart Ref IDs generated')}
+      ${farr()}
+      ${snode('pf_payment','#3B82F6','rgba(59,130,246,0.12)','5','Members Pay','Smart Ref → Rail → Webhook → Ledger → Polygon')}
+      ${farr()}
+      ${sdiamond('pf_default_check','#F59E0B','All paid\nwithin\ngrace?')}
+    </div>
+
+    <!-- YES branch → payout -->
+    <div style="display:flex;align-items:flex-start;gap:0;margin-top:8px;margin-left:320px">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-right:8px">
+        <div style="width:1.5px;height:20px;background:rgba(34,197,94,0.4)"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#22C55E;padding:2px 8px;background:rgba(34,197,94,0.1);border-radius:100px;border:1px solid rgba(34,197,94,0.25)">YES →</div>
+      </div>
+    </div>
+
+    <!-- NO branch → default -->
+    <div style="margin-top:4px;margin-left:340px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#EF4444;padding:2px 8px;background:rgba(239,68,68,0.1);border-radius:100px;border:1px solid rgba(239,68,68,0.25);display:inline-block;margin-bottom:8px">NO → Default Handling ↓</div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: PAYOUT -->
+  <div class="phase-block ph-payout" style="margin-left:40px">
+    <div class="ph-header">
+      <div class="ph-badge" style="background:rgba(34,197,94,0.15);color:#22C55E">Phase 3</div>
+      <div class="ph-title">Payout</div>
+      <div class="ph-status" style="background:rgba(34,197,94,0.15);color:#22C55E">CYCLE COMPLETE</div>
+    </div>
+    <div class="steps-flow">
+      ${snode('pf_payout_calc','#22C55E','rgba(34,197,94,0.12)','6','Payout Calc','Gross pot − 2% CF − manager fee = net')}
+      ${farr()}
+      ${snode('pf_disburse','#4ADE80','rgba(74,222,128,0.12)','7','Disbursement','API call → rail → winner\'s GCash/bank')}
+      ${farr()}
+      ${snode('pf_next_cycle','#86EFAC','rgba(134,239,172,0.1)','8','Next Cycle Opens','Or circle completes if last member paid out')}
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(59,130,246,0.7);padding:3px 12px;background:rgba(59,130,246,0.08);border-radius:100px;border:1px solid rgba(59,130,246,0.2)">↺ Loop back to Phase 2 until all N members paid out</div>
+    </div>
+  </div>
+
+  <!-- DEFAULT HANDLING BRANCH -->
+  <div class="phase-block ph-default">
+    <div class="ph-header">
+      <div class="ph-badge" style="background:rgba(239,68,68,0.15);color:#EF4444">Default Branch</div>
+      <div class="ph-title">Default Handling</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(239,68,68,0.7);margin-left:8px">Triggered if member fails to pay within grace period</div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      ${snode('pf_post_default','#EF4444','rgba(239,68,68,0.12)','!','Post-Payout Default','Member received payout but stopped paying — Ops Admin involved','max-width:200px')}
+    </div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu);margin-bottom:10px;letter-spacing:.1em;text-transform:uppercase">Three Resolution Paths — tried in order:</div>
+
+    <div class="branch-wrap">
+      <div class="branch-row">
+        <div class="branch-label" style="background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.25)">A</div>
+        ${snode('pf_def_lucky','#22C55E','rgba(34,197,94,0.1)','→','Lucky Takeover','Someone assumes defaulter\'s slot obligations — circle continues')}
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#22C55E;padding:4px 10px;background:rgba(34,197,94,0.08);border-radius:8px;border:1px solid rgba(34,197,94,0.2);margin-left:8px">Best outcome<br>No disruption</div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label" style="background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25)">B</div>
+        ${snode('pf_def_restructure','#F59E0B','rgba(245,158,11,0.1)','→','Restructure','Circle downsizes to N-1 members · recalculated contributions')}
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#F59E0B;padding:4px 10px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.2);margin-left:8px">Messier<br>Requires consent</div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-label" style="background:rgba(239,68,68,0.12);color:#EF4444;border:1px solid rgba(239,68,68,0.25)">C</div>
+        ${snode('pf_def_bond','#EF4444','rgba(239,68,68,0.1)','→','Trust Bond Seizure','Voucher\'s bond applied · Voucher penalized · Last resort')}
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#EF4444;padding:4px 10px;background:rgba(239,68,68,0.08);border-radius:8px;border:1px solid rgba(239,68,68,0.2);margin-left:8px">Last resort<br>Voucher bears cost</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5: COMPLETION -->
+  <div class="phase-block ph-complete">
+    <div class="ph-header">
+      <div class="ph-badge" style="background:rgba(13,148,136,0.15);color:#0D9488">Phase 5</div>
+      <div class="ph-title">Circle Completion</div>
+      <div class="ph-status" style="background:rgba(13,148,136,0.15);color:#0D9488">STATUS: COMPLETED</div>
+    </div>
+    <div class="steps-flow">
+      ${snode('pf_complete','#0D9488','rgba(13,148,136,0.12)','✓','Circle Completes','All N members paid out · ratings updated · blockchain finalized')}
+      ${farr()}
+      <div style="padding:12px 16px;background:rgba(13,148,136,0.08);border:1px solid rgba(13,148,136,0.2);border-radius:10px;max-width:300px">
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.7">
+          ✓ All star ratings updated<br>
+          ✓ Manager fee remittance queued<br>
+          ✓ Blockchain audit record finalized<br>
+          ✓ Members prompted to start new circle<br>
+          ✓ Manager eligible to open next circle immediately
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>`;
+}
+
+function snode(id,bc,bg,num,name,sub,extra=''){
+  return `<div class="step-node" onclick="selectNode('${id}',this)" data-id="${id}" style="background:${bg};border-color:${bc}33;${extra}">
+    <div class="sn-num" style="color:${bc}88">Step ${num}</div>
+    <div class="sn-name" style="color:${bc}">${name}</div>
+    <div class="sn-sub">${sub}</div>
+  </div>`;
+}
+function farr(){return `<div class="flow-arr"><span>→</span></div>`;}
+function sdiamond(id,bc,txt2){
+  return `<div style="display:flex;align-items:center;cursor:pointer" onclick="selectNode('${id}',this)" data-id="${id}">
+    <div style="width:80px;height:80px;position:relative;flex-shrink:0">
+      <div style="width:56px;height:56px;transform:rotate(45deg);border-radius:6px;position:absolute;top:12px;left:12px;background:rgba(245,158,11,0.12);border:2px solid rgba(245,158,11,0.4)"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#F59E0B;text-align:center;line-height:1.3;padding:8px">${txt2}</div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INTERACTION
+// ─────────────────────────────────────────────────────────────────
+let selectedId = null;
+
+window.selectNode = function(id, el){
+  if(selectedId === id){
+    selectedId = null;
+    document.querySelectorAll('.selected').forEach(e=>e.classList.remove('selected'));
+    document.getElementById('dp').classList.remove('open');
+    return;
+  }
+  selectedId = id;
+  document.querySelectorAll('.selected').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  showDP(id);
+};
+
+function showDP(id){
+  const info = DETAIL[id];
+  if(!info)return;
+  const dp = document.getElementById('dp');
+  dp.classList.add('open');
+  document.getElementById('dpEye').textContent = info.eye;
+  document.getElementById('dpName').textContent = info.name;
+  document.getElementById('dpSub').textContent = info.sub;
+
+  let h = '';
+  if(info.facts?.length){
+    h += `<div class="dp-sec"><div class="dp-sec-t">Key Details</div>`;
+    info.facts.forEach(([k,v])=>h+=`<div class="dp-row"><span class="dp-k">${k}</span><span class="dp-v">${v}</span></div>`);
+    h += `</div>`;
+  }
+  if(info.note){
+    h += `<div class="dp-sec"><div class="dp-sec-t">Notes</div><div class="dp-note">${info.note}</div></div>`;
+  }
+  document.getElementById('dpBody').innerHTML = h;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────────────────────────
+let curTab = 'data';
+
+function renderTab(tab){
+  const wrap = document.getElementById('chartWrap');
+  selectedId = null;
+  document.getElementById('dp').classList.remove('open');
+  if(tab==='data') wrap.innerHTML = renderDataFlow();
+  else if(tab==='money') wrap.innerHTML = renderMoney();
+  else wrap.innerHTML = renderProcess();
+}
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    curTab = btn.dataset.tab;
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTab(curTab);
+  });
+});
+
+renderTab('data');
+</script>
+</body>
+</html>
