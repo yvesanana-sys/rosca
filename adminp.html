@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleFi Admin — admin.circlefi.ph</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080D12;
+    --bg-2: #0C1319;
+    --bg-3: #111920;
+    --bg-4: #162030;
+    --border: rgba(255,255,255,0.06);
+    --border-gold: rgba(201,151,74,0.2);
+    --border-red: rgba(220,60,60,0.3);
+    --gold: #C9974A;
+    --gold-dim: rgba(201,151,74,0.6);
+    --white: #EEF0F2;
+    --white-dim: rgba(238,240,242,0.5);
+    --white-faint: rgba(238,240,242,0.06);
+    --red: #DC3C3C;
+    --red-dim: rgba(220,60,60,0.15);
+    --green: #3CB878;
+    --green-dim: rgba(60,184,120,0.15);
+    --amber: #E8A020;
+    --amber-dim: rgba(232,160,32,0.15);
+    --blue: #3A8FD9;
+    --blue-dim: rgba(58,143,217,0.15);
+    --purple: #8B5CF6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── Scanline overlay for that admin-terminal feel ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 9999;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+  }
+
+  /* ── Layout ── */
+  .shell {
+    display: grid;
+    grid-template-rows: 48px 1fr;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 20px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent 50%);
+    opacity: 0.4;
+  }
+  .admin-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-right: 20px;
+  }
+  .admin-logo-mark {
+    width: 28px; height: 28px;
+    background: var(--gold);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .admin-logo-mark svg { width: 16px; height: 16px; }
+  .admin-logo-text {
+    font-family: var(--display);
+    font-size: 15px; font-weight: 800;
+    letter-spacing: -0.5px; color: var(--white);
+  }
+  .admin-logo-text span { color: var(--gold); }
+  .admin-logo-badge {
+    font-family: var(--mono);
+    font-size: 9px; padding: 2px 7px;
+    background: var(--red-dim); border: 1px solid var(--border-red);
+    color: var(--red); border-radius: 4px; letter-spacing: 0.5px;
+  }
+
+  .topbar-breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px; color: var(--white-dim);
+    flex: 1;
+  }
+  .topbar-breadcrumb span { color: var(--gold); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+  .topbar-btn {
+    padding: 6px 12px; border-radius: 6px;
+    font-family: var(--mono); font-size: 11px;
+    border: 1px solid var(--border); background: none; color: var(--white-dim);
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .topbar-btn:hover { border-color: rgba(238,240,242,0.2); color: var(--white); }
+  .topbar-btn.danger { border-color: var(--border-red); color: var(--red); }
+  .topbar-btn.danger:hover { background: var(--red-dim); }
+
+  .topbar-admin {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px 4px 4px;
+    background: var(--white-faint); border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .topbar-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--red), #FF8C42);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--white);
+  }
+  .topbar-admin-name { font-size: 12px; font-weight: 500; }
+  .topbar-admin-role {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--red); letter-spacing: 0.5px;
+  }
+
+  /* Alert strip */
+  .alert-strip {
+    grid-column: 1 / -1;
+    padding: 6px 20px;
+    background: rgba(220,60,60,0.1);
+    border-bottom: 1px solid var(--border-red);
+    font-family: var(--mono);
+    font-size: 11px; color: var(--red);
+    display: flex; align-items: center; gap: 12px;
+    animation: pulse-strip 2s ease-in-out infinite;
+  }
+  @keyframes pulse-strip { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  .alert-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulse-strip 1s infinite; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(238,240,242,0.25);
+    padding: 12px 8px 4px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px;
+    font-size: 13px; color: var(--white-dim);
+    cursor: pointer; transition: all 0.15s;
+    position: relative;
+  }
+  .nav-item:hover { background: var(--white-faint); color: var(--white); }
+  .nav-item.active {
+    background: rgba(201,151,74,0.08);
+    color: var(--gold);
+    border: 1px solid rgba(201,151,74,0.12);
+  }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px; padding: 1px 6px;
+    border-radius: 10px; font-weight: 600;
+  }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-gold { background: rgba(201,151,74,0.12); color: var(--gold); }
+
+  /* Routing config live display */
+  .routing-status {
+    margin-top: auto;
+    padding: 12px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+  }
+  .routing-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 6px; }
+  .routing-value { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--gold); }
+  .routing-meta { font-family: var(--mono); font-size: 9px; color: var(--white-dim); margin-top: 2px; }
+  .routing-rails { display: flex; gap: 6px; margin-top: 8px; }
+  .rail-chip {
+    flex: 1; padding: 5px;
+    border-radius: 5px; text-align: center;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
+  }
+  .rail-netbank { background: var(--blue-dim); border: 1px solid rgba(58,143,217,0.25); color: var(--blue); }
+  .rail-coins { background: var(--amber-dim); border: 1px solid rgba(232,160,32,0.25); color: var(--amber); }
+
+  /* ── Main content ── */
+  .main {
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  /* Page header */
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .page-title {
+    font-family: var(--display);
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+  }
+  .page-sub { font-size: 12px; color: var(--white-dim); margin-top: 2px; font-family: var(--mono); }
+
+  /* Screen tabs */
+  .screen-tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0; padding-bottom: 0;
+  }
+  .stab {
+    padding: 8px 16px;
+    font-size: 12px; font-weight: 500; color: var(--white-dim);
+    border: none; background: none; cursor: pointer;
+    font-family: var(--sans);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s; margin-bottom: -1px;
+  }
+  .stab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .stab:hover:not(.active) { color: var(--white); }
+
+  /* KPI row */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .kpi-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+    transition: border-color 0.2s;
+  }
+  .kpi-card:hover { border-color: rgba(238,240,242,0.12); }
+  .kpi-card.alert { border-color: var(--border-red); }
+  .kpi-card.warn { border-color: rgba(232,160,32,0.25); }
+  .kpi-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white-dim); margin-bottom: 8px; }
+  .kpi-value { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .kpi-value.red { color: var(--red); }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.gold { color: var(--gold); }
+  .kpi-value.amber { color: var(--amber); }
+  .kpi-delta { font-family: var(--mono); font-size: 10px; color: var(--white-dim); margin-top: 4px; }
+
+  /* Grid layout */
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* Panel */
+  .panel {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg-3);
+  }
+  .panel-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); }
+  .panel-action {
+    font-family: var(--mono); font-size: 10px; color: var(--white-dim);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .panel-action:hover { color: var(--white); }
+  .panel-body { padding: 16px; }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--white-dim);
+    padding: 0 12px 10px; text-align: left; font-weight: 400;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 11px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--white-faint); }
+
+  /* Status pills */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border-radius: 4px;
+    font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .s-active { background: var(--green-dim); color: var(--green); border: 1px solid rgba(60,184,120,0.25); }
+  .s-active .status-dot { background: var(--green); }
+  .s-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(232,160,32,0.25); }
+  .s-pending .status-dot { background: var(--amber); }
+  .s-default { background: var(--red-dim); color: var(--red); border: 1px solid var(--border-red); }
+  .s-default .status-dot { background: var(--red); }
+  .s-forming { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(58,143,217,0.25); }
+  .s-forming .status-dot { background: var(--blue); }
+
+  /* Mono text */
+  .mono { font-family: var(--mono); }
+  .text-red { color: var(--red); }
+  .text-green { color: var(--green); }
+  .text-gold { color: var(--gold); }
+  .text-amber { color: var(--amber); }
+  .text-dim { color: var(--white-dim); }
+
+  /* Action btn */
+  .action-btn {
+    padding: 4px 10px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.3px;
+    border-radius: 4px; cursor: pointer; transition: all 0.15s;
+    border: 1px solid; background: none;
+  }
+  .btn-sm-gold { border-color: var(--border-gold); color: var(--gold); }
+  .btn-sm-gold:hover { background: rgba(201,151,74,0.1); }
+  .btn-sm-red { border-color: var(--border-red); color: var(--red); }
+  .btn-sm-red:hover { background: var(--red-dim); }
+  .btn-sm-green { border-color: rgba(60,184,120,0.3); color: var(--green); }
+  .btn-sm-green:hover { background: var(--green-dim); }
+
+  /* Default alert panel */
+  .default-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    transition: background 0.15s;
+  }
+  .default-item:hover { background: var(--white-faint); }
+  .default-item:last-child { border-bottom: none; }
+  .default-icon {
+    width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .default-info { flex: 1; }
+  .default-name { font-size: 13px; font-weight: 500; }
+  .default-meta { font-family: var(--mono); font-size: 10px; color: var(--white-dim); margin-top: 2px; }
+
+  /* Recon panel */
+  .recon-item {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px;
+  }
+  .recon-item:last-child { border-bottom: none; }
+  .recon-ref { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); }
+  .recon-gap { font-family: var(--mono); font-weight: 600; }
+
+  /* Activity feed */
+  .activity-item {
+    display: flex; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-line { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .activity-connector { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
+  .activity-content { flex: 1; }
+  .activity-text { font-size: 12px; line-height: 1.5; }
+  .activity-time { font-family: var(--mono); font-size: 10px; color: var(--white-dim); margin-top: 2px; }
+
+  /* Search bar */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 6px; width: 260px;
+  }
+  .search-bar svg { width: 14px; height: 14px; opacity: 0.4; flex-shrink: 0; }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    font-family: var(--mono); font-size: 11px; color: var(--white);
+    width: 100%;
+  }
+  .search-bar input::placeholder { color: var(--white-dim); }
+
+  /* Routing change modal indicator */
+  .routing-change-banner {
+    background: linear-gradient(90deg, rgba(220,60,60,0.08), transparent);
+    border: 1px solid var(--border-red);
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rcb-icon { font-size: 18px; flex-shrink: 0; }
+  .rcb-content { flex: 1; }
+  .rcb-title { font-size: 13px; font-weight: 600; color: var(--red); margin-bottom: 2px; }
+  .rcb-sub { font-size: 11px; color: var(--white-dim); font-family: var(--mono); }
+  .rcb-btn {
+    padding: 7px 14px;
+    background: none; border: 1px solid var(--border-red);
+    border-radius: 5px; color: var(--red);
+    font-family: var(--mono); font-size: 11px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .rcb-btn:hover { background: var(--red-dim); }
+
+  /* Blockchain TX log */
+  .tx-item {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center;
+  }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-hash { font-family: var(--mono); font-size: 10px; color: var(--blue); }
+  .tx-label { font-size: 12px; color: var(--white-dim); }
+  .tx-amount { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .tx-status { font-family: var(--mono); font-size: 10px; }
+  .tx-confirmed { color: var(--green); }
+
+  /* User search result */
+  .user-result {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    transition: background 0.15s; cursor: pointer;
+  }
+  .user-result:hover { background: var(--white-faint); }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 13px; font-weight: 500; }
+  .user-phone { font-family: var(--mono); font-size: 10px; color: var(--white-dim); }
+  .user-tier-chip {
+    font-family: var(--mono); font-size: 9px; padding: 2px 8px;
+    border-radius: 4px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .tier-starter { background: rgba(58,143,217,0.15); color: var(--blue); border: 1px solid rgba(58,143,217,0.25); }
+  .tier-member { background: rgba(201,151,74,0.12); color: var(--gold); border: 1px solid var(--border-gold); }
+  .tier-trusted { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.25); }
+  .tier-vip { background: rgba(60,184,120,0.12); color: var(--green); border: 1px solid rgba(60,184,120,0.25); }
+
+  /* View switcher */
+  .screen { display: none; }
+  .screen.visible { display: contents; }
+
+  /* Nav pills */
+  .preview-nav {
+    position: fixed; bottom: 16px; right: 20px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 4px;
+    background: rgba(8,13,18,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-gold);
+    border-radius: 10px; padding: 8px;
+  }
+  .prev-pill {
+    padding: 6px 12px; border-radius: 6px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.3px;
+    color: var(--white-dim); cursor: pointer;
+    border: none; background: none; transition: all 0.15s; text-align: left;
+  }
+  .prev-pill.active { background: rgba(201,151,74,0.12); color: var(--gold); }
+  .prev-pill:hover:not(.active) { color: var(--white); background: var(--white-faint); }
+  .prev-pill-label { font-size: 9px; color: var(--white-dim); padding: 4px 12px 2px; letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="admin-logo">
+      <div class="admin-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5">
+          <circle cx="12" cy="12" r="8"/>
+          <path d="M12 4v4M12 16v4M4 12h4M16 12h4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="admin-logo-text">Circle<span>Fi</span></div>
+      <div class="admin-logo-badge">ADMIN</div>
+    </div>
+
+    <div class="topbar-breadcrumb">
+      admin.circlefi.ph › <span id="breadcrumb">overview</span>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search users, circles, ref IDs...">
+      </div>
+      <button class="topbar-btn">SWEEP LOG</button>
+      <button class="topbar-btn">AUDIT</button>
+      <div class="topbar-admin">
+        <div class="topbar-avatar">R</div>
+        <div>
+          <div class="topbar-admin-name">Rafael T.</div>
+          <div class="topbar-admin-role">L0 SUPER ADMIN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">Monitoring</div>
+    <div class="nav-item active" onclick="switchView('overview')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Overview
+    </div>
+    <div class="nav-item" onclick="switchView('defaults')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Defaults
+      <span class="nav-badge badge-red">3</span>
+    </div>
+    <div class="nav-item" onclick="switchView('reconciliation')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Reconciliation
+      <span class="nav-badge badge-amber">5</span>
+    </div>
+
+    <div class="sidebar-section">Management</div>
+    <div class="nav-item" onclick="switchView('users')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users & Members
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+      Circles
+      <span class="nav-badge badge-gold">142</span>
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      White Label Entities
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-1.5-3.12"/><path d="M15 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Managers
+    </div>
+
+    <div class="sidebar-section">Config</div>
+    <div class="nav-item" onclick="switchView('routing')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h5v5H3zM16 3h5v5h-5zM3 16h5v5H3z"/><path d="M5.5 8v4M18.5 8v8M5.5 16h13"/></svg>
+      Payment Routing
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Audit Log
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Blockchain (Polygon)
+    </div>
+
+    <div style="margin-top: auto; padding-top: 12px;">
+      <div class="routing-status">
+        <div class="routing-label">Active Routing Threshold</div>
+        <div class="routing-value">₱1,500.00</div>
+        <div class="routing-meta">Last changed: 2024-11-01 · R. Torres</div>
+        <div class="routing-rails">
+          <div class="rail-chip rail-netbank">≥₱1,500 → NETBANK</div>
+          <div class="rail-chip rail-coins">&lt;₱1,500 → COINS.PH</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ OVERVIEW SCREEN ════ -->
+  <div class="main screen visible" id="view-overview">
+    <div class="page-header">
+      <div>
+        <div class="page-title">System Overview</div>
+        <div class="page-sub">LIVE · Last sync: <span class="mono" style="color:var(--green);">2025-01-17 14:22:08</span></div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="action-btn btn-sm-gold" style="font-size:11px; padding: 7px 14px;">EXPORT REPORT</button>
+        <button class="action-btn btn-sm-red" style="font-size:11px; padding: 7px 14px;">NIGHTLY SWEEP</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Active Circles</div>
+        <div class="kpi-value gold">142</div>
+        <div class="kpi-delta">↑ 12 this week</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Members</div>
+        <div class="kpi-value">4,821</div>
+        <div class="kpi-delta">+89 this month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Vol (30d) PHP</div>
+        <div class="kpi-value green">₱2.4M</div>
+        <div class="kpi-delta">↑ 18% vs last month</div>
+      </div>
+      <div class="kpi-card alert">
+        <div class="kpi-label">Open Defaults</div>
+        <div class="kpi-value red">3</div>
+        <div class="kpi-delta" style="color:var(--red);">1 post-payout ⚠</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">Recon Issues</div>
+        <div class="kpi-value amber">5</div>
+        <div class="kpi-delta">From last sweep</div>
+      </div>
+    </div>
+
+    <!-- Two columns -->
+    <div class="grid-2">
+      <!-- Recent Circles -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Recent Circle Activity</div>
+          <div class="panel-action">VIEW ALL →</div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Circle</th>
+              <th>Manager</th>
+              <th>Product</th>
+              <th>Status</th>
+              <th>Pot</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="mono text-dim">#C00142</span><br><span style="font-size:12px;">Bayanihan Gold</span></td>
+              <td>Josie R.</td>
+              <td><span class="mono" style="font-size:11px;">CASH</span></td>
+              <td><span class="status-pill s-active"><span class="status-dot"></span>ACTIVE</span></td>
+              <td class="mono text-gold">₱50,000</td>
+              <td><button class="action-btn btn-sm-gold">VIEW</button></td>
+            </tr>
+            <tr>
+              <td><span class="mono text-dim">#C00141</span><br><span style="font-size:12px;">Pangarap OFW</span></td>
+              <td>Marco L.</td>
+              <td><span class="mono" style="font-size:11px;">GOAL</span></td>
+              <td><span class="status-pill s-forming"><span class="status-dot"></span>FORMING</span></td>
+              <td class="mono text-gold">₱120,000</td>
+              <td><button class="action-btn btn-sm-gold">VIEW</button></td>
+            </tr>
+            <tr>
+              <td><span class="mono text-dim">#C00139</span><br><span style="font-size:12px;">Tapat #12</span></td>
+              <td>Ana P.</td>
+              <td><span class="mono" style="font-size:11px;">CASH</span></td>
+              <td><span class="status-pill s-default"><span class="status-dot"></span>DEFAULT</span></td>
+              <td class="mono text-gold">₱25,000</td>
+              <td><button class="action-btn btn-sm-red">RESOLVE</button></td>
+            </tr>
+            <tr>
+              <td><span class="mono text-dim">#C00137</span><br><span style="font-size:12px;">BahayCo #3</span></td>
+              <td>Rey M.</td>
+              <td><span class="mono" style="font-size:11px;">HOME</span></td>
+              <td><span class="status-pill s-active"><span class="status-dot"></span>ACTIVE</span></td>
+              <td class="mono text-gold">₱2,400,000</td>
+              <td><button class="action-btn btn-sm-gold">VIEW</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Activity feed -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">System Activity</div>
+          <div class="panel-action">LIVE FEED</div>
+        </div>
+        <div class="panel-body" style="padding: 8px 16px;">
+          <div class="activity-item">
+            <div class="activity-line"><div class="activity-dot" style="background:var(--green)"></div><div class="activity-connector"></div></div>
+            <div class="activity-content">
+              <div class="activity-text"><span class="text-green">Webhook confirmed</span> — PAY-250117-C0142-U0821-A3F2 via <span class="mono text-gold">netbank</span></div>
+              <div class="activity-time">14:21:55 · ₱5,000</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-line"><div class="activity-dot" style="background:var(--red)"></div><div class="activity-connector"></div></div>
+            <div class="activity-content">
+              <div class="activity-text"><span class="text-red">Default flagged</span> — Maria C. Circle #C00139 Cycle 3. Post-payout. <span class="text-amber">Ops required.</span></div>
+              <div class="activity-time">14:18:02</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-line"><div class="activity-dot" style="background:var(--blue)"></div><div class="activity-connector"></div></div>
+            <div class="activity-content">
+              <div class="activity-text"><span style="color:var(--blue)">Polygon stamp</span> — tx 0x4a2f...c8e1 → CONFIRMED <span class="mono text-dim">(1 conf)</span></div>
+              <div class="activity-time">14:17:44</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-line"><div class="activity-dot" style="background:var(--gold)"></div><div class="activity-connector"></div></div>
+            <div class="activity-content">
+              <div class="activity-text"><span class="text-gold">Payout disbursed</span> — Juan D. ₱19,000 net · Circle #C00138 Cycle 2</div>
+              <div class="activity-time">14:10:21</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-line"><div class="activity-dot" style="background:var(--purple)"></div></div>
+            <div class="activity-content">
+              <div class="activity-text"><span style="color:var(--purple)">WL Entity</span> "TaytayCo Connect" activated — 250 member capacity</div>
+              <div class="activity-time">13:45:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="grid-3">
+      <!-- Reconciliation issues -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Reconciliation Issues</div>
+          <span class="nav-badge badge-amber" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;">5 OPEN</span>
+        </div>
+        <div class="recon-item">
+          <div style="flex:1">
+            <div class="recon-ref">PAY-250116-C0135-U0412-9F1A</div>
+            <div style="font-size:12px;margin-top:2px;">Rail shows CONFIRMED, ledger PENDING</div>
+          </div>
+          <div class="recon-gap text-amber">₱5,000</div>
+          <button class="action-btn btn-sm-gold" style="margin-left:8px;">FIX</button>
+        </div>
+        <div class="recon-item">
+          <div style="flex:1">
+            <div class="recon-ref">PAY-250116-C0129-U0098-3B4C</div>
+            <div style="font-size:12px;margin-top:2px;">Amount mismatch: expected ₱3,000, got ₱2,985</div>
+          </div>
+          <div class="recon-gap text-red">-₱15</div>
+          <button class="action-btn btn-sm-red" style="margin-left:8px;">FIX</button>
+        </div>
+        <div class="recon-item">
+          <div style="flex:1">
+            <div class="recon-ref">PAY-250115-C0122-U0201-7D8E</div>
+            <div style="font-size:12px;margin-top:2px;">Rail: FAILED — no webhook received</div>
+          </div>
+          <div class="recon-gap text-red">₱1,500</div>
+          <button class="action-btn btn-sm-red" style="margin-left:8px;">FIX</button>
+        </div>
+        <div style="padding:10px 16px; text-align:center;">
+          <span class="panel-action" onclick="switchView('reconciliation')">VIEW ALL 5 ISSUES →</span>
+        </div>
+      </div>
+
+      <!-- Open Defaults -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Open Defaults</div>
+          <span class="nav-badge badge-red" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;">3 OPEN</span>
+        </div>
+        <div class="default-item">
+          <div class="default-icon" style="background:var(--red-dim);border:1px solid var(--border-red);">⚠️</div>
+          <div class="default-info">
+            <div class="default-name">Maria C. · Circle #C00139</div>
+            <div class="default-meta text-red">POST-PAYOUT DEFAULT · Ops Admin required</div>
+          </div>
+          <button class="action-btn btn-sm-red">ACT</button>
+        </div>
+        <div class="default-item">
+          <div class="default-icon" style="background:var(--amber-dim);border:1px solid rgba(232,160,32,0.25);">⏳</div>
+          <div class="default-info">
+            <div class="default-name">Pedro S. · Circle #C00131</div>
+            <div class="default-meta">Grace period ends Jan 19 · Lucky Takeover pending</div>
+          </div>
+          <button class="action-btn btn-sm-gold">VIEW</button>
+        </div>
+        <div class="default-item">
+          <div class="default-icon" style="background:var(--blue-dim);border:1px solid rgba(58,143,217,0.25);">🔗</div>
+          <div class="default-info">
+            <div class="default-name">Ana L. · Circle #C00128</div>
+            <div class="default-meta">Bond seizure initiated · Voucher: Jose M.</div>
+          </div>
+          <button class="action-btn btn-sm-green">CONFIRM</button>
+        </div>
+      </div>
+
+      <!-- Polygon TX log -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Polygon Stamps</div>
+          <div class="panel-action">POLYGONSCAN ↗</div>
+        </div>
+        <div class="panel-body" style="padding: 8px 16px;">
+          <div class="tx-item">
+            <div class="tx-hash">0x4a2f...c8e1</div>
+            <div class="tx-label">C00142 · Cycle 3 · Maria S.</div>
+            <div class="tx-amount text-gold">₱5,000</div>
+            <div class="tx-status tx-confirmed">✓ CONF</div>
+          </div>
+          <div class="tx-item">
+            <div class="tx-hash">0x9b1c...d3f4</div>
+            <div class="tx-label">C00141 · Cycle 1 · OFW batch</div>
+            <div class="tx-amount text-gold">₱12,000</div>
+            <div class="tx-status tx-confirmed">✓ CONF</div>
+          </div>
+          <div class="tx-item">
+            <div class="tx-hash">0x2e8a...7b2c</div>
+            <div class="tx-label">C00139 · Payout · Juan D.</div>
+            <div class="tx-amount text-gold">₱19,000</div>
+            <div class="tx-status" style="color:var(--amber);">⏳ PEND</div>
+          </div>
+          <div class="tx-item">
+            <div class="tx-hash">0x7f3d...1a9e</div>
+            <div class="tx-label">C00138 · Cycle 2 · batch</div>
+            <div class="tx-amount text-gold">₱25,000</div>
+            <div class="tx-status tx-confirmed">✓ CONF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ USERS SCREEN ════ -->
+  <div class="main screen" id="view-users">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Users & Members</div>
+        <div class="page-sub mono">4,821 total · KYC filter · tier filter</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="action-btn btn-sm-gold" style="font-size:11px;padding:7px 14px;">EXPORT CSV</button>
+        <button class="action-btn btn-sm-green" style="font-size:11px;padding:7px 14px;">PROMOTE TIER</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:4px;flex-wrap:wrap;">
+      <div class="search-bar" style="width:300px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search name, phone, email, ref ID..." value="maria">
+      </div>
+      <button class="action-btn btn-sm-gold" style="font-size:11px;">ALL TIERS ▾</button>
+      <button class="action-btn btn-sm-gold" style="font-size:11px;">KYC: ALL ▾</button>
+      <button class="action-btn btn-sm-gold" style="font-size:11px;">STATUS: ALL ▾</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Search Results — "maria" (3 found)</div>
+        <div class="panel-action">BULK ACTION ▾</div>
+      </div>
+      <div class="user-result" style="cursor:default;">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#2A7F7F,#C9974A);">M</div>
+        <div class="user-info">
+          <div class="user-name">Maria Santos</div>
+          <div class="user-phone">+63 917 123 4567 · maria.santos@email.com</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="user-tier-chip tier-starter">STARTER</span>
+          <span class="status-pill s-active" style="font-size:10px;"><span class="status-dot"></span>KYC ✓</span>
+          <div class="mono text-dim" style="font-size:10px;">⭐ 4.9</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-left:12px;">
+          <button class="action-btn btn-sm-gold">PROFILE</button>
+          <button class="action-btn btn-sm-gold">CIRCLES</button>
+          <button class="action-btn btn-sm-red">SUSPEND</button>
+        </div>
+      </div>
+      <div class="user-result" style="cursor:default;">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#7C3AED,#9D174D);">M</div>
+        <div class="user-info">
+          <div class="user-name">Maria Cruz</div>
+          <div class="user-phone">+63 918 456 7890 · m.cruz@gmail.com</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="user-tier-chip tier-member">MEMBER</span>
+          <span class="status-pill s-active" style="font-size:10px;"><span class="status-dot"></span>KYC ✓</span>
+          <div class="mono text-red" style="font-size:10px;">⭐ 2.1 ⚠</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-left:12px;">
+          <button class="action-btn btn-sm-gold">PROFILE</button>
+          <button class="action-btn btn-sm-red">DEFAULT LOG</button>
+        </div>
+      </div>
+      <div class="user-result" style="cursor:default;">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#065F46,#3CB878);">M</div>
+        <div class="user-info">
+          <div class="user-name">Maria Reyes</div>
+          <div class="user-phone">+63 919 234 5678 · mariareyes@yahoo.com · 🌐 OFW</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="user-tier-chip tier-trusted">TRUSTED</span>
+          <span class="status-pill s-active" style="font-size:10px;"><span class="status-dot"></span>KYC ✓</span>
+          <div class="mono text-dim" style="font-size:10px;">⭐ 5.0</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-left:12px;">
+          <button class="action-btn btn-sm-gold">PROFILE</button>
+          <button class="action-btn btn-sm-green">PROMOTE VIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ROUTING SCREEN (Super Admin only) ════ -->
+  <div class="main screen" id="view-routing">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Payment Routing Config</div>
+        <div class="page-sub mono text-red">⚠ RESTRICTED · L0 SUPER ADMIN ONLY · Changes require re-authentication</div>
+      </div>
+    </div>
+
+    <div class="routing-change-banner">
+      <div class="rcb-icon">🔐</div>
+      <div class="rcb-content">
+        <div class="rcb-title">Routing threshold changes are BSP-sensitive and permanently logged</div>
+        <div class="rcb-sub">Re-authentication required · Audit entry mandatory · Effective immediately</div>
+      </div>
+      <button class="rcb-btn">CHANGE THRESHOLD</button>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Current Active Config</div>
+          <span class="status-pill s-active" style="font-size:10px;"><span class="status-dot"></span>LIVE</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+            <div>
+              <div class="kpi-label">Routing Threshold</div>
+              <div style="font-family:var(--mono);font-size:32px;font-weight:600;color:var(--gold);">₱1,500</div>
+            </div>
+            <div>
+              <div class="kpi-label">Effective Since</div>
+              <div class="mono" style="font-size:13px;margin-top:8px;">2024-11-01 09:00:00</div>
+              <div class="text-dim" style="font-size:11px;margin-top:2px;">Changed by R. Torres (L0)</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;padding:16px;background:var(--bg-3);border:1px solid rgba(58,143,217,0.25);border-radius:8px;">
+              <div style="font-family:var(--mono);font-size:10px;color:var(--blue);margin-bottom:6px;letter-spacing:1px;">NETBANK BAAS</div>
+              <div style="font-size:13px;font-weight:600;">≥ ₱1,500</div>
+              <div class="mono text-dim" style="font-size:10px;margin-top:4px;">₱20 flat fee · INSTAPAY/PESONet</div>
+            </div>
+            <div style="flex:1;padding:16px;background:var(--bg-3);border:1px solid rgba(232,160,32,0.25);border-radius:8px;">
+              <div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:6px;letter-spacing:1px;">COINS.PH ENTERPRISE</div>
+              <div style="font-size:13px;font-weight:600;">&lt; ₱1,500</div>
+              <div class="mono text-dim" style="font-size:10px;margin-top:4px;">1.5% fee · GCash, Maya, QR Ph</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Config Change History</div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Date</th><th>Threshold</th><th>Changed By</th><th>Reason</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono text-dim" style="font-size:10px;">2024-11-01</td>
+              <td class="mono text-gold">₱1,500</td>
+              <td style="font-size:12px;">R. Torres (L0)</td>
+              <td class="text-dim" style="font-size:11px;">Q4 vol adjustment</td>
+            </tr>
+            <tr>
+              <td class="mono text-dim" style="font-size:10px;">2024-06-15</td>
+              <td class="mono" style="color:var(--white-dim);">₱1,200</td>
+              <td style="font-size:12px;">A. Dela Cruz (L0)</td>
+              <td class="text-dim" style="font-size:11px;">Initial threshold set</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ DEFAULTS SCREEN ════ -->
+  <div class="main screen" id="view-defaults">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Default Management</div>
+        <div class="page-sub mono">3 open · Resolution paths: Lucky Takeover → Restructure → Trust Bond Seizure</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Open Defaults</div></div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Member</th><th>Circle</th><th>Cycle</th><th>Amount Owed</th><th>Risk</th><th>Resolution Path</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="font-size:13px;font-weight:500;">Maria C.</span><br><span class="mono text-dim" style="font-size:10px;">+63 918 456 7890</span></td>
+            <td><span class="mono text-gold">#C00139</span> Tapat #12</td>
+            <td class="mono">3 / 5</td>
+            <td class="mono text-red" style="font-weight:600;">₱5,000</td>
+            <td><span class="status-pill s-default"><span class="status-dot"></span>POST-PAYOUT</span></td>
+            <td class="text-dim" style="font-size:12px;">Ops Admin required</td>
+            <td><div style="display:flex;gap:4px;">
+              <button class="action-btn btn-sm-red">SEIZE BOND</button>
+              <button class="action-btn btn-sm-gold">RESTRUCTURE</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><span style="font-size:13px;font-weight:500;">Pedro S.</span><br><span class="mono text-dim" style="font-size:10px;">+63 917 888 9999</span></td>
+            <td><span class="mono text-gold">#C00131</span> Pangarap</td>
+            <td class="mono">2 / 8</td>
+            <td class="mono text-amber" style="font-weight:600;">₱2,500</td>
+            <td><span class="status-pill s-pending"><span class="status-dot"></span>GRACE PERIOD</span></td>
+            <td class="text-dim" style="font-size:12px;">Expires Jan 19</td>
+            <td><div style="display:flex;gap:4px;">
+              <button class="action-btn btn-sm-green">LUCKY TAKEOVER</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><span style="font-size:13px;font-weight:500;">Ana L.</span><br><span class="mono text-dim" style="font-size:10px;">+63 919 111 2222</span></td>
+            <td><span class="mono text-gold">#C00128</span> Sigla</td>
+            <td class="mono">5 / 10</td>
+            <td class="mono text-amber" style="font-weight:600;">₱3,000</td>
+            <td><span class="status-pill s-forming"><span class="status-dot"></span>BOND SEIZURE</span></td>
+            <td class="text-dim" style="font-size:12px;">Voucher: Jose M. (₱5,000 bond)</td>
+            <td><div style="display:flex;gap:4px;">
+              <button class="action-btn btn-sm-green">CONFIRM SEIZE</button>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ RECONCILIATION SCREEN ════ -->
+  <div class="main screen" id="view-reconciliation">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Reconciliation Issues</div>
+        <div class="page-sub mono">Sweep: SWEEP-250117-02AM · 5 issues · Finance Admin access only</div>
+      </div>
+      <button class="action-btn btn-sm-gold" style="font-size:11px;padding:7px 14px;">DOWNLOAD SWEEP REPORT</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Open Issues</div><div class="panel-action">MARK ALL RESOLVED</div></div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Smart Ref ID</th><th>Expected</th><th>Rail Reported</th><th>Gap</th><th>Issue</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono" style="font-size:10px;color:var(--gold-dim);">PAY-250116-C0135-U0412-9F1A</td>
+            <td class="mono">₱5,000 · CONFIRMED</td>
+            <td class="mono">₱5,000 · CONFIRMED</td>
+            <td class="mono text-amber">PENDING in ledger</td>
+            <td style="font-size:12px;">Webhook missed; rail confirmed</td>
+            <td><button class="action-btn btn-sm-green">FORCE CONFIRM</button></td>
+          </tr>
+          <tr>
+            <td class="mono" style="font-size:10px;color:var(--gold-dim);">PAY-250116-C0129-U0098-3B4C</td>
+            <td class="mono">₱3,000</td>
+            <td class="mono">₱2,985</td>
+            <td class="mono text-red">-₱15.00</td>
+            <td style="font-size:12px;">Coins.ph fee deducted from principal</td>
+            <td><button class="action-btn btn-sm-gold">INVESTIGATE</button></td>
+          </tr>
+          <tr>
+            <td class="mono" style="font-size:10px;color:var(--gold-dim);">PAY-250115-C0122-U0201-7D8E</td>
+            <td class="mono">₱1,500 · CONFIRMED</td>
+            <td class="mono text-red">FAILED</td>
+            <td class="mono text-red">₱1,500</td>
+            <td style="font-size:12px;">Rail timeout, no webhook</td>
+            <td><button class="action-btn btn-sm-red">MARK FAILED</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Nav pills -->
+<div class="preview-nav">
+  <div class="prev-pill-label">Admin Portal</div>
+  <button class="prev-pill active" onclick="switchView('overview')">Overview</button>
+  <button class="prev-pill" onclick="switchView('users')">Users</button>
+  <button class="prev-pill" onclick="switchView('routing')">Routing Config</button>
+  <button class="prev-pill" onclick="switchView('defaults')">Defaults</button>
+  <button class="prev-pill" onclick="switchView('reconciliation')">Reconciliation</button>
+</div>
+
+<script>
+function switchView(name) {
+  document.querySelectorAll('.main.screen').forEach(s => s.classList.remove('visible'));
+  document.getElementById('view-' + name).classList.add('visible');
+  document.querySelectorAll('.prev-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.prev-pill').forEach(p => {
+    if (p.textContent.trim().toLowerCase().replace(/\s+/g,'') === name.replace(/\s+/g,'')) p.classList.add('active');
+  });
+  document.getElementById('breadcrumb').textContent = name;
+  // update sidebar active
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(name)) n.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>
