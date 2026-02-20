@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleFi — Manager Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0E17;--bg2:#0F1520;--bg3:#141C2B;--bg4:#1A2438;--bdr:rgba(255,255,255,0.07);--cu:#C8773A;--cu2:#E09558;--cudim:rgba(200,119,58,0.15);--sky:#4A9FD4;--wh:#F0EEE8;--dim:rgba(240,238,232,0.45);--faint:rgba(240,238,232,0.07);--gr:#3DBE7A;--rd:#E05252;--am:#E8A832;--mono:'JetBrains Mono',monospace;--body:'Outfit',sans-serif;--disp:'Bebas Neue',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--body);background:var(--bg);color:var(--wh);min-height:100vh;overflow-x:hidden;}
+.shell{display:grid;grid-template-rows:52px 1fr;grid-template-columns:240px 1fr;min-height:100vh;}
+/* TOPBAR */
+.tb{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:0 24px;background:var(--bg2);border-bottom:1px solid var(--bdr);position:relative;}
+.tb::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cu),var(--sky) 50%,transparent);}
+.logo{display:flex;align-items:center;gap:10px;margin-right:24px;}
+.lm{width:30px;height:30px;background:var(--cu);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.lm svg{width:17px;height:17px;}
+.lt{font-family:var(--disp);font-size:20px;letter-spacing:1px;}
+.lt span{color:var(--cu2);}
+.ls{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--dim);padding:2px 7px;border:1px solid var(--bdr);border-radius:3px;}
+.tb-tier{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.tt-name{font-family:var(--disp);font-size:18px;letter-spacing:1px;color:var(--cu2);}
+.tt-meta{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:1px;}
+.tb-r{display:flex;align-items:center;gap:12px;margin-left:16px;}
+.tbtn{padding:6px 12px;background:none;border:1px solid var(--bdr);border-radius:5px;color:var(--dim);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .15s;letter-spacing:.5px;}
+.tbtn:hover{border-color:var(--cu);color:var(--cu);}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cu),var(--sky));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--bg);}
+/* SIDEBAR */
+.sb{background:var(--bg2);border-right:1px solid var(--bdr);padding:20px 14px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+.sh{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(240,238,232,.22);text-transform:uppercase;padding:14px 8px 5px;}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;font-size:13px;color:var(--dim);cursor:pointer;transition:all .15s;position:relative;}
+.nav:hover{background:var(--faint);color:var(--wh);}
+.nav.on{background:var(--cudim);color:var(--cu2);border:1px solid rgba(200,119,58,.18);}
+.nav svg{width:15px;height:15px;opacity:.6;flex-shrink:0;}
+.nav.on svg{opacity:1;}
+.nbg{margin-left:auto;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;font-weight:600;}
+.nb-r{background:rgba(224,82,82,.15);color:var(--rd);border:1px solid rgba(224,82,82,.25);}
+.nb-c{background:var(--cudim);color:var(--cu);border:1px solid rgba(200,119,58,.25);}
+.nb-g{background:rgba(61,190,122,.12);color:var(--gr);border:1px solid rgba(61,190,122,.2);}
+.tc-box{margin-top:auto;padding:14px;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;}
+.tcl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
+.tcv{font-family:var(--disp);font-size:26px;letter-spacing:1px;color:var(--cu2);}
+.tcm{font-size:11px;color:var(--dim);}
+.pbar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:10px;}
+.pbar-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cu),var(--cu2));}
+.pb-lbl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:5px;}
+/* MAIN */
+.main{background:var(--bg);overflow-y:auto;padding:28px 32px;}
+.sc{display:none;flex-direction:column;gap:24px;}
+.sc.on{display:flex;}
+/* COMMON */
+.ph{display:flex;justify-content:space-between;align-items:flex-start;}
+.ph-t{font-family:var(--disp);font-size:28px;letter-spacing:1px;}
+.ph-s{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:3px;}
+.btn{padding:8px 16px;border-radius:6px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .15s;letter-spacing:.5px;border:1px solid;}
+.btn-c{border-color:rgba(200,119,58,.4);color:var(--cu);background:none;}
+.btn-c:hover{background:var(--cudim);}
+.btn-f{border-color:var(--cu);background:var(--cu);color:var(--bg);font-weight:600;}
+.btn-f:hover{background:var(--cu2);}
+.btn-g{border-color:rgba(61,190,122,.35);color:var(--gr);background:none;}
+.btn-g:hover{background:rgba(61,190,122,.1);}
+.btn-r{border-color:rgba(224,82,82,.4);color:var(--rd);background:none;}
+.btn-r:hover{background:rgba(224,82,82,.08);}
+.btn-s{border-color:rgba(74,159,212,.35);color:var(--sky);background:none;}
+.btn-s:hover{background:rgba(74,159,212,.08);}
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kc{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:18px;transition:border-color .2s;}
+.kc:hover{border-color:rgba(200,119,58,.2);}
+.kc.hi{border-color:rgba(200,119,58,.3);}
+.kc.alert{border-color:rgba(224,82,82,.3);}
+.klb{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.kv{font-family:var(--disp);font-size:30px;letter-spacing:.5px;}
+.kv.cu{color:var(--cu2);}
+.kv.gr{color:var(--gr);}
+.kv.sk{color:var(--sky);}
+.kv.rd{color:var(--rd);}
+.kd{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px;}
+/* GRID */
+.g2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;}
+.g22{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;}
+.ph2{padding:12px 18px;border-bottom:1px solid var(--bdr);background:var(--bg3);display:flex;justify-content:space-between;align-items:center;}
+.pt{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cu);}
+.pa{font-family:var(--mono);font-size:10px;color:var(--dim);cursor:pointer;}
+.pa:hover{color:var(--wh);}
+.pb{padding:18px;}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:0 14px 10px;text-align:left;font-weight:400;border-bottom:1px solid var(--bdr);}
+.tbl td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--bdr);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--faint);}
+/* STATUS */
+.sp{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.3px;}
+.sd{width:5px;height:5px;border-radius:50%;}
+.s-a{background:rgba(61,190,122,.12);color:var(--gr);border:1px solid rgba(61,190,122,.22);}
+.s-a .sd{background:var(--gr);}
+.s-p{background:rgba(232,168,50,.12);color:var(--am);border:1px solid rgba(232,168,50,.22);}
+.s-p .sd{background:var(--am);}
+.s-d{background:rgba(224,82,82,.12);color:var(--rd);border:1px solid rgba(224,82,82,.22);}
+.s-d .sd{background:var(--rd);}
+.s-c{background:rgba(74,159,212,.12);color:var(--sky);border:1px solid rgba(74,159,212,.22);}
+.s-c .sd{background:var(--sky);}
+/* CIRCLE CARDS */
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.cc{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:16px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.cc:hover{transform:translateY(-2px);border-color:rgba(200,119,58,.3);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.cc-acc{position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle,rgba(200,119,58,.1),transparent 70%);}
+.cc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.cc-n{font-weight:600;font-size:14px;margin-bottom:2px;}
+.cc-id{font-family:var(--mono);font-size:10px;color:var(--dim);}
+.cpbar{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-top:5px;}
+.cpf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cu),var(--sky));}
+.cc-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.cc-amt{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--cu2);}
+.cc-mem{font-size:11px;color:var(--dim);}
+.cc-add{border:1px dashed rgba(200,119,58,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--dim);min-height:130px;}
+.cc-add:hover{border-color:var(--cu);color:var(--cu);}
+/* MEMBER ROWS */
+.mr{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--bdr);transition:background .15s;cursor:pointer;}
+.mr:hover{background:var(--faint);}
+.mr:last-child{border-bottom:none;}
+.mav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+/* EARNINGS */
+.eh{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid rgba(200,119,58,.2);border-radius:10px;padding:28px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:20px;align-items:center;position:relative;overflow:hidden;}
+.eh::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(200,119,58,.12),transparent 70%);}
+.eh-i{position:relative;z-index:1;}
+.eh-l{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.eh-v{font-family:var(--disp);font-size:36px;letter-spacing:.5px;color:var(--cu2);}
+.eh-s{font-size:11px;color:var(--dim);margin-top:4px;}
+.eh-div{width:1px;background:var(--bdr);align-self:stretch;}
+.fb{display:flex;gap:0;height:8px;border-radius:4px;overflow:hidden;margin:10px 0;}
+.fb-s{height:100%;transition:width .5s;}
+.fb-cf{background:var(--cu);}
+.fb-m{background:var(--sky);}
+.fb-r{background:rgba(255,255,255,.2);}
+.fb-leg{display:flex;gap:16px;margin-top:8px;}
+.fb-l{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--dim);}
+.fb-d{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+/* ── CAREER LADDER ── */
+.ladder{display:flex;flex-direction:column;gap:0;position:relative;padding:0 20px;}
+.ladder::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--cu),var(--sky));opacity:.18;transform:translateX(-50%);}
+.lt{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;margin-bottom:0;}
+.lt-l{text-align:right;padding:20px 30px 20px 0;}
+.lt-r{padding:20px 0 20px 30px;}
+.ln{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;z-index:2;margin:0 auto;flex-shrink:0;transition:all .3s;cursor:pointer;}
+.ln:hover{transform:scale(1.1);}
+.ln-ico{font-size:20px;line-height:1;}
+.ln-lv{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:rgba(255,255,255,.7);margin-top:2px;}
+.t-r .ln{background:linear-gradient(135deg,#2A4A7F,#3A6AB0);border:2px solid rgba(74,106,176,.4);box-shadow:0 0 20px rgba(58,106,176,.2);}
+.t-cap .ln{background:linear-gradient(135deg,#1A5E5E,#2A8A8A);border:2px solid rgba(42,138,138,.4);box-shadow:0 0 20px rgba(42,138,138,.2);}
+.t-ban .ln{background:linear-gradient(135deg,#5A3A1A,#C8773A);border:2px solid rgba(200,119,58,.5);box-shadow:0 0 20px rgba(200,119,58,.3);}
+.t-dir .ln{background:linear-gradient(135deg,#4A1A7A,#8A3ABA);border:2px solid rgba(138,58,186,.5);box-shadow:0 0 20px rgba(138,58,186,.3);}
+.t-ex .ln{background:linear-gradient(135deg,#7A1A1A,#C83A3A);border:2px solid rgba(200,58,58,.5);box-shadow:0 0 20px rgba(200,58,58,.4);}
+.ln-nm{font-family:var(--disp);font-size:22px;letter-spacing:1px;margin-bottom:4px;}
+.ln-sub{font-size:12px;color:var(--dim);line-height:1.5;max-width:240px;}
+.ln-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.lp{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:3px;letter-spacing:.5px;}
+.lp-ci{background:rgba(74,159,212,.12);color:var(--sky);border:1px solid rgba(74,159,212,.2);}
+.lp-fe{background:var(--cudim);color:var(--cu2);border:1px solid rgba(200,119,58,.25);}
+.lp-mn{background:rgba(61,190,122,.1);color:var(--gr);border:1px solid rgba(61,190,122,.2);}
+.lp-ra{background:rgba(255,255,255,.06);color:var(--dim);border:1px solid var(--bdr);}
+.lp-sp{background:rgba(138,58,186,.15);color:#C084FC;border:1px solid rgba(138,58,186,.25);}
+/* current highlight */
+.t-cur .ln{box-shadow:0 0 0 4px rgba(200,119,58,.4),0 0 30px rgba(200,119,58,.4)!important;}
+.t-cur .lt-l,.t-cur .lt-r{background:rgba(200,119,58,.04);border-radius:10px;}
+.t-lock{opacity:.4;}
+/* unlock card */
+.uc{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid rgba(200,119,58,.3);border-radius:10px;padding:20px;margin:8px 20px;}
+.uc-t{font-size:13px;font-weight:600;color:var(--cu2);margin-bottom:10px;}
+.uc-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dim);margin-bottom:8px;}
+.uc-ch{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.uc-ok{background:rgba(61,190,122,.15);border:1px solid rgba(61,190,122,.3);color:var(--gr);}
+.uc-no{background:rgba(255,255,255,.06);border:1px solid var(--bdr);color:var(--dim);}
+.uc-bar{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-top:14px;}
+.uc-bf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cu),var(--cu2));}
+/* resolution paths */
+.rp{padding:12px;border-radius:6px;margin-bottom:10px;}
+.rp-g{border:1px solid rgba(61,190,122,.2);background:rgba(61,190,122,.05);}
+.rp-s{border:1px solid rgba(74,159,212,.2);background:rgba(74,159,212,.05);}
+.rp-r{border:1px solid rgba(224,82,82,.2);background:rgba(224,82,82,.05);}
+/* PREVIEW NAV */
+.pnav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:4px;background:rgba(10,14,23,.95);backdrop-filter:blur(20px);border:1px solid rgba(200,119,58,.25);border-radius:30px;padding:6px 12px;}
+.pp{padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:10px;color:var(--dim);cursor:pointer;border:none;background:none;transition:all .15s;letter-spacing:.3px;}
+.pp.on{background:var(--cu);color:var(--bg);font-weight:600;}
+.pp:hover:not(.on){color:var(--wh);}
+/* locked overlay */
+.locked{position:relative;}
+.locked::after{content:'🔒 Unlock at next tier';position:absolute;inset:0;background:rgba(10,14,23,.85);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);border-radius:8px;border:1px dashed rgba(255,255,255,.1);letter-spacing:.5px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOPBAR -->
+<div class="tb">
+  <div class="logo">
+    <div class="lm"><svg viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5"><circle cx="12" cy="12" r="8"/><path d="M12 4v4M12 16v4M4 12h4M16 12h4" stroke-linecap="round"/></svg></div>
+    <div class="lt">Circle<span>Fi</span></div>
+    <div class="ls">MANAGER PORTAL</div>
+  </div>
+  <div class="tb-tier">
+    <span style="font-size:16px;">⚓</span>
+    <div>
+      <div class="tt-name">L2 CAPTAIN</div>
+      <div class="tt-meta">Josie Reyes · managers.circlefi.ph</div>
+    </div>
+  </div>
+  <div class="tb-r">
+    <button class="tbtn">REPORTS</button>
+    <button class="tbtn">HELP</button>
+    <div class="av">J</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sh">Dashboard</div>
+  <div class="nav on" onclick="show('ov')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Overview
+  </div>
+  <div class="nav" onclick="show('ci')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+    My Circles
+    <span class="nbg nb-c">8</span>
+  </div>
+  <div class="nav" onclick="show('mb')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Members &amp; Defaults
+    <span class="nbg nb-r">1</span>
+  </div>
+  <div class="nav" onclick="show('ea')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Earnings &amp; Fees
+  </div>
+  <div class="nav" onclick="show('ca')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    Career Ladder
+    <span class="nbg nb-g">NEW</span>
+  </div>
+  <div class="sh">Tools</div>
+  <div class="nav">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+    Bulk Invite
+  </div>
+  <div class="nav">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Payout Reports
+  </div>
+  <div class="tc-box">
+    <div class="tcl">Your Tier</div>
+    <div class="tcv">L2 CAPTAIN</div>
+    <div class="tcm">2.0% fee · 20 max circles</div>
+    <div style="margin-top:10px;">
+      <div class="pb-lbl"><span>To L3 Banker</span><span style="color:var(--cu2);">72%</span></div>
+      <div class="pbar"><div class="pbar-f" style="width:72%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ OVERVIEW ══════ -->
+<div class="main sc on" id="s-ov">
+  <div class="ph">
+    <div><div class="ph-t">GOOD MORNING, JOSIE</div><div class="ph-s">Friday · Jan 17 · L2 Captain · 8 active circles · 1 default pending</div></div>
+    <div style="display:flex;gap:8px;"><button class="btn btn-c">EXPORT</button><button class="btn btn-f" onclick="show('ci')">+ NEW CIRCLE</button></div>
+  </div>
+  <div class="krow">
+    <div class="kc hi"><div class="klb">Earnings MTD</div><div class="kv cu">₱12,480</div><div class="kd">↑ ₱3,200 vs last month</div></div>
+    <div class="kc"><div class="klb">Active Circles</div><div class="kv sk">8 <span style="font-size:16px;color:var(--dim)">/ 20</span></div><div class="kd">12 slots remaining</div></div>
+    <div class="kc"><div class="klb">Total Members</div><div class="kv">94</div><div class="kd">Across 8 circles</div></div>
+    <div class="kc alert"><div class="klb">Open Defaults</div><div class="kv rd">1</div><div class="kd" style="color:var(--rd);">Requires action</div></div>
+  </div>
+  <div class="g2">
+    <div class="panel">
+      <div class="ph2"><div class="pt">Active Circles</div><div class="pa" onclick="show('ci')">VIEW ALL →</div></div>
+      <table class="tbl">
+        <thead><tr><th>Circle</th><th>Product</th><th>Progress</th><th>Pot</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div style="font-weight:500;font-size:13px;">Bayanihan #4</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">#C00142</div></td>
+            <td><span style="font-family:var(--mono);font-size:10px;">CASH</span></td>
+            <td><div style="font-size:11px;color:var(--dim);margin-bottom:3px;">Cycle 3/5</div><div class="cpbar" style="width:120px;"><div class="cpf" style="width:60%"></div></div></td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱50,000</td>
+            <td><span class="sp s-a"><span class="sd"></span>ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;font-size:13px;">Pangarap OFW</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">#C00141</div></td>
+            <td><span style="font-family:var(--mono);font-size:10px;">GOAL</span></td>
+            <td><div style="font-size:11px;color:var(--dim);margin-bottom:3px;">Forming 3/8</div><div class="cpbar" style="width:120px;"><div class="cpf" style="width:37%"></div></div></td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱96,000</td>
+            <td><span class="sp s-p"><span class="sd"></span>FORMING</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;font-size:13px;">Tapat #12</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">#C00139</div></td>
+            <td><span style="font-family:var(--mono);font-size:10px;">CASH</span></td>
+            <td><div style="font-size:11px;color:var(--dim);margin-bottom:3px;">Cycle 3/5</div><div class="cpbar" style="width:120px;"><div class="cpf" style="width:60%;background:var(--rd);"></div></div></td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱25,000</td>
+            <td><span class="sp s-d"><span class="sd"></span>DEFAULT</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;font-size:13px;">Sigla Circle</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">#C00138</div></td>
+            <td><span style="font-family:var(--mono);font-size:10px;">CASH</span></td>
+            <td><div style="font-size:11px;color:var(--dim);margin-bottom:3px;">Cycle 5/5</div><div class="cpbar" style="width:120px;"><div class="cpf" style="width:100%;background:var(--sky);"></div></div></td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱20,000</td>
+            <td><span class="sp s-c"><span class="sd"></span>COMPLETE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="panel">
+        <div class="ph2"><div class="pt">This Month's Fees</div></div>
+        <div class="pb">
+          <div style="font-family:var(--disp);font-size:40px;color:var(--cu2);margin-bottom:4px;">₱12,480</div>
+          <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">2.0% on ₱624,000 total volume</div>
+          <div class="fb"><div class="fb-s fb-cf" style="width:38%"></div><div class="fb-s fb-m" style="width:38%"></div><div class="fb-s fb-r" style="width:24%"></div></div>
+          <div class="fb-leg">
+            <div class="fb-l"><div class="fb-d" style="background:var(--cu);"></div>CF 2%</div>
+            <div class="fb-l"><div class="fb-d" style="background:var(--sky);"></div>You 2%</div>
+            <div class="fb-l"><div class="fb-d" style="background:rgba(255,255,255,.2);"></div>Rail</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph2"><div class="pt">Career Progress</div><div class="pa" onclick="show('ca')">LADDER →</div></div>
+        <div class="pb">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div><div style="font-size:11px;color:var(--dim);">Current</div><div style="font-family:var(--mono);color:var(--cu2);font-size:14px;font-weight:600;">L2 CAPTAIN</div></div>
+            <div style="color:var(--dim);">→</div>
+            <div><div style="font-size:11px;color:var(--dim);">Next</div><div style="font-family:var(--mono);font-size:14px;font-weight:600;">L3 BANKER</div></div>
+          </div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:5px;"><span>Circles completed</span><span style="color:var(--cu2);">14 / 20</span></div>
+          <div class="pbar"><div class="pbar-f" style="width:70%"></div></div>
+          <div style="font-size:11px;color:var(--dim);margin-top:10px;">6 more circles + ₱600K more volume needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ CAREER LADDER ══════ -->
+<div class="main sc" id="s-ca">
+  <div class="ph">
+    <div><div class="ph-t">CAREER LADDER</div><div class="ph-s">Rookie → Rookie → Captain → Banker → Director → Executive</div></div>
+  </div>
+  <div class="ladder">
+    <!-- L1 -->
+    <div class="lt t-r">
+      <div class="lt-l">
+        <div class="ln-nm" style="color:#6A9AE0;">L1 ROOKIE</div>
+        <div class="ln-sub">Starting point. Build your track record on the Coins.ph rail. Manage up to 5 small circles.</div>
+        <div class="ln-pills"><span class="lp lp-ci">5 circles max</span><span class="lp lp-fe">1.5% fee</span><span class="lp lp-mn">₱300 min</span><span class="lp lp-ra">Coins.ph</span></div>
+      </div>
+      <div class="ln"><span class="ln-ico">🌱</span><span class="ln-lv">L1</span></div>
+      <div class="lt-r" style="font-size:12px;color:var(--dim);">
+        <div style="font-weight:600;color:var(--wh);margin-bottom:4px;">Entry requirements</div>
+        KYC verified · Manager agreement · Onboarding test passed
+      </div>
+    </div>
+    <!-- L2 CURRENT -->
+    <div class="lt t-cap t-cur" style="margin:8px 0;">
+      <div class="lt-l">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--cu);margin-bottom:6px;">◉ YOUR CURRENT TIER</div>
+        <div class="ln-nm" style="color:var(--cu2);">L2 CAPTAIN</div>
+        <div class="ln-sub">Access to Netbank BaaS rail. Higher contribution minimums unlock larger pots. Up to 20 circles.</div>
+        <div class="ln-pills"><span class="lp lp-ci">20 circles max</span><span class="lp lp-fe">2.0% fee</span><span class="lp lp-mn">₱1,500 min</span><span class="lp lp-ra">Netbank</span></div>
+      </div>
+      <div class="ln"><span class="ln-ico">⚓</span><span class="ln-lv">L2</span></div>
+      <div class="lt-r" style="font-size:12px;">
+        <div style="font-weight:600;color:var(--cu2);margin-bottom:6px;">Since March 2024</div>
+        <div style="color:var(--dim);">8 active circles · 14 completed · ₱2.4M lifetime · 4.8★ avg</div>
+      </div>
+    </div>
+    <!-- Unlock card -->
+    <div class="uc">
+      <div class="uc-t">🎯 Requirements to reach L3 Banker</div>
+      <div class="uc-item"><div class="uc-ch uc-ok">✓</div>12+ months as Captain <span style="color:var(--gr);font-family:var(--mono);font-size:10px;margin-left:4px;">(10 mo done)</span></div>
+      <div class="uc-item"><div class="uc-ch uc-ok">✓</div>Zero default rate last 6 months <span style="color:var(--gr);font-family:var(--mono);font-size:10px;margin-left:4px;">(Clean ✓)</span></div>
+      <div class="uc-item"><div class="uc-ch uc-no">○</div>Complete 20 circles total <span style="color:var(--cu2);font-family:var(--mono);font-size:10px;margin-left:4px;">(14 / 20)</span></div>
+      <div class="uc-item"><div class="uc-ch uc-no">○</div>₱3M+ total volume managed <span style="color:var(--cu2);font-family:var(--mono);font-size:10px;margin-left:4px;">(₱2.4M / ₱3M)</span></div>
+      <div class="uc-item"><div class="uc-ch uc-no">○</div>Maintain 4.5★ or higher rating</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--dim);display:flex;justify-content:space-between;margin-top:14px;margin-bottom:5px;"><span>Overall progress to L3</span><span style="color:var(--cu2);">72%</span></div>
+      <div class="uc-bar"><div class="uc-bf" style="width:72%"></div></div>
+    </div>
+    <!-- L3 -->
+    <div class="lt t-ban t-lock">
+      <div class="lt-l">
+        <div class="ln-nm" style="color:var(--cu);">L3 BANKER</div>
+        <div class="ln-sub">Full Netbank INSTAPAY/PESONet. Up to 50 circles. 3% fee rate on larger pots.</div>
+        <div class="ln-pills"><span class="lp lp-ci">50 circles max</span><span class="lp lp-fe">3.0% fee</span><span class="lp lp-mn">₱3,000 min</span><span class="lp lp-ra">Netbank full</span></div>
+      </div>
+      <div class="ln" style="filter:brightness(.7);"><span class="ln-ico">🏦</span><span class="ln-lv">L3</span></div>
+      <div class="lt-r" style="font-size:12px;color:var(--dim);">
+        <span style="font-family:var(--mono);font-size:9px;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:3px;border:1px solid var(--bdr);">🔒 LOCKED</span>
+        <div style="margin-top:8px;">20 completed circles · ₱3M+ volume · 12 months clean record</div>
+      </div>
+    </div>
+    <!-- L4 -->
+    <div class="lt t-dir t-lock">
+      <div class="lt-l">
+        <div class="ln-nm" style="color:#C084FC;">L4 DIRECTOR</div>
+        <div class="ln-sub">Goal circles only. Earn kickbacks from sub-managers you recruit and mentor.</div>
+        <div class="ln-pills"><span class="lp lp-ci">50 circles max</span><span class="lp lp-sp">Goal only</span><span class="lp lp-sp">Kickbacks</span><span class="lp lp-ra">Netbank full</span></div>
+      </div>
+      <div class="ln"><span class="ln-ico">🎯</span><span class="ln-lv">L4</span></div>
+      <div class="lt-r" style="font-size:12px;color:var(--dim);">
+        <span style="font-family:var(--mono);font-size:9px;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:3px;border:1px solid var(--bdr);">🔒 LOCKED</span>
+        <div style="margin-top:8px;">Mentor 3 active Rookies · 50 total circles completed</div>
+      </div>
+    </div>
+    <!-- L5 -->
+    <div class="lt t-ex t-lock">
+      <div class="lt-l">
+        <div class="ln-nm" style="color:#F87171;">L5 EXECUTIVE</div>
+        <div class="ln-sub">All products. 100 circles. Zero-cost White Label entity included. The pinnacle of the CircleFi career.</div>
+        <div class="ln-pills"><span class="lp lp-ci">100 circles</span><span class="lp lp-sp">ALL products</span><span class="lp lp-sp">WL Entity FREE</span><span class="lp lp-sp">Kickbacks</span></div>
+      </div>
+      <div class="ln"><span class="ln-ico">👑</span><span class="ln-lv">L5</span></div>
+      <div class="lt-r" style="font-size:12px;color:var(--dim);">
+        <span style="font-family:var(--mono);font-size:9px;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:3px;border:1px solid var(--bdr);">🔒 LOCKED</span>
+        <div style="margin-top:8px;">Top performer pathway · Ops Admin nomination · Earned White Label entity at ₱0 setup</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ CIRCLES ══════ -->
+<div class="main sc" id="s-ci">
+  <div class="ph">
+    <div><div class="ph-t">MY CIRCLES</div><div class="ph-s">8 active · 12 slots remaining · L2 Captain limit: 20</div></div>
+    <button class="btn btn-f">+ CREATE CIRCLE</button>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-c" style="font-size:10px;">ALL STATUS ▾</button>
+    <button class="btn btn-c" style="font-size:10px;">ALL PRODUCTS ▾</button>
+    <button class="btn btn-c" style="font-size:10px;">SORT: NEWEST ▾</button>
+  </div>
+  <div class="cg">
+    <div class="cc"><div class="cc-acc"></div>
+      <div class="cc-top"><div><div class="cc-n">Bayanihan Gold #4</div><div class="cc-id">#C00142</div></div><span class="sp s-a"><span class="sd"></span>ACTIVE</span></div>
+      <div style="font-size:11px;color:var(--dim);display:flex;justify-content:space-between;"><span>Cycle 3 / 5</span><span style="color:var(--cu2);">60%</span></div>
+      <div class="cpbar"><div class="cpf" style="width:60%"></div></div>
+      <div class="cc-meta"><span class="cc-amt">₱10,000/mo</span><span class="cc-mem">5 members</span></div>
+    </div>
+    <div class="cc"><div class="cc-acc"></div>
+      <div class="cc-top"><div><div class="cc-n">Pangarap OFW</div><div class="cc-id">#C00141</div></div><span class="sp s-p"><span class="sd"></span>FORMING</span></div>
+      <div style="font-size:11px;color:var(--dim);display:flex;justify-content:space-between;"><span>3 / 8 joined</span><span style="color:var(--sky);">37%</span></div>
+      <div class="cpbar"><div class="cpf" style="width:37%"></div></div>
+      <div class="cc-meta"><span class="cc-amt">₱12,000/mo</span><span class="cc-mem">3/8 slots</span></div>
+    </div>
+    <div class="cc" style="border-color:rgba(224,82,82,.3);"><div class="cc-acc" style="background:radial-gradient(circle,rgba(224,82,82,.12),transparent 70%);"></div>
+      <div class="cc-top"><div><div class="cc-n">Tapat Circle #12</div><div class="cc-id">#C00139</div></div><span class="sp s-d"><span class="sd"></span>DEFAULT</span></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between;"><span style="color:var(--dim);">Cycle 3 / 5</span><span style="color:var(--rd);">ACTION NEEDED</span></div>
+      <div class="cpbar"><div class="cpf" style="width:60%;background:var(--rd);"></div></div>
+      <div class="cc-meta"><span class="cc-amt">₱5,000/mo</span><span class="cc-mem">5 members</span></div>
+    </div>
+    <div class="cc"><div class="cc-acc"></div>
+      <div class="cc-top"><div><div class="cc-n">Sigla Circle</div><div class="cc-id">#C00138</div></div><span class="sp s-c"><span class="sd"></span>COMPLETE</span></div>
+      <div style="font-size:11px;color:var(--dim);display:flex;justify-content:space-between;"><span>Cycle 5 / 5</span><span style="color:var(--sky);">100%</span></div>
+      <div class="cpbar"><div class="cpf" style="width:100%;background:var(--sky);"></div></div>
+      <div class="cc-meta"><span class="cc-amt">₱4,000/mo</span><span class="cc-mem">5 members</span></div>
+    </div>
+    <div class="cc locked" style="min-height:130px;"><div style="height:100%;"></div></div>
+    <div class="cc cc-add">
+      <div style="font-size:28px;">+</div>
+      <div style="font-size:13px;font-weight:500;">Create new circle</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">12 slots remaining</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MEMBERS & DEFAULTS ══════ -->
+<div class="main sc" id="s-mb">
+  <div class="ph">
+    <div><div class="ph-t">MEMBERS &amp; DEFAULTS</div><div class="ph-s">94 members across 8 circles · 1 default action required</div></div>
+    <button class="btn btn-c">BULK INVITE</button>
+  </div>
+  <!-- Default alert -->
+  <div style="background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:16px;">
+    <div style="font-size:22px;">⚠️</div>
+    <div style="flex:1;">
+      <div style="font-size:14px;font-weight:600;color:var(--rd);margin-bottom:2px;">Default Alert — Tapat Circle #12 · Cycle 3</div>
+      <div style="font-size:12px;color:var(--dim);">Maria Cruz (Slot 3) missed Cycle 3 payment. Grace period expires Jan 20. Choose a resolution path.</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-g" style="font-size:10px;padding:7px 12px;">LUCKY TAKEOVER</button>
+      <button class="btn btn-s" style="font-size:10px;padding:7px 12px;">RESTRUCTURE</button>
+      <button class="btn btn-r" style="font-size:10px;padding:7px 12px;">SEIZE BOND</button>
+    </div>
+  </div>
+  <div class="g22">
+    <div class="panel">
+      <div class="ph2"><div class="pt">Tapat #12 Members</div><span class="sp s-d" style="font-size:9px;"><span class="sd"></span>DEFAULT</span></div>
+      <div class="mr"><div class="mav" style="background:linear-gradient(135deg,#2A7F7F,#C8773A);">J</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Juan Dela Cruz</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Slot 1 · Payout received ✓ · Cycle 3 paid</div></div><div style="font-family:var(--mono);font-size:11px;color:var(--gr);">⭐ 5.0</div></div>
+      <div class="mr"><div class="mav" style="background:linear-gradient(135deg,#3A6AB0,#1A5E5E);">A</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Ana Pascual</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Slot 2 · Cycle 3 paid</div></div><div style="font-family:var(--mono);font-size:11px;color:var(--gr);">⭐ 4.8</div></div>
+      <div class="mr" style="background:rgba(224,82,82,.05);border-left:2px solid var(--rd);">
+        <div class="mav" style="background:linear-gradient(135deg,var(--rd),#9D174D);">M</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--rd);">Maria Cruz ⚠</div><div style="font-family:var(--mono);font-size:10px;color:var(--rd);">Slot 3 · MISSED Cycle 3 · Grace ends Jan 20</div></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--rd);">⭐ 2.1</div>
+        <button class="btn btn-r" style="font-size:10px;padding:5px 10px;margin-left:8px;">ACT</button>
+      </div>
+      <div class="mr"><div class="mav" style="background:linear-gradient(135deg,#5A3A1A,var(--cu));">R</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Rey Manalo</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Slot 4 · Cycle 3 paid</div></div><div style="font-family:var(--mono);font-size:11px;color:var(--gr);">⭐ 4.9</div></div>
+      <div class="mr"><div class="mav" style="background:linear-gradient(135deg,#065F46,#3CB878);">L</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Lina Santos</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Slot 5 · Cycle 3 paid</div></div><div style="font-family:var(--mono);font-size:11px;color:var(--gr);">⭐ 5.0</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="ph2"><div class="pt">Resolution Paths</div></div>
+        <div class="pb" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="rp rp-g"><div style="font-size:13px;font-weight:600;color:var(--gr);margin-bottom:4px;">① Lucky Takeover</div><div style="font-size:11px;color:var(--dim);line-height:1.5;">Another member assumes Maria's slot. Circle continues. Preferred path.</div></div>
+          <div class="rp rp-s"><div style="font-size:13px;font-weight:600;color:var(--sky);margin-bottom:4px;">② Restructure</div><div style="font-size:11px;color:var(--dim);line-height:1.5;">Remove Maria, circle downsizes to 4 members. New pot recalculated.</div></div>
+          <div class="rp rp-r"><div style="font-size:13px;font-weight:600;color:var(--rd);margin-bottom:4px;">③ Trust Bond Seizure</div><div style="font-size:11px;color:var(--dim);line-height:1.5;">Voucher bond (Jose M. · ₱5,000) applied to cover shortfall. Last resort.</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph2"><div class="pt">Voucher Bond</div></div>
+        <div class="pb"><div style="display:flex;align-items:center;gap:10px;"><div class="mav" style="background:linear-gradient(135deg,#4A1A7A,#8A3ABA);width:38px;height:38px;">J</div><div><div style="font-size:13px;font-weight:500;">Jose Manalo</div><div style="font-family:var(--mono);font-size:10px;color:var(--dim);">Bond: ₱5,000 · Status: ACTIVE</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ EARNINGS ══════ -->
+<div class="main sc" id="s-ea">
+  <div class="ph">
+    <div><div class="ph-t">EARNINGS &amp; FEES</div><div class="ph-s">L2 Captain · 2.0% manager fee · Netbank rail</div></div>
+    <button class="btn btn-c">DOWNLOAD CSV</button>
+  </div>
+  <div class="eh">
+    <div class="eh-i"><div class="eh-l">Lifetime Earned</div><div class="eh-v">₱84,200</div><div class="eh-s">Since Mar 2024 · 10 months</div></div>
+    <div class="eh-div"></div>
+    <div class="eh-i"><div class="eh-l">This Month MTD</div><div class="eh-v" style="font-size:30px;">₱12,480</div><div class="eh-s">↑ ₱3,200 vs last month</div></div>
+    <div class="eh-div"></div>
+    <div class="eh-i"><div class="eh-l">Projected Full Month</div><div class="eh-v" style="font-size:28px;">₱16,200</div><div class="eh-s">Based on 8 active circles</div></div>
+  </div>
+  <div class="g2">
+    <div class="panel">
+      <div class="ph2"><div class="pt">Fee History by Circle</div></div>
+      <table class="tbl">
+        <thead><tr><th>Circle</th><th>Cycle</th><th>Gross Pot</th><th>Your 2%</th><th>CF 2%</th><th>Rail Fee</th><th>Net to Winner</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--mono);font-size:11px;color:var(--dim);">#C00142</td>
+            <td style="font-family:var(--mono);font-size:11px;">3</td>
+            <td style="font-family:var(--mono);">₱50,000</td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱1,000</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱1,000</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱20</td>
+            <td style="font-family:var(--mono);color:var(--gr);">₱47,980</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:11px;color:var(--dim);">#C00138</td>
+            <td style="font-family:var(--mono);font-size:11px;">5 ✓</td>
+            <td style="font-family:var(--mono);">₱20,000</td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱400</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱400</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱20</td>
+            <td style="font-family:var(--mono);color:var(--gr);">₱19,180</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--mono);font-size:11px;color:var(--dim);">#C00136</td>
+            <td style="font-family:var(--mono);font-size:11px;">2</td>
+            <td style="font-family:var(--mono);">₱30,000</td>
+            <td style="font-family:var(--mono);color:var(--cu2);">₱600</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱600</td>
+            <td style="font-family:var(--mono);color:var(--dim);font-size:11px;">₱20</td>
+            <td style="font-family:var(--mono);color:var(--gr);">₱28,780</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="ph2"><div class="pt">L3 Banker Preview</div></div>
+      <div class="pb">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:14px;">At your current volume, upgrading to L3 Banker (3.0% fee) would earn:</div>
+        <div style="font-family:var(--disp);font-size:36px;color:var(--cu2);margin-bottom:4px;">₱18,720 <span style="font-size:16px;color:var(--gr);">+50%</span></div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px;">per month at same volume</div>
+        <button class="btn btn-f" onclick="show('ca')" style="width:100%;padding:10px;text-align:center;display:block;">VIEW CAREER LADDER →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<!-- PREVIEW NAV -->
+<div class="pnav">
+  <button class="pp on" id="pp-ov" onclick="show('ov')">Overview</button>
+  <button class="pp" id="pp-ci" onclick="show('ci')">My Circles</button>
+  <button class="pp" id="pp-mb" onclick="show('mb')">Members</button>
+  <button class="pp" id="pp-ea" onclick="show('ea')">Earnings</button>
+  <button class="pp" id="pp-ca" onclick="show('ca')">Career Ladder</button>
+</div>
+
+<script>
+const scs=['ov','ci','mb','ea','ca'];
+function show(id){
+  scs.forEach(s=>{
+    document.getElementById('s-'+s).classList.toggle('on',s===id);
+    document.getElementById('pp-'+s).classList.toggle('on',s===id);
+  });
+  document.querySelectorAll('.nav').forEach(n=>{
+    const oc=n.getAttribute('onclick');
+    n.classList.toggle('on',oc&&oc.includes("'"+id+"'"));
+  });
+}
+</script>
+</body>
+</html>
