@@ -250,6 +250,9 @@ footer{padding:48px 32px;border-top:1px solid rgba(255,255,255,.04)}
 input:focus,select:focus{border-color:rgba(0,214,91,.4)!important;box-shadow:0 0 0 3px rgba(0,214,91,.06)}
 .wl-input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:inherit;outline:none;width:100%;transition:.2s}
 .wl-input::placeholder{color:rgba(255,255,255,.25)}
+select.wl-input{background-color:#0D1420 !important;color:#fff;-webkit-appearance:auto;appearance:auto}
+select.wl-input option{background-color:#0D1420 !important;color:#fff}
+select.wl-input option:disabled{color:rgba(255,255,255,.35)}
 
 /* ─── TOAST ─── */
 #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#0D1420;border:1px solid rgba(0,214,91,.3);color:#fff;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9998;transition:.4s;opacity:0;white-space:nowrap}
@@ -1150,15 +1153,6 @@ input:focus,select:focus{border-color:rgba(0,214,91,.4)!important;box-shadow:0 0
         <input id="wl-mobile" type="tel" placeholder="+63 9XX XXX XXXX" class="wl-input" />
       </div>
 
-      <!-- I want to (role) -->
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.5px;text-transform:uppercase">I want to *</label>
-        <div style="display:flex;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1)">
-          <button type="button" id="btnMember" onclick="setRole('member')" style="flex:1;padding:11px 12px;background:rgba(0,214,91,.1);border:none;color:#00D65B;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s">💰 Save in a Circle</button>
-          <button type="button" id="btnManager" onclick="setRole('manager')" style="flex:1;padding:11px 12px;background:transparent;border:none;color:rgba(255,255,255,.35);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s">◎ Become a Manager</button>
-          <button type="button" id="btnBoth" onclick="setRole('both')" style="flex:1;padding:11px 12px;background:transparent;border:none;color:rgba(255,255,255,.35);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s">🚀 Both!</button>
-        </div>
-      </div>
 
       <!-- Location -->
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -1194,9 +1188,18 @@ input:focus,select:focus{border-color:rgba(0,214,91,.4)!important;box-shadow:0 0
             <label style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.5px;text-transform:uppercase">Country *</label>
             <select id="wl-country" class="wl-input" style="cursor:pointer">
               <option value="" disabled selected>Select country</option>
-              <option>Saudi Arabia</option><option>United Arab Emirates</option><option>Qatar</option><option>Kuwait</option>
-              <option>Singapore</option><option>Hong Kong</option><option>Japan</option><option>Australia</option>
-              <option>United Kingdom</option><option>Canada</option><option>United States</option><option>Other</option>
+              <option>Saudi Arabia</option>
+              <option>United Arab Emirates</option>
+              <option>Qatar</option>
+              <option>Kuwait</option>
+              <option>Singapore</option>
+              <option>Hong Kong</option>
+              <option>Japan</option>
+              <option>Australia</option>
+              <option>United Kingdom</option>
+              <option>Canada</option>
+              <option>United States</option>
+              <option>Other</option>
             </select>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px">
@@ -1212,7 +1215,7 @@ input:focus,select:focus{border-color:rgba(0,214,91,.4)!important;box-shadow:0 0
     <div id="wlSuccess" style="display:none;padding:32px 24px;border-radius:16px;background:rgba(0,214,91,.05);border:1px solid rgba(0,214,91,.15);text-align:center">
       <div style="font-size:40px;margin-bottom:12px">🎉</div>
       <h4 style="font-size:18px;font-weight:800;margin-bottom:8px;color:#00D65B">You're on the list!</h4>
-      <p style="font-size:14px;color:rgba(255,255,255,.35);line-height:1.6">We'll send you updates and your early access link at launch.<br>Salamat and see you in the circle! 🇵🇭</p>
+      <p style="font-size:14px;color:rgba(255,255,255,.35);line-height:1.6">We will send you updates and your early access link when CircleFi goes live.<br>Welcome to the circle. We will see you there! 🌍</p>
     </div>
 
     <div style="display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap">
@@ -1276,6 +1279,53 @@ input:focus,select:focus{border-color:rgba(0,214,91,.4)!important;box-shadow:0 0
 </footer>
 
 <script>
+// ─── CUSTOM REGION / COUNTRY DROPDOWNS ───────────────────────────
+function toggleRegionDrop() {
+  var d = document.getElementById('regionDrop');
+  if (!d) return;
+  var isOpen = d.style.display === 'block';
+  closeAllDropdowns();
+  d.style.display = isOpen ? 'none' : 'block';
+}
+function pickRegion(val, label) {
+  document.getElementById('wl-region').value = val;
+  var lbl = document.getElementById('regionLabel');
+  lbl.textContent = label;
+  lbl.style.color = '#fff';
+  document.getElementById('regionDrop').style.display = 'none';
+  document.querySelectorAll('#regionDrop .rdrop-item').forEach(function(el) {
+    el.classList.toggle('selected', el.textContent.trim() === label);
+  });
+}
+function toggleCountryDrop() {
+  var d = document.getElementById('countryDrop');
+  if (!d) return;
+  var isOpen = d.style.display === 'block';
+  closeAllDropdowns();
+  d.style.display = isOpen ? 'none' : 'block';
+}
+function pickCountry(val) {
+  document.getElementById('wl-country').value = val;
+  var lbl = document.getElementById('countryLabel');
+  lbl.textContent = val;
+  lbl.style.color = '#fff';
+  document.getElementById('countryDrop').style.display = 'none';
+  document.querySelectorAll('#countryDrop .rdrop-item').forEach(function(el) {
+    el.classList.toggle('selected', el.textContent.trim() === val);
+  });
+}
+function closeAllDropdowns() {
+  ['regionDrop','countryDrop'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#fieldRegion') && !e.target.closest('#fieldAbroad')) {
+    closeAllDropdowns();
+  }
+});
+
 // ─── SUPABASE CONFIG ───────────────────────────────────────────────
 // TODO: Replace these with your actual Supabase project URL and anon key
 const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
@@ -1283,6 +1333,7 @@ const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
 
 // ─── LOCATION TOGGLE ──────────────────────────────────────────────
 var currentLocation = 'ph';
+var currentRole = 'member'; // default — role progression is earned inside the app
 function setLocation(loc) {
   currentLocation = loc;
   document.getElementById('fieldRegion').style.display = loc === 'ph' ? 'flex' : 'none';
@@ -1296,21 +1347,6 @@ function setLocation(loc) {
     btnAbroad.style.background = 'rgba(59,130,246,.1)'; btnAbroad.style.color = '#60A5FA';
     btnPH.style.background = 'transparent'; btnPH.style.color = 'rgba(255,255,255,.35)';
   }
-}
-
-// ─── ROLE TOGGLE ──────────────────────────────────────────────────
-var currentRole = 'member';
-function setRole(role) {
-  currentRole = role;
-  var roles = ['member','manager','both'];
-  var btns = {member:'btnMember',manager:'btnManager',both:'btnBoth'};
-  var colors = {member:'rgba(0,214,91,.1)',manager:'rgba(168,85,247,.1)',both:'rgba(245,158,11,.1)'};
-  var textColors = {member:'#00D65B',manager:'#A855F7',both:'#F59E0B'};
-  roles.forEach(function(r) {
-    var b = document.getElementById(btns[r]);
-    if (r === role) { b.style.background = colors[r]; b.style.color = textColors[r]; }
-    else { b.style.background = 'transparent'; b.style.color = 'rgba(255,255,255,.35)'; }
-  });
 }
 
 // ─── TOAST HELPER ─────────────────────────────────────────────────
@@ -1328,7 +1364,7 @@ async function submitWaitlist() {
   var email  = document.getElementById('wl-email').value.trim();
   var mobile = document.getElementById('wl-mobile').value.trim();
 
-  if (!name) { showToast('⚠️ Please enter your full name.', true); return; }
+  if (!name)  { showToast('⚠️ Please enter your full name.', true); return; }
   if (!email || !email.includes('@')) { showToast('⚠️ Please enter a valid email.', true); return; }
 
   var locationData = {};
