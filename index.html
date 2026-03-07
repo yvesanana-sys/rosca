@@ -1385,14 +1385,15 @@ async function submitWaitlist() {
   btn.disabled = true;
   btn.style.opacity = '.7';
 
-  var payload = Object.assign({
-    full_name: name,
-    email: email,
-    mobile: mobile || null,
-    role_interest: currentRole,
-    signed_up_at: new Date().toISOString(),
-    source: 'landing_page'
-  }, locationData);
+  var payload = {
+    full_name:      name,
+    email:          email,
+    mobile:         mobile || null,
+    is_philippines: currentLocation === 'ph',
+    region:         locationData.region  || null,
+    country:        locationData.country || null,
+    city:           locationData.city    || null
+  };
 
   try {
     var res = await fetch(SUPABASE_URL + '/rest/v1/waitlist', {
