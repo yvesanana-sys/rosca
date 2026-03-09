@@ -319,7 +319,7 @@ select.wl-input option:disabled{color:rgba(255,255,255,.35)}
 <!-- STATS -->
 <div class="stats-bar fade-up">
   <div class="stat"><div class="number">₱500</div><div class="label">Minimum Contribution</div></div>
-  <div class="stat"><div class="number">6</div><div class="label">Circle Products</div></div>
+  <div class="stat"><div class="number">2</div><div class="label">Core Circle Products</div></div>
   <div class="stat"><div class="number">5</div><div class="label">Manager Career Levels</div></div>
   <div class="stat"><div class="number">0</div><div class="label">Funds Held by CircleFi</div></div>
 </div>
@@ -431,236 +431,368 @@ select.wl-input option:disabled{color:rgba(255,255,255,.35)}
 <section class="section fade-up" id="how">
   <div class="section-tag" style="background:rgba(168,85,247,.08);color:var(--purple)">Simple Process</div>
   <h2>How It Works</h2>
-  <p class="subtitle">From joining your first circle to receiving your payout, everything is designed around transparency, accountability, and the spirit of looking out for one another.</p>
+  <p class="subtitle">Two ways to save together. Both powered by community trust. Pick the one that fits your goal.</p>
 
-  <!-- Animated circle lifecycle -->
-  <div class="circle-demo" id="circleDemo">
-    <div class="cd-nav">
-      <button class="cd-btn active" onclick="showStep(0)">1. Join</button>
-      <button class="cd-btn" onclick="showStep(1)">2. Contribute</button>
-      <button class="cd-btn" onclick="showStep(2)">3. Bid</button>
-      <button class="cd-btn" onclick="showStep(3)">4. Receive</button>
-    </div>
+  <!-- Side by side dual animated demo -->
+  <div class="dual-demo-wrap">
 
-    <div class="cd-stage">
-      <!-- Step 0: Join -->
-      <div class="cd-panel active" id="cdPanel0">
-        <div class="cd-visual">
-          <div class="cd-circle-ring" id="joinRing">
-            <div class="cd-ring-label">Your Circle</div>
-            <div class="cd-slot filled" style="--i:0"><span>M</span></div>
-            <div class="cd-slot filled" style="--i:1"><span>J</span></div>
-            <div class="cd-slot filled" style="--i:2"><span>A</span></div>
-            <div class="cd-slot empty" style="--i:3"><span>+</span></div>
-            <div class="cd-slot empty" style="--i:4"><span>+</span></div>
-            <div class="cd-slot empty" style="--i:5"><span>+</span></div>
-            <div class="cd-center">
-              <span style="font-size:22px">👋</span>
-              <span style="font-size:10px;font-weight:700;color:var(--text3);margin-top:4px">6 members</span>
-            </div>
-          </div>
-          <div class="cd-join-you">
-            <div class="cd-you-avatar">You</div>
-            <div class="cd-join-arrow" id="joinArrow">→</div>
-          </div>
-        </div>
-        <div class="cd-text">
-          <div class="cd-step-tag" style="color:var(--green)">Step 1</div>
-          <h3>Find a Circle and Get Verified</h3>
-          <p>Browse circles near you or join one via a manager invite link. New members complete a simple identity check. Members with a higher Trust Tier join instantly. New members get vouched in by someone who already knows them. Real accountability from day one.</p>
-          <div class="cd-trust-pill">🛡️ Your Trust Tier speeds up access</div>
-        </div>
+    <!-- LEFT: Paluwagan (Rotating) -->
+    <div class="dual-card" id="dualLeft">
+      <div class="dual-header">
+        <div class="dual-badge" style="background:rgba(0,214,91,.1);color:var(--green)">🔄 Paluwagan</div>
+        <div class="dual-title">Rotating Savings</div>
+        <div class="dual-sub">Everyone contributes monthly. Each member gets the full pot — once, in rotation.</div>
       </div>
-
-      <!-- Step 1: Contribute -->
-      <div class="cd-panel" id="cdPanel1">
-        <div class="cd-visual">
-          <div class="cd-payment-flow">
-            <div class="cd-pay-member">
-              <div class="cd-avatar green">You</div>
-              <div style="font-size:11px;color:var(--green);font-weight:700;margin-top:6px">Paying</div>
-            </div>
-            <div class="cd-flow-track">
-              <div class="cd-coin" id="coin1">💳</div>
-              <div class="cd-flow-line"></div>
-            </div>
-            <div class="cd-pay-pot">
-              <div class="cd-pot" id="pot1">
-                <span style="font-size:28px">🏦</span>
-                <span style="font-size:11px;font-weight:700;color:var(--green);margin-top:4px">Circle Pot</span>
-              </div>
-            </div>
-            <div class="cd-flow-track">
-              <div class="cd-coin" id="coin2">📒</div>
-              <div class="cd-flow-line"></div>
-            </div>
-            <div class="cd-pay-ledger">
-              <div style="font-size:28px;margin-bottom:6px">✅</div>
-              <div style="font-size:11px;font-weight:700;color:var(--text3)">Ledger<br>Recorded</div>
-            </div>
+      <div class="dual-stage" id="palStage">
+        <!-- Animated ring of members, pot pulses when active member receives -->
+        <div class="pal-ring-wrap">
+          <div class="pal-ring" id="palRing">
+            <div class="pal-slot" data-idx="0" style="--pi:0"><span>M</span><div class="pal-tick">✓</div></div>
+            <div class="pal-slot" data-idx="1" style="--pi:1"><span>J</span><div class="pal-tick">✓</div></div>
+            <div class="pal-slot" data-idx="2" style="--pi:2"><span>A</span><div class="pal-tick">✓</div></div>
+            <div class="pal-slot" data-idx="3" style="--pi:3"><span>R</span><div class="pal-tick">✓</div></div>
+            <div class="pal-slot" data-idx="4" style="--pi:4"><span>L</span><div class="pal-tick">✓</div></div>
+            <div class="pal-slot" data-idx="5" style="--pi:5"><span>K</span><div class="pal-tick">✓</div></div>
+          </div>
+          <div class="pal-center" id="palCenter">
+            <div class="pal-pot-icon">🏦</div>
+            <div class="pal-pot-label" id="palPotLabel">Circle Pot</div>
           </div>
         </div>
-        <div class="cd-text">
-          <div class="cd-step-tag" style="color:var(--purple)">Step 2</div>
-          <h3>Pay Your Way. Fast, Low Fee, No Hassle.</h3>
-          <p>e-Wallet, bank transfer, QR. Pay however works for you. Fees are kept intentionally low so more of your money stays in the circle where it belongs. Every payment gets a unique reference ID so it is always traceable. Pay in seconds. Confirm instantly. Done.</p>
-          <div class="cd-trust-pill" style="border-color:rgba(168,85,247,.2);color:var(--purple)">📒 Every payment recorded in your Trust history</div>
-        </div>
+        <div class="pal-payout-line" id="palPayoutLine"></div>
+        <div class="pal-status" id="palStatus">Each member pays in every month →</div>
       </div>
-
-      <!-- Step 2: Bid -->
-      <div class="cd-panel" id="cdPanel2">
-        <div class="cd-visual">
-          <div class="cd-bid-stage">
-            <div class="cd-bid-pot">
-              <span style="font-size:32px">💰</span>
-              <span style="font-size:12px;font-weight:800;color:var(--amber);margin-top:6px">The Pot</span>
-            </div>
-            <div class="cd-bids">
-              <div class="cd-bid-card winning" id="bidWin">
-                <span class="cd-bid-avatar" style="background:linear-gradient(135deg,#00B14F,#00D65B)">A</span>
-                <span class="cd-bid-pct">5% off</span>
-                <span class="cd-bid-badge">🏆 Wins Early</span>
-              </div>
-              <div class="cd-bid-card" id="bid2">
-                <span class="cd-bid-avatar" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">M</span>
-                <span class="cd-bid-pct">3% off</span>
-              </div>
-              <div class="cd-bid-card" id="bid3">
-                <span class="cd-bid-avatar" style="background:linear-gradient(135deg,#1D4ED8,#60A5FA)">J</span>
-                <span class="cd-bid-pct">2% off</span>
-              </div>
-            </div>
-            <div class="cd-dividend-flow" id="dividendFlow">
-              <span style="font-size:11px;color:var(--green);font-weight:700">Discount shared as dividends to all 🎁</span>
-            </div>
-          </div>
+      <div class="dual-steps">
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--green)"></span>
+          <span>Join a circle and get verified</span>
         </div>
-        <div class="cd-text">
-          <div class="cd-step-tag" style="color:var(--amber)">Step 3 (Optional)</div>
-          <h3>Bid for an Early Payout</h3>
-          <p>Need your money early? Submit a Discount Bid. The member who offers the highest discount wins the pot ahead of schedule. That discount then gets split as dividends among all the other members, making everyone's next contribution a little smaller. Everyone wins something.</p>
-          <div class="cd-trust-pill" style="border-color:rgba(245,158,11,.2);color:var(--amber)">💡 Higher Trust Tier members get bidding priority</div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--green)"></span>
+          <span>Pay your monthly contribution</span>
         </div>
-      </div>
-
-      <!-- Step 3: Receive -->
-      <div class="cd-panel" id="cdPanel3">
-        <div class="cd-visual">
-          <div class="cd-payout-stage">
-            <div class="cd-payout-circle">
-              <div class="cd-payout-ring" id="payoutRing">
-                <div class="cd-slot filled payout-active" style="--i:0"><span>M</span></div>
-                <div class="cd-slot filled" style="--i:1"><span>J</span></div>
-                <div class="cd-slot filled" style="--i:2"><span>A</span></div>
-                <div class="cd-slot filled" style="--i:3"><span>R</span></div>
-                <div class="cd-slot filled" style="--i:4"><span>L</span></div>
-                <div class="cd-slot filled" style="--i:5"><span>K</span></div>
-                <div class="cd-center">
-                  <span style="font-size:18px">🎉</span>
-                  <span style="font-size:9px;font-weight:700;color:var(--green);margin-top:2px">M's Turn!</span>
-                </div>
-              </div>
-            </div>
-            <div class="cd-payout-arrow" id="payoutArrow">↓</div>
-            <div class="cd-payout-dest">
-              <div class="cd-avatar" style="background:linear-gradient(135deg,#00B14F,#00D65B)">M</div>
-              <div class="cd-payout-amount" id="payoutAmt">Full Pot 🏦</div>
-            </div>
-          </div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--green)"></span>
+          <span>Receive the full pot on your turn</span>
         </div>
-        <div class="cd-text">
-          <div class="cd-step-tag" style="color:var(--blue)">Step 4</div>
-          <h3>Get Your Payout. Directly and Instantly.</h3>
-          <p>When your turn comes, the full pot lands in your account. Fast, direct, no middleman. Your payout is logged in the community ledger and permanently recorded. Every member can verify it. No one can dispute it. That is your money and your moment, fully secured.</p>
-          <div class="cd-trust-pill" style="border-color:rgba(59,130,246,.2);color:var(--blue)">⭐ Completing circles boosts your Trust Tier</div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--green)"></span>
+          <span>Keep paying until everyone gets paid</span>
         </div>
       </div>
     </div>
 
-    <!-- Progress indicator -->
-    <div class="cd-progress">
-      <div class="cd-prog-bar" id="cdProgBar"></div>
+    <!-- RIGHT: Ipon Circle (Non-Rotating) -->
+    <div class="dual-card" id="dualRight">
+      <div class="dual-header">
+        <div class="dual-badge" style="background:rgba(168,85,247,.1);color:var(--purple)">🏦 Ipon Circle</div>
+        <div class="dual-title">Non-Rotating Savings</div>
+        <div class="dual-sub">Everyone saves toward a shared goal. Join anytime. Withdraw when you're ready.</div>
+      </div>
+      <div class="dual-stage" id="iponStage">
+        <div class="ipon-pool-wrap">
+          <!-- Pool bar that grows -->
+          <div class="ipon-goal-bar-wrap">
+            <div class="ipon-goal-label">
+              <span>Pool Progress</span>
+              <span id="iponPct">0%</span>
+            </div>
+            <div class="ipon-bar-track">
+              <div class="ipon-bar-fill" id="iponBarFill"></div>
+              <div class="ipon-bar-milestone" style="left:50%" title="Early exit unlocks"></div>
+            </div>
+            <div class="ipon-bar-hints">
+              <span>₱0</span>
+              <span style="color:var(--amber);font-size:10px">50% → Early exit unlocks</span>
+              <span id="iponGoalAmt">Goal</span>
+            </div>
+          </div>
+          <!-- Members joining over time -->
+          <div class="ipon-members" id="iponMembers">
+            <div class="ipon-member-row" id="iponMRow0" style="opacity:0">
+              <div class="ipon-avatar" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">M</div>
+              <div class="ipon-contrib-bar" style="--iw:80%"><div class="ipon-contrib-fill purple"></div></div>
+              <div class="ipon-contrib-amt" id="iponAmt0">₱0</div>
+            </div>
+            <div class="ipon-member-row" id="iponMRow1" style="opacity:0">
+              <div class="ipon-avatar" style="background:linear-gradient(135deg,#1D4ED8,#60A5FA)">J</div>
+              <div class="ipon-contrib-bar" style="--iw:60%"><div class="ipon-contrib-fill blue"></div></div>
+              <div class="ipon-contrib-amt" id="iponAmt1">₱0</div>
+            </div>
+            <div class="ipon-member-row" id="iponMRow2" style="opacity:0">
+              <div class="ipon-avatar" style="background:linear-gradient(135deg,#B45309,#F59E0B)">A</div>
+              <div class="ipon-contrib-bar" style="--iw:40%"><div class="ipon-contrib-fill amber"></div></div>
+              <div class="ipon-contrib-amt" id="iponAmt2">₱0</div>
+            </div>
+            <div class="ipon-join-badge" id="iponJoinBadge" style="opacity:0">
+              <span>+</span> Join Anytime
+            </div>
+          </div>
+        </div>
+        <div class="pal-status" id="iponStatus">Members save at their own pace →</div>
+      </div>
+      <div class="dual-steps">
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--purple)"></span>
+          <span>Join anytime — open or invite-only</span>
+        </div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--purple)"></span>
+          <span>Contribute monthly at your own pace</span>
+        </div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--purple)"></span>
+          <span>Pool hits milestone → early exit opens</span>
+        </div>
+        <div class="ds">
+          <span class="ds-dot" style="background:var(--purple)"></span>
+          <span>Withdraw your share at maturity</span>
+        </div>
+      </div>
     </div>
   </div>
 
   <style>
-  .circle-demo{background:var(--surface);border:1px solid rgba(255,255,255,.06);border-radius:24px;overflow:hidden;margin-top:8px}
-  .cd-nav{display:flex;border-bottom:1px solid rgba(255,255,255,.06)}
-  .cd-btn{flex:1;padding:14px 8px;background:transparent;border:none;color:var(--text3);font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;transition:.2s;border-bottom:2px solid transparent}
-  .cd-btn.active{color:var(--green);border-bottom-color:var(--green);background:rgba(0,214,91,.04)}
-  .cd-btn:hover:not(.active){color:rgba(255,255,255,.6)}
-  .cd-stage{position:relative;min-height:340px}
-  .cd-panel{display:none;padding:36px;gap:40px;align-items:center}
-  .cd-panel.active{display:grid;grid-template-columns:1fr 1fr;animation:cdFadeIn .4s ease}
-  @keyframes cdFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .cd-step-tag{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
-  .cd-text h3{font-size:20px;font-weight:900;margin-bottom:12px;letter-spacing:-.3px}
-  .cd-text p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:16px}
-  .cd-trust-pill{display:inline-flex;padding:8px 14px;border-radius:8px;background:rgba(0,214,91,.05);border:1px solid rgba(0,214,91,.15);font-size:12px;font-weight:600;color:var(--green)}
-  .cd-progress{height:3px;background:rgba(255,255,255,.05)}
-  .cd-prog-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));width:25%;transition:width .4s ease}
+  .dual-demo-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}
+  .dual-card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+  .dual-header{padding:24px 24px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .dual-badge{display:inline-flex;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:.5px;margin-bottom:10px}
+  .dual-title{font-size:18px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
+  .dual-sub{font-size:13px;color:var(--text2);line-height:1.6}
+  .dual-stage{padding:24px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.05)}
 
-  /* Join visual */
-  .cd-visual{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;min-height:260px}
-  .cd-circle-ring{position:relative;width:200px;height:200px}
-  .cd-ring-label{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap}
-  .cd-slot{position:absolute;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;border:2px solid;
-    left:calc(50% + 80px * cos(calc(var(--i) * 60deg + 90deg)) - 20px);
-    top:calc(50% + 80px * sin(calc(var(--i) * 60deg + 90deg)) - 20px)}
-  .cd-slot.filled{background:linear-gradient(135deg,rgba(0,214,91,.15),rgba(0,214,91,.05));border-color:rgba(0,214,91,.3);color:var(--green)}
-  .cd-slot.empty{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);color:var(--text3);border-style:dashed}
-  .cd-slot.payout-active{background:linear-gradient(135deg,rgba(0,214,91,.3),rgba(0,214,91,.1));border-color:var(--green);animation:pulseSlot 1.5s infinite;box-shadow:0 0 12px rgba(0,214,91,.3)}
-  @keyframes pulseSlot{0%,100%{box-shadow:0 0 8px rgba(0,214,91,.3)}50%{box-shadow:0 0 20px rgba(0,214,91,.6)}}
-  .cd-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:flex;flex-direction:column;align-items:center}
-  .cd-join-you{display:flex;align-items:center;gap:12px;margin-top:8px}
-  .cd-you-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A855F7);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;border:2px solid rgba(168,85,247,.4)}
-  .cd-join-arrow{font-size:22px;color:var(--green);animation:bounceRight 1s infinite}
-  @keyframes bounceRight{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
-  .cd-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
-  .cd-avatar.green{background:linear-gradient(135deg,#00B14F,#00D65B)}
+  /* Paluwagan ring */
+  .pal-ring-wrap{position:relative;width:180px;height:180px;flex-shrink:0}
+  .pal-ring{position:absolute;inset:0}
+  .pal-slot{position:absolute;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid rgba(0,214,91,.25);background:rgba(0,214,91,.07);color:var(--green);transition:all .4s ease;
+    left:calc(50% + 72px * cos(calc(var(--pi) * 60deg - 90deg)) - 18px);
+    top:calc(50% + 72px * sin(calc(var(--pi) * 60deg - 90deg)) - 18px)}
+  .pal-slot.paying{border-color:rgba(0,214,91,.6);background:rgba(0,214,91,.15);box-shadow:0 0 10px rgba(0,214,91,.25)}
+  .pal-slot.receiving{border-color:var(--green);background:linear-gradient(135deg,rgba(0,214,91,.35),rgba(0,214,91,.1));box-shadow:0 0 18px rgba(0,214,91,.5);animation:receivePulse 1s ease infinite}
+  .pal-slot.done{border-color:rgba(0,214,91,.15);background:rgba(0,214,91,.03);color:rgba(0,214,91,.3)}
+  @keyframes receivePulse{0%,100%{box-shadow:0 0 10px rgba(0,214,91,.4)}50%{box-shadow:0 0 24px rgba(0,214,91,.8)}}
+  .pal-tick{display:none;position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);font-size:8px;align-items:center;justify-content:center;color:#050A12;font-weight:900}
+  .pal-slot.done .pal-tick{display:flex}
+  .pal-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .pal-pot-icon{font-size:26px;transition:transform .3s}
+  .pal-pot-icon.payout{animation:potPayout .5s ease}
+  @keyframes potPayout{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+  .pal-pot-label{font-size:10px;font-weight:700;color:var(--text3)}
+  .pal-payout-line{font-size:13px;font-weight:800;color:var(--green);min-height:20px;text-align:center}
+  .pal-status{font-size:12px;color:var(--text3);text-align:center;font-weight:600}
 
-  /* Payment flow */
-  .cd-payment-flow{display:flex;align-items:center;gap:8px;width:100%}
-  .cd-pay-member,.cd-pay-pot,.cd-pay-ledger{display:flex;flex-direction:column;align-items:center;gap:4px}
-  .cd-flow-track{flex:1;position:relative;display:flex;align-items:center}
-  .cd-flow-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(0,214,91,.2),rgba(0,214,91,.5));border-radius:2px}
-  .cd-coin{position:absolute;left:0;font-size:18px;animation:flowRight 2s infinite linear}
-  #coin2{animation-delay:1s}
-  @keyframes flowRight{0%{left:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{left:calc(100% - 20px);opacity:0}}
-  .cd-pot{display:flex;flex-direction:column;align-items:center;animation:popIn .3s ease}
-  @keyframes popIn{0%{transform:scale(.8)}100%{transform:scale(1)}}
+  /* Ipon pool */
+  .ipon-pool-wrap{width:100%;display:flex;flex-direction:column;gap:14px}
+  .ipon-goal-bar-wrap{display:flex;flex-direction:column;gap:6px}
+  .ipon-goal-label{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text2)}
+  .ipon-bar-track{position:relative;height:10px;background:rgba(255,255,255,.06);border-radius:10px;overflow:visible}
+  .ipon-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#7C3AED,#A855F7);transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0%}
+  .ipon-bar-milestone{position:absolute;top:-3px;width:3px;height:16px;background:var(--amber);border-radius:2px;transform:translateX(-50%)}
+  .ipon-bar-hints{display:flex;justify-content:space-between;font-size:10px;color:var(--text3)}
+  .ipon-members{display:flex;flex-direction:column;gap:8px}
+  .ipon-member-row{display:flex;align-items:center;gap:10px;transition:opacity .5s ease}
+  .ipon-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+  .ipon-contrib-bar{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+  .ipon-contrib-fill{height:100%;border-radius:10px;width:0%;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+  .ipon-contrib-fill.purple{background:linear-gradient(90deg,#7C3AED,#A855F7)}
+  .ipon-contrib-fill.blue{background:linear-gradient(90deg,#1D4ED8,#60A5FA)}
+  .ipon-contrib-fill.amber{background:linear-gradient(90deg,#B45309,#F59E0B)}
+  .ipon-contrib-amt{font-size:11px;font-weight:700;color:var(--text2);min-width:44px;text-align:right}
+  .ipon-join-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;background:rgba(168,85,247,.08);border:1px dashed rgba(168,85,247,.3);color:var(--purple);font-size:11px;font-weight:800;transition:opacity .5s;align-self:flex-start;margin-top:2px}
 
-  /* Bid stage */
-  .cd-bid-stage{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
-  .cd-bid-pot{display:flex;flex-direction:column;align-items:center}
-  .cd-bids{display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px}
-  .cd-bid-card{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:.3s}
-  .cd-bid-card.winning{background:rgba(0,214,91,.06);border-color:rgba(0,214,91,.2);animation:bidPulse 2s infinite}
-  @keyframes bidPulse{0%,100%{border-color:rgba(0,214,91,.2)}50%{border-color:rgba(0,214,91,.5)}}
-  .cd-bid-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
-  .cd-bid-pct{font-size:13px;font-weight:700;flex:1}
-  .cd-bid-badge{font-size:10px;font-weight:700;color:var(--green);background:rgba(0,214,91,.1);padding:2px 8px;border-radius:5px}
-  .cd-dividend-flow{padding:8px 16px;border-radius:8px;background:rgba(0,214,91,.06);border:1px solid rgba(0,214,91,.15);animation:fadeInUp .5s ease .3s both}
-  @keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  /* Steps */
+  .dual-steps{padding:20px 24px;display:flex;flex-direction:column;gap:10px}
+  .ds{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+  .ds-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
-  /* Payout stage */
-  .cd-payout-stage{display:flex;flex-direction:column;align-items:center;gap:12px}
-  .cd-payout-ring{position:relative;width:180px;height:180px}
-  .cd-payout-ring .cd-slot{
-    left:calc(50% + 70px * cos(calc(var(--i) * 60deg + 90deg)) - 20px);
-    top:calc(50% + 70px * sin(calc(var(--i) * 60deg + 90deg)) - 20px)}
-  .cd-payout-arrow{font-size:24px;color:var(--green);animation:bounceDown 1s infinite}
-  @keyframes bounceDown{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-  .cd-payout-dest{display:flex;flex-direction:column;align-items:center;gap:6px}
-  .cd-payout-amount{font-size:13px;font-weight:800;color:var(--green);animation:popIn .4s ease}
-
-  @media(max-width:700px){
-    .cd-panel.active{grid-template-columns:1fr}
-    .cd-visual{min-height:auto}
-    .cd-payment-flow{gap:4px}
+  @media(max-width:750px){
+    .dual-demo-wrap{grid-template-columns:1fr}
   }
   </style>
+
+  <script>
+  // ── Paluwagan animation ──
+  (function(){
+    var order = [0,1,2,3,4,5];
+    var round = 0;
+    var slots;
+    var label, payLine, status;
+
+    function initPal(){
+      slots = document.querySelectorAll('#palRing .pal-slot');
+      label = document.getElementById('palPotLabel');
+      payLine = document.getElementById('palPayoutLine');
+      status = document.getElementById('palStatus');
+      runPalRound();
+    }
+
+    function runPalRound(){
+      var receiver = order[round % order.length];
+      // reset all
+      slots.forEach(function(s,i){
+        s.classList.remove('paying','receiving','done');
+        if(i < round % order.length) s.classList.add('done');
+      });
+
+      // flash paying state on all non-done, non-receiver
+      slots.forEach(function(s,i){
+        if(i !== receiver && !s.classList.contains('done')) s.classList.add('paying');
+      });
+      status.textContent = 'Everyone pays in this month →';
+      payLine.textContent = '';
+
+      setTimeout(function(){
+        slots.forEach(function(s){ s.classList.remove('paying'); });
+        slots[receiver].classList.add('receiving');
+        document.getElementById('palPotLabel').textContent = '🎉 Payout!';
+        document.querySelector('#palRing .pal-slot[data-idx="'+receiver+'"] span').style.fontWeight='900';
+        payLine.textContent = '→ ' + ['Maria','Juan','Ana','Rico','Liza','Karl'][receiver] + ' gets the full pot!';
+        status.textContent = 'Turn ' + (round+1) + ' of 6';
+        document.querySelector('.pal-pot-icon').classList.add('payout');
+        setTimeout(function(){ document.querySelector('.pal-pot-icon').classList.remove('payout'); }, 500);
+      }, 1200);
+
+      setTimeout(function(){
+        slots[receiver].classList.remove('receiving');
+        slots[receiver].classList.add('done');
+        document.getElementById('palPotLabel').textContent = 'Circle Pot';
+        payLine.textContent = '';
+        round++;
+        if(round >= order.length){ round = 0; slots.forEach(function(s){ s.classList.remove('done'); }); }
+        setTimeout(runPalRound, 600);
+      }, 3200);
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initPal);
+    } else { initPal(); }
+  })();
+
+  // ── Ipon Circle animation ──
+  (function(){
+    var phase = 0;
+    var amounts = [0,0,0];
+    var targets = [3200, 2400, 1200];
+    var names = ['Maria','Juan','Ana'];
+    var pct = 0;
+    var goalAmt = 20000;
+    var status;
+
+    function initIpon(){
+      status = document.getElementById('iponStatus');
+      runIpon();
+    }
+
+    function setIponPct(p){
+      pct = p;
+      document.getElementById('iponBarFill').style.width = p + '%';
+      document.getElementById('iponPct').textContent = Math.round(p) + '%';
+      document.getElementById('iponGoalAmt').textContent = '₱' + goalAmt.toLocaleString();
+    }
+
+    function setMemberAmt(idx, val){
+      amounts[idx] = val;
+      document.getElementById('iponAmt'+idx).textContent = '₱' + val.toLocaleString();
+      var fill = document.querySelector('#iponMRow'+idx+' .ipon-contrib-fill');
+      if(fill) fill.style.width = Math.min(100, (val / targets[idx]) * 100) + '%';
+    }
+
+    function showMember(idx){
+      var row = document.getElementById('iponMRow'+idx);
+      if(row) row.style.opacity = '1';
+    }
+
+    function runIpon(){
+      // Phase 0: First member joins, starts saving
+      showMember(0);
+      status.textContent = 'Maria joins and starts saving →';
+      animateVal(0, 0, targets[0], 1400, function(){
+        setIponPct((targets[0]/goalAmt)*100);
+
+        // Phase 1: Second member joins
+        setTimeout(function(){
+          showMember(1);
+          status.textContent = 'Juan joins anytime — no waiting →';
+          document.getElementById('iponJoinBadge').style.opacity = '1';
+          animateVal(1, 0, targets[1], 1200, function(){
+            setIponPct(((targets[0]+targets[1])/goalAmt)*100);
+
+            // Phase 2: Third member joins late
+            setTimeout(function(){
+              document.getElementById('iponJoinBadge').style.opacity = '0';
+              showMember(2);
+              status.textContent = 'Ana joins late — proportional share →';
+              animateVal(2, 0, targets[2], 900, function(){
+                var total = targets[0]+targets[1]+targets[2];
+                setIponPct((total/goalAmt)*100);
+
+                // Phase 3: hit 50% milestone
+                setTimeout(function(){
+                  status.textContent = '🎯 50% milestone hit — early exit opens!';
+                  animateIponBarTo(50, 800, function(){
+                    setTimeout(function(){
+                      status.textContent = 'Members save toward full maturity →';
+                      animateIponBarTo(78, 1600, function(){
+                        // Reset
+                        setTimeout(function(){
+                          resetIpon();
+                        }, 2000);
+                      });
+                    }, 1000);
+                  });
+                }, 800);
+              });
+            }, 1000);
+          });
+        }, 800);
+      });
+    }
+
+    function animateIponBarTo(target, dur, cb){
+      var start = pct;
+      var t0 = null;
+      function step(ts){
+        if(!t0) t0 = ts;
+        var prog = Math.min((ts-t0)/dur, 1);
+        setIponPct(start + (target-start)*prog);
+        if(prog < 1) requestAnimationFrame(step);
+        else if(cb) cb();
+      }
+      requestAnimationFrame(step);
+    }
+
+    function animateVal(idx, from, to, dur, cb){
+      var t0 = null;
+      function step(ts){
+        if(!t0) t0 = ts;
+        var prog = Math.min((ts-t0)/dur, 1);
+        setMemberAmt(idx, Math.round(from + (to-from)*prog));
+        if(prog < 1) requestAnimationFrame(step);
+        else if(cb) cb();
+      }
+      requestAnimationFrame(step);
+    }
+
+    function resetIpon(){
+      [0,1,2].forEach(function(i){
+        var row = document.getElementById('iponMRow'+i);
+        if(row) row.style.opacity = '0';
+        var fill = document.querySelector('#iponMRow'+i+' .ipon-contrib-fill');
+        if(fill) fill.style.width = '0%';
+        setMemberAmt(i, 0);
+      });
+      setIponPct(0);
+      document.getElementById('iponJoinBadge').style.opacity = '0';
+      status.textContent = 'Members save at their own pace →';
+      setTimeout(runIpon, 800);
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initIpon);
+    } else { initIpon(); }
+  })();
+  </script>
+
 </section>
 
 <!-- MANAGER GROWTH PATH -->
@@ -1014,15 +1146,50 @@ select.wl-input option:disabled{color:rgba(255,255,255,.35)}
 <!-- CIRCLE PRODUCTS -->
 <section class="section fade-up" id="products">
   <div class="section-tag" style="background:rgba(245,158,11,.08);color:var(--amber)">Circle Products</div>
-  <h2>Six Types of Savings Circles</h2>
-  <p class="subtitle">Different goals need different circles. Choose the type that matches what you are saving for, whether that is everyday cash or the down payment on your dream home.</p>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-    <div class="feature" style="border-color:rgba(0,214,91,.1)"><div class="f-icon">💰</div><h4>Cash Circle</h4><p>General short-term savings. The classic community savings circle, digitized. Accessible starting amounts for everyone. <span style="color:var(--green);font-weight:700">Available MVP.</span></p></div>
-    <div class="feature" style="border-color:rgba(59,130,246,.1)"><div class="f-icon">🎯</div><h4>Goal Circle</h4><p>Save toward a specific target like an appliance, a trip, or an emergency fund. Purpose-built contributions with progress tracking. <span style="color:var(--green);font-weight:700">Available MVP.</span></p></div>
-    <div class="feature"><div class="f-icon">🏠</div><h4>Home Circle</h4><p>Real estate down payment savings. Long-duration circles for the Philippines' biggest life goal. <span style="color:var(--amber);font-weight:700">Phase 2.</span></p></div>
-    <div class="feature"><div class="f-icon">🚗</div><h4>Drive Circle</h4><p>Vehicle purchase savings. Structured contributions toward your first car or motorcycle. <span style="color:var(--amber);font-weight:700">Phase 2.</span></p></div>
-    <div class="feature"><div class="f-icon">🌱</div><h4>Life Circle</h4><p>Life events like weddings, new babies, and anniversaries. A flexible schedule and contribution plan for the moments that matter most. <span style="color:var(--amber);font-weight:700">Phase 2.</span></p></div>
-    <div class="feature"><div class="f-icon">📈</div><h4>Invest Circle</h4><p>Investment-linked savings for wealth building. Grow your circle contributions into real assets. <span style="color:var(--text3);font-weight:700">Phase 3.</span></p></div>
+  <h2>Two Ways to Save Together</h2>
+  <p class="subtitle">CircleFi launches with two core circle products. Both are community-powered, manager-led, and built on the same Trust Engine — but designed for very different savings goals.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
+    <!-- Paluwagan card -->
+    <div style="background:var(--surface);border:1px solid rgba(0,214,91,.15);border-radius:20px;padding:28px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(0,214,91,.06),transparent 70%);pointer-events:none"></div>
+      <div style="font-size:32px;margin-bottom:12px">🔄</div>
+      <div style="display:inline-flex;padding:4px 12px;border-radius:100px;background:rgba(0,214,91,.1);color:var(--green);font-size:11px;font-weight:800;letter-spacing:.5px;margin-bottom:12px">PALUWAGAN</div>
+      <h3 style="font-size:20px;font-weight:900;margin-bottom:8px;letter-spacing:-.3px">Rotating Savings</h3>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px">The classic Filipino savings circle — digitized, transparent, and protected. Every member contributes monthly. Each member receives the full pot once, in rotation. No surprises. No shortcuts.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span> Fixed payout order (random or bid)</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span> Discount bidding for early payout</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span> Smart Vouch accountability bonds</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span> 3–36 month circle duration</div>
+      </div>
+      <div style="margin-top:20px;padding:10px 14px;border-radius:10px;background:rgba(0,214,91,.06);border:1px solid rgba(0,214,91,.12);font-size:12px;color:var(--green);font-weight:700">🟢 Available at Launch</div>
+    </div>
+
+    <!-- Ipon Circle card -->
+    <div style="background:var(--surface);border:1px solid rgba(168,85,247,.15);border-radius:20px;padding:28px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(168,85,247,.06),transparent 70%);pointer-events:none"></div>
+      <div style="font-size:32px;margin-bottom:12px">🏦</div>
+      <div style="display:inline-flex;padding:4px 12px;border-radius:100px;background:rgba(168,85,247,.1);color:var(--purple);font-size:11px;font-weight:800;letter-spacing:.5px;margin-bottom:12px">IPON CIRCLE</div>
+      <h3 style="font-size:20px;font-weight:900;margin-bottom:8px;letter-spacing:-.3px">Non-Rotating Savings</h3>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px">A community savings pool with a shared goal and flexible membership. Join anytime. Save at your pace. Withdraw your proportional share at maturity — or bid for an early exit once the pool hits its milestone.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--purple)">✓</span> <strong style="color:rgba(255,255,255,.8)">Join anytime</strong> — open or invite-only</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--purple)">✓</span> Closed Start or Open Rolling mode</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--purple)">✓</span> Proportional share based on your tenure</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--purple)">✓</span> Milestone-gated early exit bidding</div>
+      </div>
+      <div style="margin-top:20px;padding:10px 14px;border-radius:10px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.12);font-size:12px;color:var(--purple);font-weight:700">🟢 Available at Launch</div>
+    </div>
+  </div>
+
+  <!-- Join anytime callout -->
+  <div style="padding:24px 28px;border-radius:16px;background:var(--surface);border:1px solid rgba(168,85,247,.12);display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center">
+    <div style="font-size:36px">⏰</div>
+    <div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:6px">What does "Join Anytime" actually mean?</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin:0">Unlike a Paluwagan where joining late breaks the rotation math, Ipon Circles are <strong style="color:rgba(255,255,255,.8)">member-independent</strong>. Late joiners earn proportional to their active contribution period — early members naturally earn more because they contributed longer. Managers choose between <span style="color:var(--purple);font-weight:700">Closed Start</span> (fixed group, equal shares) and <span style="color:var(--purple);font-weight:700">Open Rolling</span> (join anytime, proportional shares).</p>
+    </div>
   </div>
 </section>
 
@@ -1079,14 +1246,14 @@ select.wl-input option:disabled{color:rgba(255,255,255,.35)}
   <div class="vision-cards">
     <div class="v-card p1">
       <div class="phase" style="color:var(--green)">🟢 Phase 1: Launch</div>
-      <h4>Core Paluwagan</h4>
+      <h4>Paluwagan + Ipon Circles</h4>
       <ul>
-        <li><span>✓</span> Cash &amp; Goal circles</li>
+        <li><span>✓</span> Rotating &amp; Non-rotating circles</li>
+        <li><span>✓</span> Open Rolling + Closed Start modes</li>
         <li><span>✓</span> e-Wallet &amp; Bank payments</li>
         <li><span>✓</span> Smart Vouch bonds</li>
         <li><span>✓</span> Manager career levels L1 to L5</li>
         <li><span>✓</span> KYC &amp; Trust tiers</li>
-        <li><span>✓</span> Circle Chats &amp; DMs</li>
         <li><span>✓</span> Community ledger trail</li>
       </ul>
     </div>
@@ -1431,42 +1598,7 @@ async function submitWaitlist() {
   }
 }
 
-// ─── HOW IT WORKS ANIMATED TABS ───────────────────────────────────
-var currentStep = 0;
-var autoPlay;
 
-function showStep(n) {
-  currentStep = n;
-  document.querySelectorAll('.cd-panel').forEach(function(p, i) {
-    p.classList.toggle('active', i === n);
-  });
-  document.querySelectorAll('.cd-btn').forEach(function(b, i) {
-    b.classList.toggle('active', i === n);
-  });
-  var widths = ['25%','50%','75%','100%'];
-  document.getElementById('cdProgBar').style.width = widths[n];
-  // Restart autoplay timer
-  clearInterval(autoPlay);
-  autoPlay = setInterval(function() {
-    showStep((currentStep + 1) % 4);
-  }, 4500);
-}
-
-// Auto-advance only when the demo is in view
-var demoObserver = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) {
-    if (e.isIntersecting) {
-      autoPlay = setInterval(function() {
-        showStep((currentStep + 1) % 4);
-      }, 4500);
-    } else {
-      clearInterval(autoPlay);
-    }
-  });
-}, { threshold: 0.3 });
-
-var demoEl = document.getElementById('circleDemo');
-if (demoEl) demoObserver.observe(demoEl);
 
 
 var observer = new IntersectionObserver(function(entries) {
